@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/userLoginFragment">
+
+    <fragment
+        android:id="@+id/userLoginFragment"
+        android:name="com.example.databaseexamproject.UserLoginFragment"
+        android:label="fragment_user_login"
+        tools:layout="@layout/fragment_user_login" >
+        <action
+            android:id="@+id/action_userLoginFragment_to_userCreationFragment"
+            app:destination="@id/userCreationFragment" />
+        <action
+            android:id="@+id/action_userLoginFragment_to_postsListActivity"
+            app:destination="@id/postsListActivity" />
+    </fragment>
+    <fragment
+        android:id="@+id/userCreationFragment"
+        android:name="com.example.databaseexamproject.UserCreationFragment"
+        android:label="fragment_user_creation"
+        tools:layout="@layout/fragment_user_creation" >
+        <action
+            android:id="@+id/action_userCreationFragment_to_userLoginFragment"
+            app:destination="@id/userLoginFragment" />
+    </fragment>
+    <activity
+        android:id="@+id/postsListActivity"
+        android:name="com.example.databaseexamproject.PostsListActivity"
+        android:label="activity_posts_list"
+        tools:layout="@layout/activity_posts_list" />
+</navigation>

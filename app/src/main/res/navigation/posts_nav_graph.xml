@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/posts_nav_graph"
+    app:startDestination="@id/postsListFragment">
+
+    <fragment
+        android:id="@+id/postsListFragment"
+        android:name="com.example.databaseexamproject.PostsListFragment"
+        android:label="fragment_posts_list"
+        tools:layout="@layout/fragment_posts_list" >
+        <action
+            android:id="@+id/action_postsListFragment_to_viewPostFragment"
+            app:destination="@id/viewPostFragment" />
+        <action
+            android:id="@+id/action_postsListFragment_to_managePostFragment"
+            app:destination="@id/managePostFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/viewPostFragment"
+        android:name="com.example.databaseexamproject.ViewPostFragment"
+        android:label="fragment_view_post"
+        tools:layout="@layout/fragment_view_post" >
+        <action
+            android:id="@+id/action_viewPostFragment_to_managePostFragment"
+            app:destination="@id/managePostFragment" />
+        <action
+            android:id="@+id/action_viewPostFragment_to_postsListFragment"
+            app:destination="@id/postsListFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/managePostFragment"
+        android:name="com.example.databaseexamproject.ManagePostFragment"
+        android:label="fragment_manage_post"
+        tools:layout="@layout/fragment_manage_post" >
+        <action
+            android:id="@+id/action_managePostFragment_to_viewPostFragment"
+            app:destination="@id/viewPostFragment" />
+    </fragment>
+</navigation>
