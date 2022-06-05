@@ -73,7 +73,7 @@ public class PostsListFragment extends Fragment {
         // Fake data to create a list
         String[] fakeData = createFakeData();
         recyclerView.setAdapter(new PostsListRecyclerViewAdapter(fakeData));
-
+        // Test
         return layout;
     }
 
