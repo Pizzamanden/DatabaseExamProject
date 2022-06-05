@@ -1,9 +1,11 @@
 package com.example.databaseexamproject.adapter;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,13 +20,15 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
     public class ViewHolder extends RecyclerView.ViewHolder{
 
         // Declare views
+        public TextView textViewUserName;
+        public TextView textViewPostText;
 
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             // Setup views
-
-
+            textViewPostText = itemView.findViewById(R.id.textView_postText);
+            textViewUserName = itemView.findViewById(R.id.textView_userName);
         }
     }
 
@@ -42,7 +46,7 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-
+        holder.textViewUserName.setText(localdata[position]);
     }
 
     @Override

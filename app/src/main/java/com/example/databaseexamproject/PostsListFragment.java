@@ -3,10 +3,14 @@ package com.example.databaseexamproject;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.example.databaseexamproject.adapter.PostsListRecyclerViewAdapter;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -53,12 +57,31 @@ public class PostsListFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_posts_list, container, false);
+        View layout = inflater.inflate(R.layout.fragment_posts_list, container, false);
+
+        // Attach our recyclerView
+        RecyclerView recyclerView = layout.findViewById(R.id.recyclerview_postsList);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        // Fake data to create a list
+        String[] fakeData = createFakeData();
+        recyclerView.setAdapter(new PostsListRecyclerViewAdapter(fakeData));
+
+        return layout;
+    }
+
+    private String[] createFakeData(){
+        String[] fakeData = new String[30];
+        for(int i = 0; i < fakeData.length; i++){
+            fakeData[i] = "Gert d. " + i;
+        }
+        return fakeData;
     }
 }
