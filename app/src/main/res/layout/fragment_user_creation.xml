@@ -14,13 +14,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="UserCreation"
-        app:layout_constraintBottom_toTopOf="@+id/toViewPostButton"
+        app:layout_constraintBottom_toTopOf="@+id/toUserLoginButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/toViewPostButton"
+        android:id="@+id/toUserLoginButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="UserLogin"

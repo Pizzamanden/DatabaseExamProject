@@ -14,29 +14,29 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="UserLogin"
-        app:layout_constraintBottom_toTopOf="@+id/toViewPostButton"
+        app:layout_constraintBottom_toTopOf="@+id/toPostsListButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/toManagePostButton"
+        android:id="@+id/toCreateUserButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="CreateUser"
-        app:layout_constraintBottom_toBottomOf="@+id/toViewPostButton"
-        app:layout_constraintEnd_toStartOf="@+id/toViewPostButton"
+        app:layout_constraintBottom_toBottomOf="@+id/toPostsListButton"
+        app:layout_constraintEnd_toStartOf="@+id/toPostsListButton"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/toViewPostButton" />
+        app:layout_constraintTop_toTopOf="@+id/toPostsListButton" />
 
     <Button
-        android:id="@+id/toViewPostButton"
+        android:id="@+id/toPostsListButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="PostsList"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/toManagePostButton"
+        app:layout_constraintStart_toEndOf="@+id/toCreateUserButton"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
