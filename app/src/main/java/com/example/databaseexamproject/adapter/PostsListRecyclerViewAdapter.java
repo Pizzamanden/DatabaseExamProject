@@ -11,10 +11,13 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.databaseexamproject.R;
+import com.example.databaseexamproject.room.Post;
+
+import java.util.List;
 
 public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsListRecyclerViewAdapter.ViewHolder> {
 
-    private String[] localdata;
+    private List<Post> localdata;
 
 
     public class ViewHolder extends RecyclerView.ViewHolder{
@@ -32,7 +35,7 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
         }
     }
 
-    public PostsListRecyclerViewAdapter(String[] data){
+    public PostsListRecyclerViewAdapter(List<Post> data){
         localdata = data;
     }
 
@@ -46,11 +49,12 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.textViewUserName.setText(localdata[position]);
+        holder.textViewUserName.setText(localdata.get(position).userID);
+        holder.textViewPostText.setText(localdata.get(position).content);
     }
 
     @Override
     public int getItemCount() {
-        return localdata.length;
+        return localdata.size();
     }
 }

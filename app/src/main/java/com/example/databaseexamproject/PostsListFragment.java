@@ -1,16 +1,29 @@
 package com.example.databaseexamproject;
 
+import static android.content.ContentValues.TAG;
+
+import android.nfc.Tag;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.databaseexamproject.adapter.PostsListRecyclerViewAdapter;
+import com.example.databaseexamproject.databinding.FragmentPostsListBinding;
+import com.example.databaseexamproject.databinding.FragmentUserLoginBinding;
+import com.example.databaseexamproject.room.AppDatabase;
+import com.example.databaseexamproject.room.DatabaseRequest;
+import com.example.databaseexamproject.room.Post;
+import com.example.databaseexamproject.room.User;
+
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -18,6 +31,8 @@ import com.example.databaseexamproject.adapter.PostsListRecyclerViewAdapter;
  * create an instance of this fragment.
  */
 public class PostsListFragment extends Fragment {
+
+    FragmentPostsListBinding binding;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -58,30 +73,54 @@ public class PostsListFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View layout = inflater.inflate(R.layout.fragment_posts_list, container, false);
-
-        // Attach our recyclerView
-        RecyclerView recyclerView = layout.findViewById(R.id.recyclerview_postsList);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        // Fake data to create a list
-        String[] fakeData = createFakeData();
-        recyclerView.setAdapter(new PostsListRecyclerViewAdapter(fakeData));
-        // Test
-        return layout;
+        binding = FragmentPostsListBinding.inflate(inflater, container, false);
+        updateLoadingStatus(true);
+        initRecyclerView();
+        return binding.getRoot();
     }
 
-    private String[] createFakeData(){
-        String[] fakeData = new String[30];
-        for(int i = 0; i < fakeData.length; i++){
-            fakeData[i] = "Gert d. " + i;
+    public void initRecyclerView(){
+        // We must first, async, get the data for the recyclerview
+        AppDatabase db = Room.databaseBuilder(getActivity().getApplicationContext(),
+                AppDatabase.class, "database-name").build();
+
+        DatabaseRequest<List<Post>> request = new DatabaseRequest<List<Post>>(this.getActivity(), this::onDatabaseRequestResponse);
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                request.runRequest(() -> db.postDao().getAllSortedDateDesc());
+            }
+        };
+        Log.d(TAG, "benis");
+        t.start();
+        db.close();
+    }
+
+    public void onDatabaseRequestResponse(List<Post> posts){
+        // Find our RecyclerView our recyclerView
+        RecyclerView recyclerView = binding.recyclerviewPostsList;
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+
+        // Create and attach our adapter
+        recyclerView.setAdapter(new PostsListRecyclerViewAdapter(posts));
+        updateLoadingStatus(false);
+    }
+
+    public void updateLoadingStatus(boolean isLoading){
+        // We hide relevant views, and show other relevant views, based on loading status
+        if(isLoading){
+            binding.loadingIndicator.setVisibility(View.VISIBLE);
+            binding.recyclerviewPostsList.setVisibility(View.GONE);
+        } else {
+            binding.recyclerviewPostsList.setVisibility(View.VISIBLE);
+            binding.loadingIndicator.setVisibility(View.GONE);
         }
-        return fakeData;
     }
 }
