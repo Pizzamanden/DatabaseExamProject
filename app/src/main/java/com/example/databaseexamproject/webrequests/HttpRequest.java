@@ -125,26 +125,10 @@ public class HttpRequest {
 
     private void runInterfaceOnUi(final int responseCode, final String responseString, final String requestName){
         Activity activity = (Activity) mContext;
-        activity.runOnUiThread( () -> mCallback.onHttpRequestResponse(responseCode, responseString, requestName)); // Does this line work?
-
-        // Old method, restructured into Lambda
-        /*activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mCallback.onHttpRequestResponse(responseCode, responseString, requestName);
-            }
-        });*/
+        activity.runOnUiThread( () -> mCallback.onHttpRequestResponse(responseCode, responseString, requestName));
     }
-
 
     public interface HttpRequestResponse {
         void onHttpRequestResponse(final int responseCode, final String responseJson, final String requestName);
     }
-
-    public HttpRequest setHttpResponseListener(HttpRequestResponse callback) {
-        return this;
-    }
-
-
-
 }
