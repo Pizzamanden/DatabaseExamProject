@@ -8,6 +8,7 @@ import androidx.room.TypeConverter;
 import java.sql.Time;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Dao
 public interface PostDao {
@@ -22,6 +23,9 @@ public interface PostDao {
 
     @Query("SELECT * FROM posts WHERE stamp >= (:specificDate) ORDER BY stamp DESC")
     List<Post> getAfterDateSortedDateDesc(Date specificDate);
+
+
+
 
     @Insert
     void insertPost(Post post);
