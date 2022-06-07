@@ -19,22 +19,4 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract ReactionDao reactionDao();
     public abstract CommentDao commentDao();
 
-    private static volatile AppDatabase INSTANCE;
-    private static final int NUMBER_OF_THREADS = 4;
-    static final ExecutorService databaseExecutor =
-            Executors.newFixedThreadPool(NUMBER_OF_THREADS);
-
-    static AppDatabase getDatabase(final Context context) {
-        if (INSTANCE == null) {
-            synchronized (AppDatabase.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
-                                    AppDatabase.class, "word_database")
-                            .build();
-                }
-            }
-        }
-        return INSTANCE;
-    }
-
 }
