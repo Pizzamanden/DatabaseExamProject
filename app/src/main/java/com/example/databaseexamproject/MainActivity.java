@@ -4,24 +4,18 @@ import static android.content.ContentValues.TAG;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import androidx.room.Room;
 
 import com.example.databaseexamproject.databinding.ActivityMainBinding;
-import com.example.databaseexamproject.room.AppDatabase;
-import com.example.databaseexamproject.room.DatabaseRequest;
-import com.example.databaseexamproject.room.Post;
-import com.example.databaseexamproject.room.User;
+import com.example.databaseexamproject.room.SynchronizeLocalDB;
 import com.example.databaseexamproject.webrequests.HttpRequest;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -41,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         clickMe();
+        SynchronizeLocalDB.syncDB(this, this::afterSync);
     }
 
     @Override
@@ -48,6 +43,10 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         return NavigationUI.navigateUp(navController, appBarConfiguration)
                 || super.onSupportNavigateUp();
+    }
+    
+    private void afterSync(boolean success){
+        Log.d(TAG, "afterSync: Succccc");
     }
 
 
@@ -58,8 +57,8 @@ public class MainActivity extends AppCompatActivity {
         //valList.add("valueForKey1");
 
         HttpRequest httpRequest =
-                new HttpRequest(this, (code, json, requestName) -> callMeMaybe(code))
-                    .builder(HttpRequest.GET, keyList, valList, "Calling mom xD");
+                new HttpRequest(this, (response, JSON, requestName) -> callMeMaybe(response.code()),  "Calling mom xD")
+                    .builder(HttpRequest.GET, keyList, valList);
         httpRequest.makeHttpRequest();
     }
 
