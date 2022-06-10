@@ -17,6 +17,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 // The main goal here is to create a class for http request.
 // The way it should work is:
@@ -47,16 +48,16 @@ public class HttpRequest {
     // "https://caracal.imada.sdu.dk/app2022/"
     private String url = "https://caracal.imada.sdu.dk/app2022/";
 
-    public HttpRequest(Context context, HttpRequestResponse callback){
+    public HttpRequest(Context context, HttpRequestResponse callback, String requestName){
         this.mCallback = callback;
         mContext = context;
+        this.requestName = requestName;
     }
 
 
     // Build the request
-    public HttpRequest builder(String type, ArrayList<String> keys, ArrayList<String> values, String requestName){
+    public HttpRequest builder(String type, ArrayList<String> keys, ArrayList<String> values){
         // Set request Name:
-        this.requestName = requestName;
         String requestURL = url;
         Request request;
 
@@ -112,23 +113,47 @@ public class HttpRequest {
             public void onResponse(Call call, Response response) throws IOException {
                 Log.d(TAG, "makeHttpRequest: onResponse method fired");
                 Log.d(TAG, "makeHttpRequest: Response code: " + response.code());
-                String myResponse = null;
-                if (response.code() == 200) {
-                    // Successful response!
-                    myResponse = response.body().string();
-                } // add more blocks to read more HTTP codes
-                runInterfaceOnUi(response.code(), myResponse, requestName);
+                String responseBody = "";
+                if(response.code() == 200){
+                    responseBody = response.body().string();
+                }
+                runInterfaceOnUi(response, responseBody, requestName);
                 response.body().close();
             }
         });
     }
 
-    private void runInterfaceOnUi(final int responseCode, final String responseString, final String requestName){
+    public void makeHttpRequest(Request currentRequest){
+        Log.d(TAG, "makeHttpRequest: Fired request " + requestName);
+        // Make Client
+        OkHttpClient client = new OkHttpClient();
+        // Make call on client with request
+        client.newCall(currentRequest).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.d(TAG, "makeHttpRequest: onFailure call fired");
+                e.printStackTrace();
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.d(TAG, "makeHttpRequest: onResponse method fired");
+                Log.d(TAG, "makeHttpRequest: Response code: " + response.code());
+                String responseBody = "";
+                if(response.code() == 200){
+                    responseBody = response.body().string();
+                }
+                runInterfaceOnUi(response, responseBody, requestName);
+                response.body().close();
+            }
+        });
+    }
+
+    private void runInterfaceOnUi(final Response response, final String responseBody, final String requestName){
         Activity activity = (Activity) mContext;
-        activity.runOnUiThread( () -> mCallback.onHttpRequestResponse(responseCode, responseString, requestName));
+        activity.runOnUiThread( () -> mCallback.onHttpRequestResponse(response, responseBody, requestName));
     }
 
     public interface HttpRequestResponse {
-        void onHttpRequestResponse(final int responseCode, final String responseJson, final String requestName);
+        void onHttpRequestResponse(final Response response, final String responseBody, final String requestName);
     }
 }
