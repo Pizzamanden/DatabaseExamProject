@@ -91,14 +91,10 @@ public class PostsListFragment extends Fragment {
                 AppDatabase.class, "database-name").build();
 
         DatabaseRequest<List<Post>> request = new DatabaseRequest<List<Post>>(this.getActivity(), this::onDatabaseRequestResponse);
-        Thread t = new Thread() {
-            @Override
-            public void run() {
-                request.runRequest(() -> db.postDao().getAllSortedDateDesc());
-            }
-        };
+        // Ingen thread, bare kør
+        request.runRequest(() -> db.postDao().getAllSortedDateDesc());
+
         Log.d(TAG, "benis");
-        t.start();
         db.close();
     }
 
