@@ -70,13 +70,10 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
             // We now send all the data required to show a post!
             Bundle args = new Bundle();
             args.putString("sentData_user_id" , localdata.get(holder.getAdapterPosition()).post.user_id);
-            Log.d(TAG, "onBindViewHolder: " + localdata.get(holder.getAdapterPosition()).post.user_id);
             args.putInt("sentData_post_id", localdata.get(holder.getAdapterPosition()).post.id);
-            Log.d(TAG, "onBindViewHolder: " + localdata.get(holder.getAdapterPosition()).post.id);
             args.putString("sentData_content" , localdata.get(holder.getAdapterPosition()).post.content);
-            Log.d(TAG, "onBindViewHolder: " + localdata.get(holder.getAdapterPosition()).post.content);
             args.putString("sentData_user_name" , localdata.get(holder.getAdapterPosition()).name);
-            Log.d(TAG, "onBindViewHolder: " + localdata.get(holder.getAdapterPosition()).name);
+            args.putInt("recyclerViewElementPosition", holder.getAdapterPosition());
             NavHostFragment.findNavController(fragment)
                     .navigate(R.id.action_postsListFragment_to_viewPostFragment, args);
         });
