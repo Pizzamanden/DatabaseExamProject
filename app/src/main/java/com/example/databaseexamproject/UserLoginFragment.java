@@ -70,7 +70,8 @@ public class UserLoginFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         binding.toCreateUserButton.setOnClickListener((v -> {
-            // TODO Insert args
+            // TODO Insert args into .navigate
+            // Args should be the string of a desired username
             NavHostFragment.findNavController(UserLoginFragment.this)
                     .navigate(R.id.action_userLoginFragment_to_userCreationFragment);
         }));

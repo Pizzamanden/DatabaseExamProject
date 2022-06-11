@@ -102,7 +102,7 @@ public class PostsListFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         // Create and attach our adapter
-        recyclerView.setAdapter(new PostsListRecyclerViewAdapter(posts));
+        recyclerView.setAdapter(new PostsListRecyclerViewAdapter(posts, PostsListFragment.this));
         updateLoadingStatus(false);
     }
 
