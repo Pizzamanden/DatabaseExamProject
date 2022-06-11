@@ -28,6 +28,9 @@ public class PostsListActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_posts_list);
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+
+        // TODO find a way to save the position of the PostsListFragment here?
+        // Such that it can be used again
     }
 
     public void succ(){
