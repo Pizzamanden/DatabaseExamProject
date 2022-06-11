@@ -24,12 +24,14 @@ public class ViewPostFragment extends Fragment {
     private static final String POST_ID = "sentData_post_id";
     private static final String POST_CONTENT = "sentData_content";
     private static final String USER_NAME = "sentData_user_name";
+    private static final String SAVED_RECYCLERVIEW_POSITION = "recyclerViewElementPosition";
 
     // TODO: Rename and change types of parameters
     private String user_id;
     private int post_id;
     private String post_content;
     private String user_name;
+    private int saved_recyclerview_position;
 
     // Binding
     FragmentViewPostBinding binding;
@@ -45,13 +47,14 @@ public class ViewPostFragment extends Fragment {
      * @return A new instance of fragment ViewPostFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static ViewPostFragment newInstance(String user_id, int post_id, String post_content, String user_name) {
+    public static ViewPostFragment newInstance(String user_id, int post_id, String post_content, String user_name, int saved_recyclerview_position) {
         ViewPostFragment fragment = new ViewPostFragment();
         Bundle args = new Bundle();
         args.putString(USER_ID, user_id);
         args.putInt(POST_ID, post_id);
         args.putString(POST_CONTENT, post_content);
         args.putString(USER_NAME, user_name);
+        args.putInt(SAVED_RECYCLERVIEW_POSITION, saved_recyclerview_position);
         fragment.setArguments(args);
         return fragment;
     }
@@ -64,6 +67,7 @@ public class ViewPostFragment extends Fragment {
             post_id = getArguments().getInt(POST_ID);
             post_content = getArguments().getString(POST_CONTENT);
             user_name = getArguments().getString(USER_NAME);
+            saved_recyclerview_position = getArguments().getInt(SAVED_RECYCLERVIEW_POSITION);
         }
     }
 
@@ -78,7 +82,13 @@ public class ViewPostFragment extends Fragment {
 
     private void setDataToViews(){
         binding.toPostsListButton.setOnClickListener(v->{
-            NavHostFragment.findNavController(ViewPostFragment.this).navigateUp();
+            // TODO change this, such that the recyclerview knows which position it was at
+            Bundle args = new Bundle();
+            args.putInt("recyclerViewElementPosition", saved_recyclerview_position);
+            NavHostFragment.findNavController(ViewPostFragment.this)
+                    .navigate(R.id.action_viewPostFragment_to_postsListFragment, args);
+
+            // NavHostFragment.findNavController(ViewPostFragment.this).navigateUp();
         });
         binding.toManagePost.setOnClickListener(v->{
             // TODO manage a post :3
