@@ -20,10 +20,17 @@ public class DatabaseRequest<R> {
         mCallback = callback;
     }
 
-    // RUN ON SEPERATE THREAD
+
     public void runRequest(DatabaseQuery<R> query){
         // When the request is done, we make it know and visible to the UI thread
-        runInterfaceOnUi(query.query());
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                R result = query.query();
+                runInterfaceOnUi(result);
+            }
+        });
+        thread.start();
     }
 
 
