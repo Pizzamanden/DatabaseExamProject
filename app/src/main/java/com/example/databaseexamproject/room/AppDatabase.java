@@ -18,5 +18,4 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract PostDao postDao();
     public abstract ReactionDao reactionDao();
     public abstract CommentDao commentDao();
-
 }
