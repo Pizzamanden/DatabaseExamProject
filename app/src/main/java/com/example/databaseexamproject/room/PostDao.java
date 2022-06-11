@@ -1,14 +1,15 @@
 package com.example.databaseexamproject.room;
 
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
-import androidx.room.TypeConverter;
 
-import java.sql.Time;
+import com.example.databaseexamproject.room.dataobjects.Post;
+import com.example.databaseexamproject.room.dataobjects.PostJoinUser;
+
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 @Dao
 public interface PostDao {
@@ -24,9 +25,17 @@ public interface PostDao {
     @Query("SELECT * FROM posts WHERE stamp >= (:specificDate) ORDER BY stamp DESC")
     List<Post> getAfterDateSortedDateDesc(Date specificDate);
 
+    @Query("SELECT * FROM posts JOIN users ON posts.user_id = users.id ORDER BY posts.stamp DESC")
+    List<PostJoinUser> getAllPostsWithUserNameSortedDateDesc();
+
+    @Query("SELECT * FROM posts")
+    List<PostJoinUser> fuckem();
 
 
 
     @Insert
-    void insertPost(Post post);
+    void insertAll(Post... post);
+
+    @Query("DELETE FROM posts")
+    void deleteEverything();
 }

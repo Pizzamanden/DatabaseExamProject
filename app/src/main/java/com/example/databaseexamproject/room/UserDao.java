@@ -1,8 +1,11 @@
 package com.example.databaseexamproject.room;
 
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+
+import com.example.databaseexamproject.room.dataobjects.User;
 
 import java.util.List;
 
@@ -15,6 +18,9 @@ public interface UserDao {
     List<User> getByName(String name);
 
     @Insert
-    void insertUser(User user);
+    void insertAll(User... user);
+
+    @Query("DELETE FROM users")
+    void deleteEverything();
 }
 

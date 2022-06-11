@@ -25,6 +25,10 @@
         <action
             android:id="@+id/action_userCreationFragment_to_userLoginFragment"
             app:destination="@id/userLoginFragment" />
+        <argument
+            android:name="wantedUserName"
+            app:argType="string"
+            android:defaultValue="null" />
     </fragment>
     <activity
         android:id="@+id/postsListActivity"
