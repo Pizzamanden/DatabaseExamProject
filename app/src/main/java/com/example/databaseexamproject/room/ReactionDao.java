@@ -1,8 +1,12 @@
 package com.example.databaseexamproject.room;
 
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+
+import com.example.databaseexamproject.room.dataobjects.Post;
+import com.example.databaseexamproject.room.dataobjects.Reaction;
 
 import java.util.List;
 
@@ -19,5 +23,8 @@ public interface ReactionDao {
     List<Reaction> getByUser(String userID);
 
     @Insert
-    void insertReaction(Reaction reaction);
+    void insertAll(Reaction... reaction);
+
+    @Query("DELETE FROM reactions")
+    void deleteEverything();
 }

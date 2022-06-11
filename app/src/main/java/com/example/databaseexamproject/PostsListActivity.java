@@ -30,7 +30,9 @@ public class PostsListActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
     }
 
+    public void succ(){
 
+    }
 
     @Override
     public boolean onSupportNavigateUp() {

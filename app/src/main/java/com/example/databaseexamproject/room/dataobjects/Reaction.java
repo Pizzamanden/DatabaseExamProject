@@ -1,4 +1,4 @@
-package com.example.databaseexamproject.room;
+package com.example.databaseexamproject.room.dataobjects;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
@@ -11,12 +11,10 @@ import java.util.Date;
 public class Reaction {
 
     @NonNull
-    @ColumnInfo(name = "user_id")
-    public String userID;
+    public String user_id;
 
     @NonNull
-    @ColumnInfo(name = "post_id")
-    public int postID;
+    public int post_id;
 
     public int type;
 

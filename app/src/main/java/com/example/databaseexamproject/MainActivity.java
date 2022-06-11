@@ -34,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-        clickMe();
         SynchronizeLocalDB.syncDB(this, this::afterSync);
     }
 
@@ -47,23 +46,7 @@ public class MainActivity extends AppCompatActivity {
     
     private void afterSync(boolean success){
         Log.d(TAG, "afterSync: Succccc");
-    }
-
-
-    public void clickMe(){
-        ArrayList<String> keyList = new ArrayList<>();
-        ArrayList<String> valList = new ArrayList<>();
-        //keyList.add("key1");
-        //valList.add("valueForKey1");
-
-        HttpRequest httpRequest =
-                new HttpRequest(this, (response, JSON, requestName) -> callMeMaybe(response.code()),  "Calling mom xD")
-                    .builder(HttpRequest.GET, keyList, valList);
-        httpRequest.makeHttpRequest();
-    }
-
-    private void callMeMaybe(int code){
-        Log.d(TAG, "Called me, maybe, with code " + code);
+        // Nu er der sync'ed bro
     }
 
 }

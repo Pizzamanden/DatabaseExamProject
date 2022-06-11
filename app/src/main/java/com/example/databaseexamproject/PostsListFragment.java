@@ -2,7 +2,6 @@ package com.example.databaseexamproject;
 
 import static android.content.ContentValues.TAG;
 
-import android.nfc.Tag;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -17,11 +16,9 @@ import android.view.ViewGroup;
 
 import com.example.databaseexamproject.adapter.PostsListRecyclerViewAdapter;
 import com.example.databaseexamproject.databinding.FragmentPostsListBinding;
-import com.example.databaseexamproject.databinding.FragmentUserLoginBinding;
 import com.example.databaseexamproject.room.AppDatabase;
 import com.example.databaseexamproject.room.DatabaseRequest;
-import com.example.databaseexamproject.room.Post;
-import com.example.databaseexamproject.room.User;
+import com.example.databaseexamproject.room.dataobjects.PostJoinUser;
 
 import java.util.List;
 
@@ -90,19 +87,19 @@ public class PostsListFragment extends Fragment {
         AppDatabase db = Room.databaseBuilder(getActivity().getApplicationContext(),
                 AppDatabase.class, "database-name").build();
 
-        DatabaseRequest<List<Post>> request = new DatabaseRequest<List<Post>>(this.getActivity(), this::onDatabaseRequestResponse);
-        // Ingen thread, bare kør
-        request.runRequest(() -> db.postDao().getAllSortedDateDesc());
+        DatabaseRequest<List<PostJoinUser>> request = new DatabaseRequest<>(this.getActivity(), this::onDatabaseRequestResponse);
+        request.runRequest(() -> db.postDao().fuckem());
 
         Log.d(TAG, "benis");
         db.close();
     }
 
-    public void onDatabaseRequestResponse(List<Post> posts){
+    public void onDatabaseRequestResponse(List<PostJoinUser> posts){
+        // Now that we have the content for the RecyclerView, we can fill our adapter
+
         // Find our RecyclerView our recyclerView
         RecyclerView recyclerView = binding.recyclerviewPostsList;
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
 
         // Create and attach our adapter
         recyclerView.setAdapter(new PostsListRecyclerViewAdapter(posts));
@@ -119,4 +116,6 @@ public class PostsListFragment extends Fragment {
             binding.loadingIndicator.setVisibility(View.GONE);
         }
     }
+
+
 }
