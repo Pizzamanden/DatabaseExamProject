@@ -31,7 +31,9 @@
             app:destination="@id/managePostFragment" />
         <action
             android:id="@+id/action_viewPostFragment_to_postsListFragment"
-            app:destination="@id/postsListFragment" />
+            app:destination="@id/postsListFragment"
+            app:popUpTo="@+id/postsListFragment"
+            app:popUpToInclusive="true"/>
         <argument
             android:name="sentData_user_id"
             app:argType="string" />
@@ -57,6 +59,23 @@
         tools:layout="@layout/fragment_manage_post" >
         <action
             android:id="@+id/action_managePostFragment_to_viewPostFragment"
-            app:destination="@id/viewPostFragment" />
+            app:destination="@id/viewPostFragment"
+            app:popUpTo="@+id/viewPostFragment"
+            app:popUpToInclusive="true"/>
+        <argument
+            android:name="existingPost_userID"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="isExistingPost"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <argument
+            android:name="existingPost_id"
+            app:argType="integer" />
+        <argument
+            android:name="existingPost_content"
+            app:argType="string"
+            app:nullable="true" />
     </fragment>
 </navigation>

@@ -10,22 +10,34 @@
     <!-- TODO: Update blank fragment layout -->
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/textView_managePostStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="ManagePost"
-        app:layout_constraintBottom_toTopOf="@+id/toPostsListButton"
+        android:layout_marginTop="20dp"
+        android:text="@string/newPostHeader"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/toPostsListButton"
+        android:id="@+id/button_submitAction"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="ViewPost"
+        android:text="@string/newPostButton"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toBottomOf="@+id/editText_postContent" />
+
+    <EditText
+        android:id="@+id/editText_postContent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="Name"
+        app:layout_constraintBottom_toTopOf="@+id/button_submitAction"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -88,15 +88,22 @@ public class ViewPostFragment extends Fragment {
     private void setDataToViews(){
         binding.toPostsListButton.setOnClickListener(v->{
             // TODO the back button in toolbar and on the phone itself does not trigger this!
+            // This button cant be here, but the functionalities must be transferred to toolbar and back button
+            // (the functionality is just to make the recyclerview remember where it was)
             Bundle args = new Bundle();
             args.putInt("recyclerViewElementPosition", saved_recyclerview_position);
-            NavHostFragment.findNavController(ViewPostFragment.this)
-                    .navigate(R.id.action_viewPostFragment_to_postsListFragment, args);
-
-            // NavHostFragment.findNavController(ViewPostFragment.this).navigateUp();
+            NavController navController = NavHostFragment.findNavController(ViewPostFragment.this);
+            navController.navigate(R.id.action_viewPostFragment_to_postsListFragment, args);
         });
+
         binding.toManagePost.setOnClickListener(v->{
-            // TODO manage a post :3
+            Bundle args = new Bundle();
+            args.putString("existingPost_userID", user_id);
+            args.putBoolean("isExistingPost", true);
+            args.putInt("existingPost_id", post_id);
+            args.putString("existingPost_content", post_content);
+            NavHostFragment.findNavController(ViewPostFragment.this)
+                    .navigate(R.id.action_viewPostFragment_to_managePostFragment, args);
         });
         binding.textView.setText(post_content);
     }
