@@ -18,7 +18,7 @@ public class Post {
 
     public String content;
 
-    // TODO
+
     public Date stamp;
 
 

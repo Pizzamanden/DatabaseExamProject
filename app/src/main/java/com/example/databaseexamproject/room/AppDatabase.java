@@ -4,6 +4,10 @@ import androidx.room.Database;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
+import com.example.databaseexamproject.room.dao.CommentDao;
+import com.example.databaseexamproject.room.dao.PostDao;
+import com.example.databaseexamproject.room.dao.ReactionDao;
+import com.example.databaseexamproject.room.dao.UserDao;
 import com.example.databaseexamproject.room.dataobjects.Comment;
 import com.example.databaseexamproject.room.dataobjects.Post;
 import com.example.databaseexamproject.room.dataobjects.Reaction;

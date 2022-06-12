@@ -1,4 +1,4 @@
-package com.example.databaseexamproject.room;
+package com.example.databaseexamproject.room.dao;
 
 import androidx.room.Dao;
 import androidx.room.Delete;
@@ -6,6 +6,7 @@ import androidx.room.Insert;
 import androidx.room.Query;
 
 import com.example.databaseexamproject.room.dataobjects.Post;
+import com.example.databaseexamproject.room.dataobjects.PostReactions;
 import com.example.databaseexamproject.room.dataobjects.Reaction;
 
 import java.util.List;
@@ -21,6 +22,8 @@ public interface ReactionDao {
 
     @Query("SELECT * FROM reactions WHERE reactions.user_id = (:userID)")
     List<Reaction> getByUser(String userID);
+
+
 
     @Insert
     void insertAll(Reaction... reaction);

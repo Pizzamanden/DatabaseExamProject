@@ -1,10 +1,12 @@
 <resources>
     <string name="app_name">DatabaseExamProject</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="editPostHeader">Edit this current post here</string>
     <string name="newPostHeader">Create a new post here</string>
     <string name="editPostButton">Edit the post!</string>
     <string name="newPostButton">Create the post!</string>
+    <string name="likeReact">Likes</string>
+    <string name="dislikeReact">Dislikes</string>
+    <string name="ambivalenceReact">Meh</string>
 
 </resources>

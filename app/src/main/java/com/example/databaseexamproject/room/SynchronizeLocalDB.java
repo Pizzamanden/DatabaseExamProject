@@ -41,7 +41,6 @@ public class SynchronizeLocalDB {
         // Then, tell Main Thread we are done and ready
 
         // Create the request
-        // TODO finish request
         String[] table_names = {
           "users",
           "posts",

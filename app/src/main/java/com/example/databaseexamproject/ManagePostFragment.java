@@ -21,14 +21,13 @@ import com.example.databaseexamproject.databinding.FragmentManagePostBinding;
  */
 public class ManagePostFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    // Fragment argument names
     private static final String USER_ID = "existingPost_userID";
     private static final String EXISTING_POST = "isExistingPost";
     private static final String POST_ID = "existingPost_id";
     private static final String POST_CONTENT = "existingPost_content";
 
-    // TODO: Rename and change types of parameters
+    // Fragment argument parameters
     private String user_id;
     private boolean isExistingPost;
     private int post_id;
@@ -48,7 +47,6 @@ public class ManagePostFragment extends Fragment {
      *
      * @return A new instance of fragment ManagePostFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static ManagePostFragment newInstance(String user_id, boolean isExistingPost, int post_id, String post_content) {
         ManagePostFragment fragment = new ManagePostFragment();
         Bundle args = new Bundle();
