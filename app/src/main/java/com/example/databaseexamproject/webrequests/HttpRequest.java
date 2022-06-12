@@ -46,7 +46,7 @@ public class HttpRequest {
 
 
     // "https://caracal.imada.sdu.dk/app2022/"
-    private String url = "https://caracal.imada.sdu.dk/app2022/";
+    private String url = "https://caracal.imada.sdu.dk/app2022";
 
     public HttpRequest(Context context, HttpRequestResponse callback, String requestName){
         this.mCallback = callback;

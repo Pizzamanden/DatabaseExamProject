@@ -35,7 +35,8 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
     private List<BigFuckPost> localData;
 
     // The 3 most recent comments for this post
-    // TODO
+    // TODO get the 3 most recent comments
+
     private Fragment fragment;
 
 
@@ -98,10 +99,9 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
         holder.textViewPostText.setText(content);
 
         // Set our buttons
-        styleButton(holder.buttonLikeReact, localData.get(position).type0Reactions, fragment.getString(R.string.likeReact), localData.get(position).userReaction == 0);
-        styleButton(holder.buttonDislikeReact, localData.get(position).type1Reactions, fragment.getString(R.string.dislikeReact), localData.get(position).userReaction == 1);
-        styleButton(holder.buttonAmbivalenceReact, localData.get(position).type2Reactions, fragment.getString(R.string.ambivalenceReact), localData.get(position).userReaction == 2);
-
+        styleButton(holder.buttonLikeReact, localData.get(position).type0Reactions, fragment.getString(R.string.likeReact), localData.get(position).userReaction == 1);
+        styleButton(holder.buttonDislikeReact, localData.get(position).type1Reactions, fragment.getString(R.string.dislikeReact), localData.get(position).userReaction == 2);
+        styleButton(holder.buttonAmbivalenceReact, localData.get(position).type2Reactions, fragment.getString(R.string.ambivalenceReact), localData.get(position).userReaction == 3);
 
 
         // Set the listener for the posts, to view them
