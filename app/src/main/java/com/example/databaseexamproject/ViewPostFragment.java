@@ -23,7 +23,6 @@ import com.example.databaseexamproject.databinding.FragmentViewPostBinding;
  */
 public class ViewPostFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String USER_ID = "sentData_user_id";
     private static final String POST_ID = "sentData_post_id";
@@ -31,7 +30,7 @@ public class ViewPostFragment extends Fragment {
     private static final String USER_NAME = "sentData_user_name";
     private static final String SAVED_RECYCLERVIEW_POSITION = "recyclerViewElementPosition";
 
-    // TODO: Rename and change types of parameters
+
     private String user_id;
     private int post_id;
     private String post_content;
@@ -51,7 +50,6 @@ public class ViewPostFragment extends Fragment {
      *
      * @return A new instance of fragment ViewPostFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static ViewPostFragment newInstance(String user_id, int post_id, String post_content, String user_name, int saved_recyclerview_position) {
         ViewPostFragment fragment = new ViewPostFragment();
         Bundle args = new Bundle();

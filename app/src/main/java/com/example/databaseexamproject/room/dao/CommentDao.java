@@ -1,4 +1,4 @@
-package com.example.databaseexamproject.room;
+package com.example.databaseexamproject.room.dao;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
