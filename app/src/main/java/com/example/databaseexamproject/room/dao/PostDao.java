@@ -32,17 +32,17 @@ public interface PostDao {
 
     @Query("SELECT posts.id AS 'post_id'," +
             " (SELECT type FROM reactions WHERE (:userID) = reactions.user_id AND posts.id = reactions.post_id) AS 'userReaction', " +
-            " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 0) AS 'type0Reactions'," +
-            " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 1) AS 'type1Reactions'," +
-            " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 2) AS 'type2Reactions' " +
+            " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 1) AS 'type0Reactions'," +
+            " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 2) AS 'type1Reactions'," +
+            " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 3) AS 'type2Reactions' " +
             "FROM posts ORDER BY posts.stamp DESC")
     List<PostReactions> getAllPostsReactionsWithUserReactedSortedDesc(String userID);
 
     @Query("SELECT *, " +
             " (SELECT type FROM reactions WHERE (:userID) = reactions.user_id AND posts.id = reactions.post_id) AS 'userReaction', " +
-            " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 0) AS 'type0Reactions'," +
-            " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 1) AS 'type1Reactions'," +
-            " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 2) AS 'type2Reactions' " +
+            " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 1) AS 'type0Reactions'," +
+            " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 2) AS 'type1Reactions'," +
+            " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 3) AS 'type2Reactions' " +
             "FROM posts JOIN users ON posts.user_id = users.id " +
             "ORDER BY posts.stamp DESC")
     List<BigFuckPost> bigFuck(String userID);

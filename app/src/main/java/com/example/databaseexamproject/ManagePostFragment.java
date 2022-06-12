@@ -13,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.databaseexamproject.databinding.FragmentManagePostBinding;
+import com.example.databaseexamproject.room.dataobjects.Post;
+import com.example.databaseexamproject.webrequests.RemoteDBRequest;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -89,20 +91,22 @@ public class ManagePostFragment extends Fragment {
         // Set our listener on our submit button
         binding.buttonSubmitAction.setOnClickListener((v)->{
             String postContent = binding.editTextPostContent.getText().toString();
-            submitPost(postContent);
+            //submitPost(postContent);
         });
     }
 
     private void submitPost(String content){
         Log.d(TAG, "submitPost: Content submitted was: " + content);
         // Now we have the content from our textEdit, and we must do the SQL thing
-        // TODO do the sql
-        // TODO handle what comes after?
-        afterRequest();
-    }
+        Post post = new Post();
+        post.id = post_id;
+        post.content = content;
+        post.user_id = user_id;
 
-    private void afterRequest(){
-        NavHostFragment.findNavController(ManagePostFragment.this)
-                .navigateUp();
+        RemoteDBRequest.post(getContext(), (isExistingPost ? RemoteDBRequest.QUERY_TYPE_UPDATE : RemoteDBRequest.QUERY_TYPE_INSERT), post, post_id, () -> {
+            // TODO this is where we continue (on main thread)
+            NavHostFragment.findNavController(ManagePostFragment.this)
+                    .navigateUp();
+        });
     }
 }
