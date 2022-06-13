@@ -7,8 +7,12 @@ import android.content.Context;
 import android.util.Log;
 
 import com.example.databaseexamproject.room.dataobjects.Post;
+import com.google.gson.Gson;
+
+import java.nio.charset.StandardCharsets;
 
 import okhttp3.FormBody;
+import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -30,24 +34,22 @@ public class RemoteDBRequest {
     // TODO complete the class for insertions, updates, and deletions.
     // Remember Injections!
 
-    public static void post(Context context, String type, Post post, int post_id, Runnable runnableCallback){
+    public static void post(Context context, String type, Post post, Runnable runnableCallback){
         HttpRequest httpRequest = new HttpRequest(context, (response, responseBody, requestName) -> {
             processResponse(response, responseBody, requestName, runnableCallback);
         }, "Post" + type);
         String baselineURL = REMOTE_URL;
 
-        RequestBody formBody = new FormBody.Builder()
-                .add("id", post.id + "")
-                .add("content", post.content)
-                .add("user_id", post.user_id)
-                .build();
+        Gson gson = new Gson();
+        String object = gson.toJson(post);
+
+        byte[] toByteStream = object.getBytes(StandardCharsets.UTF_8);
 
         switch (type) {
             case QUERY_TYPE_INSERT: {
                 Log.d(TAG, "post: Insert call");
-
                 httpRequest.makeHttpRequest(new Request.Builder()
-                        .post(formBody)
+                        .post(RequestBody.create(toByteStream))
                         .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
                         .addHeader(AUTH_KEY, AUTH_VALUE)
                         .url(baselineURL)
@@ -59,7 +61,7 @@ public class RemoteDBRequest {
                 Log.d(TAG, "post: Update call on ID: " + post.id);
 
                 httpRequest.makeHttpRequest(new Request.Builder()
-                        .put(formBody)
+                        .put(RequestBody.create(toByteStream))
                         .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
                         .addHeader(AUTH_KEY, AUTH_VALUE)
                         .url(baselineURL)
@@ -70,7 +72,7 @@ public class RemoteDBRequest {
             case QUERY_TYPE_DELETE:
                 Log.d(TAG, "post: Delete call on ID: " + post.id);
                 httpRequest.makeHttpRequest(new Request.Builder()
-                        .delete()
+                        .delete(RequestBody.create(toByteStream))
                         .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
                         .addHeader(AUTH_KEY, AUTH_VALUE)
                         .url(baselineURL)

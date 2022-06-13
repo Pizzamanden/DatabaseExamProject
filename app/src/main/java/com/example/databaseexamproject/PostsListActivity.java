@@ -31,6 +31,8 @@ public class PostsListActivity extends AppCompatActivity {
 
         // TODO find a way to save the position of the PostsListFragment here?
         // Such that it can be used again
+
+
     }
 
     public void succ(){

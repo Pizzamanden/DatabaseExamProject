@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.databaseexamproject.R;
 import com.example.databaseexamproject.room.dataobjects.Post;
 import com.example.databaseexamproject.room.dataobjects.Reaction;
 import com.example.databaseexamproject.room.dataobjects.User;
@@ -46,6 +47,7 @@ public class SynchronizeLocalDB {
           "posts",
           "reactions"
         };
+
         ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1);
         ExecutorCompletionService<Boolean> completionService = new ExecutorCompletionService<>( executor );
 
@@ -71,7 +73,6 @@ public class SynchronizeLocalDB {
                     switch (table_name){
                         case "users":
                             User[] users = gson.fromJson(response.body().string(), User[].class);
-                            Log.d(TAG, users.length + "");
                             Log.d(TAG, "syncDB: Users: Parsed JSON");
                             db.userDao().deleteEverything();
                             Log.d(TAG, "syncDB: Users: Deleted table");

@@ -2,6 +2,7 @@ package com.example.databaseexamproject.adapter;
 
 import static android.content.ContentValues.TAG;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,11 +14,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.databaseexamproject.R;
+import com.example.databaseexamproject.UserLoginFragment;
+import com.example.databaseexamproject.room.Converters;
 import com.example.databaseexamproject.room.dataobjects.BigFuckPost;
+import com.example.databaseexamproject.room.dataobjects.PostJoinUser;
+import com.example.databaseexamproject.room.dataobjects.PostReactions;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -84,6 +90,7 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
         // We must scan the content for any images, and fetch them in case they are there
         String content = localData.get(position).post.content;
         String imageURL = textContainsImageURL(content);
+        // TODO is this shitty with long text?
         if(imageURL != null){
             Log.d(TAG, "onBindViewHolder: Content contained image!");
             // Remove the Url from the String
@@ -92,10 +99,21 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
         }
         holder.textViewPostText.setText(content);
 
+        Button[] buttons = {
+                holder.buttonLikeReact,
+        };
+        int[] counts = {
+                localData.get(position).type1Reactions
+        };
+        String[] names = {
+                fragment.getString(R.string.likeReact)
+        };
+        boolean[] isReacted = {
+                localData.get(position).userReaction == 1
+        };
+
         // Set our buttons
-        styleButton(holder.buttonLikeReact, localData.get(position).type1Reactions, fragment.getString(R.string.likeReact), localData.get(position).userReaction == 1);
-        styleButton(holder.buttonDislikeReact, localData.get(position).type2Reactions, fragment.getString(R.string.dislikeReact), localData.get(position).userReaction == 2);
-        styleButton(holder.buttonAmbivalenceReact, localData.get(position).type3Reactions, fragment.getString(R.string.ambivalenceReact), localData.get(position).userReaction == 3);
+        stylePostButtons(buttons, counts, names, isReacted, position);
 
 
         // Set the listener for the posts, to view them
@@ -117,11 +135,70 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
         return localData.size();
     }
 
-    private void styleButton(Button button, int count, String name, boolean isReacted){
-        if(isReacted){
-            // Set the new styling, to show it is pressed down and sych
+    private void stylePostButtons(Button[] buttons, int[] counts, String[] names, boolean[] isReacted, int postPosition){
+
+        for(int i = 0; i < buttons.length; i++){
+            final int thisButtonType = i;
+            // TODO work out listener states
+            // First we setup the state of our buttons
+            if(isReacted[i]){
+                // Set the new styling, to show it is pressed down and synch
+                setButtonActive(buttons[i]);
+            }
+            buttons[i].setText(counts[i] + " " + names[i]);
+            // Then we attach the listener, which handles changes when the user clicks any button
+            buttons[i].setOnClickListener(new View.OnClickListener() {
+                final public String buttonName = names[thisButtonType];
+                final public int buttonCount = counts[thisButtonType];
+                final public int buttonPosition = postPosition;
+                final public int buttonNumber = thisButtonType + 1;
+
+                @Override
+                public void onClick(View v) {
+                    Button clickedButton = (Button) v;
+                    Log.d(TAG, "styleButton: The number is " + buttonNumber);
+                    int savedUserReaction = localData.get(buttonPosition).userReaction;
+                    if(savedUserReaction == buttonNumber){
+                        // This button should have had been active
+                        // This is the easy case. We had reacted this reaction, and now we want to remove it.
+                        // First we launch a database request. (we do not wait for a response) TODO should we?
+                        // TODO do remote shizz
+                        // We then update the visual amount and status.
+                        localData.get(buttonPosition).userReaction = 0;
+                        clickedButton.setText((buttonCount - 1) + " " + buttonName);
+                        setButtonInactive(buttons[thisButtonType]);
+
+                    } else {
+                        // This button should have had been inactive
+                        // We know we must add 1 to the count of this button, and update the remote DB
+                        // TODO update remote
+                        // Now we need to see if the value was set to something other than 0
+                        if(savedUserReaction != 0){
+                            // Now it gets less simple
+                            // Another button was pressed, and we must now de-press that one and update the remote DB.
+                            // We know which one it was, based on the saved user reaction
+                            // TODO do remote shizz
+                            buttons[savedUserReaction - 1].setText((counts[savedUserReaction - 1] - 1) + " " + names[savedUserReaction - 1]);
+                            setButtonInactive(clickedButton);
+                        }
+                        // As we change the saved user reaction here, we do it after checking/handling the already pressed button (if there is one)
+                        localData.get(buttonPosition).userReaction = buttonNumber;
+                        clickedButton.setText((buttonCount + 1) + " " + buttonName);
+                        setButtonActive(buttons[thisButtonType]);
+                    }
+                }
+            });
         }
-        button.setText(count + " " + name);
+    }
+
+    private void setButtonActive(Button button){
+        // Here we style buttons for when they are active/highlighted
+        // TODO
+    }
+
+    private void setButtonInactive(Button button){
+        // Here we style buttons for when they are inactive/just normal
+        // TODO
     }
 
     private String textContainsImageURL(String text){
