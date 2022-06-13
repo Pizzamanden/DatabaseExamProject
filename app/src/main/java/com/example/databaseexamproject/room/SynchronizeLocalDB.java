@@ -52,7 +52,7 @@ public class SynchronizeLocalDB {
         ExecutorCompletionService<Boolean> completionService = new ExecutorCompletionService<>( executor );
 
         AppDatabase db = Room.databaseBuilder(context.getApplicationContext(),
-                AppDatabase.class, "database-name").build();
+                AppDatabase.class, "database-name").fallbackToDestructiveMigration().build();
 
         int successfulSyncs = 0;
 

@@ -19,7 +19,6 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.databaseexamproject.R;
-import com.example.databaseexamproject.UserLoginFragment;
 import com.example.databaseexamproject.room.Converters;
 import com.example.databaseexamproject.room.dataobjects.BigFuckPost;
 import com.example.databaseexamproject.room.dataobjects.PostJoinUser;
