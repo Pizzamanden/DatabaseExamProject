@@ -100,15 +100,23 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
 
         Button[] buttons = {
                 holder.buttonLikeReact,
+                holder.buttonDislikeReact,
+                holder.buttonAmbivalenceReact
         };
         int[] counts = {
-                localData.get(position).type1Reactions
+                localData.get(position).type1Reactions,
+                localData.get(position).type2Reactions,
+                localData.get(position).type3Reactions
         };
         String[] names = {
-                fragment.getString(R.string.likeReact)
+                fragment.getString(R.string.likeReact),
+                fragment.getString(R.string.dislikeReact),
+                fragment.getString(R.string.ambivalenceReact)
         };
         boolean[] isReacted = {
-                localData.get(position).userReaction == 1
+                localData.get(position).userReaction == 1,
+                localData.get(position).userReaction == 2,
+                localData.get(position).userReaction == 3
         };
 
         // Set our buttons
