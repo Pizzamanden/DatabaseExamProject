@@ -2,7 +2,6 @@ package com.example.databaseexamproject.adapter;
 
 import static android.content.ContentValues.TAG;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,16 +13,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.databaseexamproject.R;
-import com.example.databaseexamproject.UserLoginFragment;
-import com.example.databaseexamproject.room.Converters;
 import com.example.databaseexamproject.room.dataobjects.BigFuckPost;
-import com.example.databaseexamproject.room.dataobjects.PostJoinUser;
-import com.example.databaseexamproject.room.dataobjects.PostReactions;
 
 import java.util.List;
 import java.util.regex.Matcher;
