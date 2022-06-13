@@ -4,14 +4,19 @@ package com.example.databaseexamproject.login;
  * Class exposing authenticated user details to the UI.
  */
 class LoggedInUserView {
-    private String displayName;
+    private String userid;
+    private String name;
     //... other data fields that may be accessible to the UI
 
-    LoggedInUserView(String displayName) {
-        this.displayName = displayName;
+    LoggedInUserView(String userid, String name) {
+
+        this.userid = userid;
+        this.name = name;
     }
 
-    String getDisplayName() {
-        return displayName;
+    public String getUserid() { return userid; }
+
+    String getName() {
+        return name;
     }
 }

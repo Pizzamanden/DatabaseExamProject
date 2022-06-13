@@ -1,5 +1,6 @@
 package com.example.databaseexamproject.login;
 
+import android.content.Context;
 import android.util.Patterns;
 
 import androidx.lifecycle.LiveData;
@@ -29,19 +30,27 @@ public class LoginViewModel extends ViewModel {
         return loginResult;
     }
 
-    public void login(String username, String password) {
+    public void login(String userid, Context context) {
         // can be launched in a separate asynchronous job
-        Result<LoggedInUser> result = loginRepository.login(username, password);
+        Result<LoggedInUser> result = loginRepository.login(userid, context);
 
         if (result instanceof Result.Success) {
             LoggedInUser data = ((Result.Success<LoggedInUser>) result).getData();
-            loginResult.setValue(new LoginResult(new LoggedInUserView(data.getDisplayName())));
+            loginResult.setValue(new LoginResult(new LoggedInUserView(data.getUserId(), data.getName())));
         } else {
             loginResult.setValue(new LoginResult(R.string.login_failed));
         }
     }
 
-    public void loginDataChanged(String username, String password) {
+    public void loginDataChanged(String username) {
+        if (!isUserNameValid(username)) {
+            loginFormState.setValue(new LoginFormState(R.string.invalid_username, null));
+        } else {
+            loginFormState.setValue(new LoginFormState(true));
+        }
+    }
+
+/*    public void loginDataChanged(String username, String password) {
         if (!isUserNameValid(username)) {
             loginFormState.setValue(new LoginFormState(R.string.invalid_username, null));
         } else if (!isPasswordValid(password)) {
@@ -49,7 +58,7 @@ public class LoginViewModel extends ViewModel {
         } else {
             loginFormState.setValue(new LoginFormState(true));
         }
-    }
+    }*/
 
     // A placeholder username validation check
     private boolean isUserNameValid(String username) {
