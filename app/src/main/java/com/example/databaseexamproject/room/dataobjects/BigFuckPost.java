@@ -13,10 +13,10 @@ public class BigFuckPost {
 
     public int userReaction;
 
-    public int type0Reactions;
-
     public int type1Reactions;
 
     public int type2Reactions;
+
+    public int type3Reactions;
 
 }

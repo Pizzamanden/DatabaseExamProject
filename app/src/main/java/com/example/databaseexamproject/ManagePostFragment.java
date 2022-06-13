@@ -98,10 +98,8 @@ public class ManagePostFragment extends Fragment {
     private void submitPost(String content){
         Log.d(TAG, "submitPost: Content submitted was: " + content);
         // Now we have the content from our textEdit, and we must do the SQL thing
-        Post post = new Post();
-        post.id = post_id;
-        post.content = content;
-        post.user_id = user_id;
+        // TODO generate ID's for posts
+        Post post = new Post(post_id, content, user_id);
 
         RemoteDBRequest.post(getContext(), (isExistingPost ? RemoteDBRequest.QUERY_TYPE_UPDATE : RemoteDBRequest.QUERY_TYPE_INSERT), post, post_id, () -> {
             // TODO this is where we continue (on main thread)

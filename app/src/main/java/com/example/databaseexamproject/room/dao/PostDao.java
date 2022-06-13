@@ -40,9 +40,9 @@ public interface PostDao {
 
     @Query("SELECT *, " +
             " (SELECT type FROM reactions WHERE (:userID) = reactions.user_id AND posts.id = reactions.post_id) AS 'userReaction', " +
-            " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 1) AS 'type0Reactions'," +
-            " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 2) AS 'type1Reactions'," +
-            " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 3) AS 'type2Reactions' " +
+            " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 1) AS 'type1Reactions'," +
+            " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 2) AS 'type2Reactions'," +
+            " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 3) AS 'type3Reactions' " +
             "FROM posts JOIN users ON posts.user_id = users.id " +
             "ORDER BY posts.stamp DESC")
     List<BigFuckPost> bigFuck(String userID);

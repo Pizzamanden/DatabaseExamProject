@@ -36,14 +36,16 @@ public class RemoteDBRequest {
         }, "Post" + type);
         String baselineURL = REMOTE_URL;
 
+        RequestBody formBody = new FormBody.Builder()
+                .add("id", post.id + "")
+                .add("content", post.content)
+                .add("user_id", post.user_id)
+                .build();
+
         switch (type) {
             case QUERY_TYPE_INSERT: {
                 Log.d(TAG, "post: Insert call");
-                RequestBody formBody = new FormBody.Builder()
-                        .add("id", post.id + "")
-                        .add("content", post.content)
-                        .add("user_id", post.user_id)
-                        .build();
+
                 httpRequest.makeHttpRequest(new Request.Builder()
                         .post(formBody)
                         .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
@@ -55,11 +57,7 @@ public class RemoteDBRequest {
             }
             case QUERY_TYPE_UPDATE: {
                 Log.d(TAG, "post: Update call on ID: " + post.id);
-                RequestBody formBody = new FormBody.Builder()
-                        .add("id", post.id + "")
-                        .add("content", post.content)
-                        .add("user_id", post.user_id)
-                        .build();
+
                 httpRequest.makeHttpRequest(new Request.Builder()
                         .put(formBody)
                         .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
