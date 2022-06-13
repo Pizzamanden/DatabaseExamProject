@@ -71,6 +71,7 @@ public class SynchronizeLocalDB {
                     switch (table_name){
                         case "users":
                             User[] users = gson.fromJson(response.body().string(), User[].class);
+                            Log.d(TAG, users.length + "");
                             Log.d(TAG, "syncDB: Users: Parsed JSON");
                             db.userDao().deleteEverything();
                             Log.d(TAG, "syncDB: Users: Deleted table");

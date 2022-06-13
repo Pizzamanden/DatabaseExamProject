@@ -34,20 +34,15 @@ public class Result<T> {
     }
 
     // Error sub-class
-    public final static class Error<T> extends Result {
+    public final static class Error extends Result {
         private Exception error;
-        private T data;
 
-        public Error(Exception error, T data) {
-            this.data = data;
+        public Error(Exception error) {
             this.error = error;
         }
 
         public Exception getError() {
             return this.error;
-        }
-        public T getData() {
-            return this.data;
         }
     }
 }

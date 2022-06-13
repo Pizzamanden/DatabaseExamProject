@@ -16,7 +16,7 @@ class LoggedInUserView {
 
     public String getUserid() { return userid; }
 
-    String getName() {
+    public String getName() {
         return name;
     }
 }
