@@ -127,8 +127,6 @@ public class UserLoginFragment extends Fragment {
                 loadingProgressBar.setVisibility(View.GONE);
                 if (loginResult.getError() != null) {
                     showLoginFailed(loginResult.getError());
-                    // TODO implement navigation after successful login
-                    //startActivity(new Intent(getActivity(), UserCreation.class));
                 }
                 if (loginResult.getSuccess() != null) {
                     updateUiWithUser(loginResult.getSuccess());
