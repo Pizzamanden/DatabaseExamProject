@@ -18,9 +18,13 @@ public class Post {
 
     public String content;
 
-
     public Date stamp;
 
+    public Post(int id, String user_id, String content) {
+        this.id = id;
+        this.user_id = user_id;
+        this.content = content;
+    }
 
     public boolean equals(Object other){
         if(other == null)
