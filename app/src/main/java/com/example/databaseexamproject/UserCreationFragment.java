@@ -1,18 +1,25 @@
 package com.example.databaseexamproject;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.room.Room;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 
 import com.example.databaseexamproject.databinding.FragmentUserCreationBinding;
 import com.example.databaseexamproject.databinding.FragmentUserLoginBinding;
+import com.example.databaseexamproject.room.AppDatabase;
+import com.example.databaseexamproject.room.dataobjects.User;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -60,7 +67,14 @@ public class UserCreationFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        final EditText useridEditText = binding.userid;
+        final EditText fullNameEditText = binding.fullName;
+
         binding.toUserLoginButton.setOnClickListener( (v) -> {
+            AppDatabase db = Room.databaseBuilder(getActivity(), AppDatabase.class, "users").allowMainThreadQueries().fallbackToDestructiveMigration().build();
+            db.userDao().insertAll(new User(useridEditText.getText().toString(), fullNameEditText.getText().toString()));
+            Log.d("UserCreationFragment", "User created");
+
             NavHostFragment.findNavController(UserCreationFragment.this)
                     .navigateUp();
         });
@@ -71,6 +85,8 @@ public class UserCreationFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentUserCreationBinding.inflate(inflater, container, false);
+
+
         return binding.getRoot();
     }
 }

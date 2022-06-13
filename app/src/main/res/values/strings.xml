@@ -8,5 +8,7 @@
     <string name="likeReact">Likes</string>
     <string name="dislikeReact">Dislikes</string>
     <string name="ambivalenceReact">Meh</string>
+    <string name="username">Username</string>
+    <string name="full_name">Full name</string>
 
 </resources>
