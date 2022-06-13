@@ -3,12 +3,20 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Anders/OneDrive/SDU/2. Semester/DM564 Databasesystemer og Programmering/DatabaseExamProject/app/src/main/res/drawable/ic_launcher_background.xml" value="0.2845" />
+        <entry key="..\:/Users/Anders/OneDrive/SDU/2. Semester/DM564 Databasesystemer og Programmering/DatabaseExamProject/app/src/main/res/layout-w936dp/activity_login.xml" value="0.25" />
+        <entry key="..\:/Users/Anders/OneDrive/SDU/2. Semester/DM564 Databasesystemer og Programmering/DatabaseExamProject/app/src/main/res/layout/activity_login.xml" value="0.28020833333333334" />
+        <entry key="..\:/Users/Anders/OneDrive/SDU/2. Semester/DM564 Databasesystemer og Programmering/DatabaseExamProject/app/src/main/res/layout/activity_main.xml" value="0.28020833333333334" />
+        <entry key="..\:/Users/Anders/OneDrive/SDU/2. Semester/DM564 Databasesystemer og Programmering/DatabaseExamProject/app/src/main/res/layout/activity_user_creation.xml" value="0.25" />
+        <entry key="..\:/Users/Anders/OneDrive/SDU/2. Semester/DM564 Databasesystemer og Programmering/DatabaseExamProject/app/src/main/res/layout/content_main.xml" value="0.18" />
+        <entry key="..\:/Users/Anders/OneDrive/SDU/2. Semester/DM564 Databasesystemer og Programmering/DatabaseExamProject/app/src/main/res/layout/fragment_user_creation.xml" value="0.18592964824120603" />
+        <entry key="..\:/Users/Anders/OneDrive/SDU/2. Semester/DM564 Databasesystemer og Programmering/DatabaseExamProject/app/src/main/res/layout/fragment_user_login.xml" value="0.22023809523809523" />
+        <entry key="..\:/Users/Anders/OneDrive/SDU/2. Semester/DM564 Databasesystemer og Programmering/DatabaseExamProject/app/src/main/res/layout/layoutttt.xml" value="0.25" />
         <entry key="..\:/Users/Peter/AndroidStudioProjects/DatabaseExamProject/app/src/main/res/layout/activity_main.xml" value="0.23772609819121446" />
         <entry key="..\:/Users/Peter/AndroidStudioProjects/DatabaseExamProject/app/src/main/res/layout/activity_posts_list.xml" value="0.358695652173913" />
         <entry key="..\:/Users/Peter/AndroidStudioProjects/DatabaseExamProject/app/src/main/res/layout/content_main.xml" value="0.358695652173913" />
         <entry key="..\:/Users/Peter/AndroidStudioProjects/DatabaseExamProject/app/src/main/res/layout/content_posts_list.xml" value="0.358695652173913" />
         <entry key="..\:/Users/Peter/AndroidStudioProjects/DatabaseExamProject/app/src/main/res/layout/fragment_manage_post.xml" value="0.358695652173913" />
-        <entry key="..\:/Users/Peter/AndroidStudioProjects/DatabaseExamProject/app/src/main/res/layout/fragment_post_edit.xml" value="0.19166666666666668" />
         <entry key="..\:/Users/Peter/AndroidStudioProjects/DatabaseExamProject/app/src/main/res/layout/fragment_posts_list.xml" value="0.358695652173913" />
         <entry key="..\:/Users/Peter/AndroidStudioProjects/DatabaseExamProject/app/src/main/res/layout/fragment_user_creation.xml" value="0.358695652173913" />
         <entry key="..\:/Users/Peter/AndroidStudioProjects/DatabaseExamProject/app/src/main/res/layout/fragment_user_login.xml" value="0.358695652173913" />

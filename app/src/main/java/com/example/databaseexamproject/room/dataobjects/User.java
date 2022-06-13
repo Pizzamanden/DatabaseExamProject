@@ -13,6 +13,11 @@ import java.util.Date;
 @Entity(tableName = "users")
 public class User {
 
+    public User(@NonNull String id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     @NonNull
     @PrimaryKey
     public String id;
@@ -20,7 +25,7 @@ public class User {
 
     public String name;
 
-
+    @ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
     public Date stamp;
 
 
