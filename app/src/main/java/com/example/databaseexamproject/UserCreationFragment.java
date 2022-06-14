@@ -21,6 +21,7 @@ import com.example.databaseexamproject.databinding.FragmentUserCreationBinding;
 import com.example.databaseexamproject.databinding.FragmentUserLoginBinding;
 import com.example.databaseexamproject.room.AppDatabase;
 import com.example.databaseexamproject.room.dataobjects.User;
+import com.example.databaseexamproject.webrequests.RemoteDBRequest;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -79,22 +80,21 @@ public class UserCreationFragment extends Fragment {
 
         binding.toUserLoginButton.setOnClickListener( (v) -> {
             AppDatabase db = Room.databaseBuilder(getActivity(), AppDatabase.class, "database-name").allowMainThreadQueries().fallbackToDestructiveMigration().build();
-            db.userDao().insertAll(new User(useridEditText.getText().toString(), fullNameEditText.getText().toString()));
+            User user = new User(useridEditText.getText().toString(), fullNameEditText.getText().toString());
+            db.userDao().insertAll(user);
             Log.d("UserCreationFragment", "User created");
-
-            try {
-                synchronizeWithRemoteDB();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            NavHostFragment.findNavController(UserCreationFragment.this)
-                    .navigateUp();
+            synchronizeWithRemoteDB(user);
         });
     }
 
-    private void synchronizeWithRemoteDB() throws IOException {
-
+    private void synchronizeWithRemoteDB(User user) {
+        RemoteDBRequest.user(getActivity(), RemoteDBRequest.QUERY_TYPE_INSERT, user, () -> {
+            Bundle bundle = new Bundle();
+            bundle.putString("USERNAME", user.id);
+            bundle.putBoolean("HAS_CREATED_USER", true);
+            NavHostFragment.findNavController(UserCreationFragment.this)
+                    .navigate(R.id.action_userCreationFragment_to_userLoginFragment, bundle);
+        });
     }
 
     @Override
