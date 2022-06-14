@@ -39,7 +39,7 @@ public interface PostDao {
     List<PostReactions> getAllPostsReactionsWithUserReactedSortedDesc(String userID);
 
     @Query("SELECT *, " +
-            " (SELECT type FROM reactions WHERE (:userID) = reactions.user_id AND posts.id = reactions.post_id) AS 'userReaction', " +
+            " (SELECT type, stamp  FROM reactions WHERE (:userID) = reactions.user_id AND posts.id = reactions.post_id) AS 'userReaction', " +
             " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 1) AS 'type1Reactions'," +
             " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 2) AS 'type2Reactions'," +
             " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 3) AS 'type3Reactions' " +

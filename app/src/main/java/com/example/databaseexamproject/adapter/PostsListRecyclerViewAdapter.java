@@ -38,6 +38,8 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
 
     private Fragment fragment;
 
+    private String loggedInUserID;
+
 
     public class ViewHolder extends RecyclerView.ViewHolder{
 
@@ -62,10 +64,11 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
         }
     }
 
-    public PostsListRecyclerViewAdapter(Fragment fragment, List<BigFuckPost> data){
+    public PostsListRecyclerViewAdapter(Fragment fragment, List<BigFuckPost> data, String userID){
         localData = data;
         this.fragment = fragment;
         Log.d(TAG, "PostsListRecyclerViewAdapter: Posts length: " + localData.size());
+        loggedInUserID = userID;
     }
 
 
@@ -169,10 +172,10 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
                         // This button should have had been active
                         // This is the easy case. We had reacted this reaction, and now we want to remove it.
                         // First we launch a database request. (we do not wait for a response) TODO should we?
-                        // TODO do remote shizz
+                        // TODO do remote
                         // We then update the visual amount and status.
                         localData.get(buttonPosition).userReaction = 0;
-                        clickedButton.setText((buttonCount - 1) + " " + buttonName);
+                        clickedButton.setText(buttonCount + " " + buttonName);
                         setButtonInactive(buttons[thisButtonType]);
 
                     } else {
@@ -184,7 +187,7 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
                             // Now it gets less simple
                             // Another button was pressed, and we must now de-press that one and update the remote DB.
                             // We know which one it was, based on the saved user reaction
-                            // TODO do remote shizz
+                            // TODO do remote
                             buttons[savedUserReaction - 1].setText((counts[savedUserReaction - 1]) + " " + names[savedUserReaction - 1]);
                             setButtonInactive(clickedButton);
                         }
@@ -193,9 +196,14 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
                         clickedButton.setText((buttonCount + 1) + " " + buttonName);
                         setButtonActive(buttons[thisButtonType]);
                     }
+                    // TODO remote actions can be done in a seperate method, and make method take the same runnable?
                 }
             });
         }
+    }
+
+    private void updateRemoteReactionTable(int post_id, Runnable runnable){
+        // The user id is: loggedInUserID
     }
 
     private void setButtonActive(Button button){

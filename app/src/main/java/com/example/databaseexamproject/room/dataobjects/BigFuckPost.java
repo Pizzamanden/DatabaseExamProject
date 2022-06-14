@@ -3,6 +3,8 @@ package com.example.databaseexamproject.room.dataobjects;
 import androidx.room.ColumnInfo;
 import androidx.room.Embedded;
 
+import java.util.Date;
+
 public class BigFuckPost {
 
     @Embedded
@@ -10,6 +12,8 @@ public class BigFuckPost {
 
     @ColumnInfo(name = "name")
     public String name;
+
+    public int contentType;
 
     public int userReaction;
 
@@ -19,4 +23,6 @@ public class BigFuckPost {
 
     public int type3Reactions;
 
+    @ColumnInfo(name = "reactionStamp")
+    public Date stamp;
 }

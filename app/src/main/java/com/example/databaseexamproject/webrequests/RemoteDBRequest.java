@@ -138,8 +138,9 @@ public class RemoteDBRequest {
     }
 
     private static void processResponse(Response response, String body, String requestName, Runnable runnableCallback){
-        // This is on the Main Thread
+        // This is on the Main Thread (HTTPRequest object does that)
         // We now check the result (mainly with logs, i want to know what is going on :3)
+        Log.d(TAG, "processResponse: Code = " + response.code());
         runnableCallback.run();
     }
 }
