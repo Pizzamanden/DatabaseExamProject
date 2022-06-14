@@ -99,7 +99,7 @@ public class PostsListFragment extends Fragment {
                 AppDatabase.class, "database-name").build();
 
         DatabaseRequest<List<BigFuckPost>> databaseRequest = new DatabaseRequest<>(getActivity(), this::onDatabaseRequestResponse);
-        databaseRequest.runRequest(() -> db.postDao().bigFuck(loggedInUserID));
+        databaseRequest.runRequest(() -> db.postDao().bigFuckTest(loggedInUserID));
     }
 
     public void onDatabaseRequestResponse(List<BigFuckPost> posts){

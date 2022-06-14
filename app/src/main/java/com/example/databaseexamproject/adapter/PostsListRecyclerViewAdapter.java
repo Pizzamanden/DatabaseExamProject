@@ -158,11 +158,12 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
                 // Set the new styling, to show it is pressed down and synch
                 setButtonActive(buttons[i]);
             }
+            Log.d(TAG, "stylePostButtons: Has the user reacted on button " + thisButtonType + " for post " + postPosition + "?: " + isReacted[thisButtonType]);
             buttons[i].setText(counts[i] + " " + names[i]);
             // Then we attach the listener, which handles changes when the user clicks any button
             buttons[i].setOnClickListener(new View.OnClickListener() {
                 final public String buttonName = names[thisButtonType]; // What the applicable textString is for this type
-                final public int buttonCount = (isReacted[thisButtonType] ? counts[thisButtonType] - 1 : counts[thisButtonType]); // What the default value is
+                final public int buttonCount = counts[thisButtonType] - ( isReacted[thisButtonType] ? 1 : 0); // What the default value is
                 final public int buttonPosition = postPosition; // The position in the dataset
                 final public int buttonNumber = thisButtonType + 1; // The actual integer representation in the database: 0 = deleted, 1 = like, 2 = displike, 3 = meh
 
@@ -171,9 +172,11 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
                     Button clickedButton = (Button) v;
                     Log.d(TAG, "styleButton: The number is " + buttonNumber);
                     Log.d(TAG, "styleButton: Post id is: " + localData.get(buttonPosition).post.id + " at position: " + buttonPosition);
+                    Log.d(TAG, "styleButton: Has the user already reacted?: " + localData.get(buttonPosition).userReaction);
                     int savedUserReaction = localData.get(buttonPosition).userReaction;
                     if(savedUserReaction == buttonNumber){
                         // This button should have had been active
+                        Log.d(TAG, "onClick: Unpress button " + (buttonNumber - 1) + " for post " + buttonPosition);
                         // This is the easy case. We had reacted this reaction, and now we want to remove it.
                         // First we launch a database request. (we do not wait for a response)
                         updateRemoteReactionTable(buttonPosition, 0, (response, responseBody, requestName) -> {
@@ -188,25 +191,27 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
                     } else {
                         // This button should have had been inactive
                         // This means we have a new value, for this user, for this reaction.
-                        updateRemoteReactionTable(buttonPosition, buttonNumber, (response, responseBody, requestName) -> {
-                            // TODO we must now set the timestamp from our new reaction in the remote (if it was new) to the timestamp here, locally
-                            SynchronizeLocalDB.syncDB(fragment.getContext(), (success) ->{});
-                        });
                         // Now we need to see if the value was set to something other than 0
                         if(savedUserReaction != 0){
                             // Now it gets less simple
                             // Another button was pressed, and we must now de-press that one and update the remote DB.
                             // We know which one it was, based on the saved user reaction
                             // NO DATABASE HERE
-                            buttons[savedUserReaction - 1].setText((counts[savedUserReaction - 1]) + " " + names[savedUserReaction - 1]);
-                            setButtonInactive(clickedButton);
+                            Log.d(TAG, "onClick: Unpress button " + (savedUserReaction - 1) + " for post " + buttonPosition);
+                            buttons[savedUserReaction - 1].setText(buttonCount + " " + names[savedUserReaction - 1]);
+                            setButtonInactive(buttons[savedUserReaction - 1]);
                         }
+                        Log.d(TAG, "onClick: Press button " + (buttonNumber - 1) + " for post " + buttonPosition);
                         // As we change the saved user reaction here, we do it after checking/handling the already pressed button (if there is one)
                         localData.get(buttonPosition).userReaction = buttonNumber;
                         clickedButton.setText((buttonCount + 1) + " " + buttonName);
                         setButtonActive(buttons[thisButtonType]);
+                        // Now we update remote
+                        updateRemoteReactionTable(buttonPosition, buttonNumber, (response, responseBody, requestName) -> {
+                            // Error handling?
+                            SynchronizeLocalDB.syncDB(fragment.getContext(), (success) ->{});
+                        });
                     }
-                    // TODO remote actions can be done in a seperate method, and make method take the same runnable?
                 }
             });
         }

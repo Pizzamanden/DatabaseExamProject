@@ -188,6 +188,7 @@ public class UserLoginFragment extends Fragment {
         // TODO : initiate successful logged in experience
         Intent intent = new Intent(getActivity(), com.example.databaseexamproject.PostsListActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra("loggedUserID", model.getUserid());
         startActivity(intent);
 
         Toast.makeText(getActivity(), welcome, Toast.LENGTH_LONG).show();

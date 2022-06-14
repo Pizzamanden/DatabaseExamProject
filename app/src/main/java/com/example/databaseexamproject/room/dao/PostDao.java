@@ -50,6 +50,16 @@ public interface PostDao {
     List<BigFuckPost> bigFuck(String userID);
     // TODO kun den nyeste reaction fra hver bruger skal tælle
 
+    @Query("SELECT posts.*, " +
+            " (SELECT type FROM reactions WHERE (:userID) = reactions.user_id AND posts.id = reactions.post_id) AS 'userReaction', " +
+            " (SELECT stamp FROM reactions WHERE (:userID) = reactions.user_id AND posts.id = reactions.post_id) AS 'reactionStamp', " +
+            " (SELECT COUNT(*) FROM (SELECT COUNT(*) FROM reactions WHERE reactions.type = 1 AND posts.id = reactions.post_id GROUP BY reactions.user_id, reactions.post_id)) AS 'type1Reactions'," +
+            " (SELECT COUNT(*) FROM (SELECT COUNT(*) FROM reactions WHERE reactions.type = 2 AND posts.id = reactions.post_id GROUP BY reactions.user_id, reactions.post_id)) AS 'type2Reactions'," +
+            " (SELECT COUNT(*) FROM (SELECT COUNT(*) FROM reactions WHERE reactions.type = 3 AND posts.id = reactions.post_id GROUP BY reactions.user_id, reactions.post_id)) AS 'type3Reactions' " +
+            "FROM posts JOIN users ON posts.user_id = users.id " +
+            "WHERE posts.content NOT LIKE 'somethingCool%'" +
+            "ORDER BY posts.stamp DESC")
+    List<BigFuckPost> bigFuckTest(String userID);
 
     @Insert
     void insertAll(Post... post);

@@ -88,7 +88,7 @@ public class UserCreationFragment extends Fragment {
     }
 
     private void synchronizeWithRemoteDB(User user) {
-        RemoteDBRequest.user(getActivity(), RemoteDBRequest.QUERY_TYPE_INSERT, user, () -> {
+        RemoteDBRequest.user(getActivity(), RemoteDBRequest.QUERY_TYPE_INSERT, user, (response, responseBody, requestName) -> {
             Bundle bundle = new Bundle();
             bundle.putString("USERNAME", user.id);
             bundle.putBoolean("HAS_CREATED_USER", true);
