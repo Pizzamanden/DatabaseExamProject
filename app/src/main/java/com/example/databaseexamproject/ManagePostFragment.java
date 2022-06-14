@@ -4,6 +4,8 @@ import static android.content.ContentValues.TAG;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -13,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.databaseexamproject.databinding.FragmentManagePostBinding;
+import com.example.databaseexamproject.room.SynchronizeLocalDB;
 import com.example.databaseexamproject.room.dataobjects.Post;
 import com.example.databaseexamproject.webrequests.RemoteDBRequest;
 
@@ -105,6 +108,7 @@ public class ManagePostFragment extends Fragment {
     }
 
     private void submitPost(String content){
+        // TODO TEST AND FINISH
         Log.d(TAG, "submitPost: Content submitted was: " + content);
         // Now we have the content from our textEdit, and we must do the SQL thing
         int idToUse;
@@ -119,8 +123,12 @@ public class ManagePostFragment extends Fragment {
         }
         Post post = new Post(idToUse, content, user_id);
 
-        RemoteDBRequest.post(getContext(), (isExistingPost ? RemoteDBRequest.QUERY_TYPE_UPDATE : RemoteDBRequest.QUERY_TYPE_INSERT), post, () -> {
+        RemoteDBRequest.post(getContext(), (isExistingPost ? RemoteDBRequest.QUERY_TYPE_UPDATE : RemoteDBRequest.QUERY_TYPE_INSERT),
+                post, (response, responseBody, requestName) -> {
             // TODO this is where we continue (on main thread)
+            SynchronizeLocalDB.syncDB(getContext(),(success) -> {
+
+            });
             NavHostFragment.findNavController(ManagePostFragment.this)
                     .navigateUp();
         });

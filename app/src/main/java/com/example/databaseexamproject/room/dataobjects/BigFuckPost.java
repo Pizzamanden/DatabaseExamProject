@@ -13,9 +13,10 @@ public class BigFuckPost {
     @ColumnInfo(name = "name")
     public String name;
 
-    public int contentType;
-
     public int userReaction;
+
+    @ColumnInfo(name = "reactionStamp")
+    public Date stamp;
 
     public int type1Reactions;
 
@@ -23,6 +24,5 @@ public class BigFuckPost {
 
     public int type3Reactions;
 
-    @ColumnInfo(name = "reactionStamp")
-    public Date stamp;
+
 }

@@ -20,10 +20,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.databaseexamproject.R;
 import com.example.databaseexamproject.room.Converters;
+import com.example.databaseexamproject.room.SynchronizeLocalDB;
 import com.example.databaseexamproject.room.dataobjects.BigFuckPost;
 import com.example.databaseexamproject.room.dataobjects.PostJoinUser;
 import com.example.databaseexamproject.room.dataobjects.PostReactions;
+import com.example.databaseexamproject.room.dataobjects.Reaction;
+import com.example.databaseexamproject.webrequests.HttpRequest;
+import com.example.databaseexamproject.webrequests.RemoteDBRequest;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,9 +38,6 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
 
     // The post, with the users name attached
     private List<BigFuckPost> localData;
-
-    // The 3 most recent comments for this post
-    // TODO get the 3 most recent comments
 
     private Fragment fragment;
 
@@ -167,12 +170,16 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
                 public void onClick(View v) {
                     Button clickedButton = (Button) v;
                     Log.d(TAG, "styleButton: The number is " + buttonNumber);
+                    Log.d(TAG, "styleButton: Post id is: " + localData.get(buttonPosition).post.id + " at position: " + buttonPosition);
                     int savedUserReaction = localData.get(buttonPosition).userReaction;
                     if(savedUserReaction == buttonNumber){
                         // This button should have had been active
                         // This is the easy case. We had reacted this reaction, and now we want to remove it.
-                        // First we launch a database request. (we do not wait for a response) TODO should we?
-                        // TODO do remote
+                        // First we launch a database request. (we do not wait for a response)
+                        updateRemoteReactionTable(buttonPosition, 0, (response, responseBody, requestName) -> {
+                            // TODO now we should have
+                            SynchronizeLocalDB.syncDB(fragment.getContext(), (success) ->{});
+                        });
                         // We then update the visual amount and status.
                         localData.get(buttonPosition).userReaction = 0;
                         clickedButton.setText(buttonCount + " " + buttonName);
@@ -180,14 +187,17 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
 
                     } else {
                         // This button should have had been inactive
-                        // We know we must add 1 to the count of this button, and update the remote DB
-                        // TODO update remote
+                        // This means we have a new value, for this user, for this reaction.
+                        updateRemoteReactionTable(buttonPosition, buttonNumber, (response, responseBody, requestName) -> {
+                            // TODO we must now set the timestamp from our new reaction in the remote (if it was new) to the timestamp here, locally
+                            SynchronizeLocalDB.syncDB(fragment.getContext(), (success) ->{});
+                        });
                         // Now we need to see if the value was set to something other than 0
                         if(savedUserReaction != 0){
                             // Now it gets less simple
                             // Another button was pressed, and we must now de-press that one and update the remote DB.
                             // We know which one it was, based on the saved user reaction
-                            // TODO do remote
+                            // NO DATABASE HERE
                             buttons[savedUserReaction - 1].setText((counts[savedUserReaction - 1]) + " " + names[savedUserReaction - 1]);
                             setButtonInactive(clickedButton);
                         }
@@ -202,8 +212,25 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
         }
     }
 
-    private void updateRemoteReactionTable(int post_id, Runnable runnable){
-        // The user id is: loggedInUserID
+    private void updateRemoteReactionTable(int dataPosition, int newReactionType, HttpRequest.HttpRequestResponse requestResponse){
+        int post_id = localData.get(dataPosition).post.id;
+        Log.d(TAG, "updateRemoteReactionTable: " + localData.get(dataPosition).post.content);
+        Date userReactionTimestamp = localData.get(dataPosition).stamp;
+        Reaction reaction = new Reaction(loggedInUserID, post_id, newReactionType);
+        Log.d(TAG, "updateRemoteReactionTable: " + loggedInUserID);
+        Log.d(TAG, "updateRemoteReactionTable: " + post_id);
+        Log.d(TAG, "updateRemoteReactionTable: " + newReactionType);
+        Log.d(TAG, "updateRemoteReactionTable: " + userReactionTimestamp);
+        if(userReactionTimestamp != null){
+            // Update action
+            reaction.stamp = userReactionTimestamp;
+        } else {
+            long stamp = System.currentTimeMillis();
+            reaction.stamp = new Date(stamp);
+            localData.get(dataPosition).stamp = reaction.stamp;
+        }
+        RemoteDBRequest.reaction(fragment.getContext(), ( userReactionTimestamp != null ? RemoteDBRequest.QUERY_TYPE_UPDATE : RemoteDBRequest.QUERY_TYPE_INSERT),
+                reaction, requestResponse);
     }
 
     private void setButtonActive(Button button){

@@ -38,8 +38,9 @@ public interface PostDao {
             "FROM posts ORDER BY posts.stamp DESC")
     List<PostReactions> getAllPostsReactionsWithUserReactedSortedDesc(String userID);
 
-    @Query("SELECT *, " +
-            " (SELECT type, stamp  FROM reactions WHERE (:userID) = reactions.user_id AND posts.id = reactions.post_id) AS 'userReaction', " +
+    @Query("SELECT posts.*, " +
+            " (SELECT type FROM reactions WHERE (:userID) = reactions.user_id AND posts.id = reactions.post_id) AS 'userReaction', " +
+            " (SELECT stamp FROM reactions WHERE (:userID) = reactions.user_id AND posts.id = reactions.post_id) AS 'reactionStamp', " +
             " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 1) AS 'type1Reactions'," +
             " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 2) AS 'type2Reactions'," +
             " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 3) AS 'type3Reactions' " +
@@ -47,7 +48,7 @@ public interface PostDao {
             "WHERE posts.content NOT LIKE 'somethingCool%'" + // <-- Excalibur
             "ORDER BY posts.stamp DESC")
     List<BigFuckPost> bigFuck(String userID);
-
+    // TODO kun den nyeste reaction fra hver bruger skal tælle
 
 
     @Insert
