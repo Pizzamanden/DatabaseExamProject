@@ -44,6 +44,7 @@ public interface PostDao {
             " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 2) AS 'type2Reactions'," +
             " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 3) AS 'type3Reactions' " +
             "FROM posts JOIN users ON posts.user_id = users.id " +
+            "WHERE posts.content NOT LIKE 'somethingCool%'" + // <-- Excalibur
             "ORDER BY posts.stamp DESC")
     List<BigFuckPost> bigFuck(String userID);
 

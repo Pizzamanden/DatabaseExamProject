@@ -49,6 +49,8 @@ public class PostsListFragment extends Fragment {
     private int saved_recyclerview_position;
     private String user_id;
 
+    private PostsListActivity parentActivity;
+
     public PostsListFragment() {
         // Required empty public constructor
     }
@@ -62,6 +64,7 @@ public class PostsListFragment extends Fragment {
      */
     public static PostsListFragment newInstance(int saved_recyclerview_position, String user_id) {
         PostsListFragment fragment = new PostsListFragment();
+        Log.d(TAG, "newInstance Fragment: called");
         Bundle args = new Bundle();
         args.putInt(SAVED_RECYCLERVIEW_POSITION, saved_recyclerview_position);
         args.putString(USER_ID, user_id);
@@ -72,6 +75,7 @@ public class PostsListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate Fragment: called");
         if (getArguments() != null) {
             saved_recyclerview_position = getArguments().getInt(SAVED_RECYCLERVIEW_POSITION);
             user_id = getArguments().getString(USER_ID);
@@ -82,6 +86,7 @@ public class PostsListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        parentActivity = (PostsListActivity) getActivity();
         binding = FragmentPostsListBinding.inflate(inflater, container, false);
         updateLoadingStatus(true);
         getDataForRecyclerView();
