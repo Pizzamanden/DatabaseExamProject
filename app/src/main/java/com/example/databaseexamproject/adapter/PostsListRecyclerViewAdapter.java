@@ -155,10 +155,10 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
             buttons[i].setText(counts[i] + " " + names[i]);
             // Then we attach the listener, which handles changes when the user clicks any button
             buttons[i].setOnClickListener(new View.OnClickListener() {
-                final public String buttonName = names[thisButtonType];
-                final public int buttonCount = counts[thisButtonType];
-                final public int buttonPosition = postPosition;
-                final public int buttonNumber = thisButtonType + 1;
+                final public String buttonName = names[thisButtonType]; // What the applicable textString is for this type
+                final public int buttonCount = (isReacted[thisButtonType] ? counts[thisButtonType] - 1 : counts[thisButtonType]); // What the default value is
+                final public int buttonPosition = postPosition; // The position in the dataset
+                final public int buttonNumber = thisButtonType + 1; // The actual integer representation in the database: 0 = deleted, 1 = like, 2 = displike, 3 = meh
 
                 @Override
                 public void onClick(View v) {
@@ -185,7 +185,7 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
                             // Another button was pressed, and we must now de-press that one and update the remote DB.
                             // We know which one it was, based on the saved user reaction
                             // TODO do remote shizz
-                            buttons[savedUserReaction - 1].setText((counts[savedUserReaction - 1] - 1) + " " + names[savedUserReaction - 1]);
+                            buttons[savedUserReaction - 1].setText((counts[savedUserReaction - 1]) + " " + names[savedUserReaction - 1]);
                             setButtonInactive(clickedButton);
                         }
                         // As we change the saved user reaction here, we do it after checking/handling the already pressed button (if there is one)

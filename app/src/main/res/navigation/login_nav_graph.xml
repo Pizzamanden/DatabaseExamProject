@@ -30,5 +30,9 @@
         android:id="@+id/postsListActivity"
         android:name="com.example.databaseexamproject.PostsListActivity"
         android:label="activity_posts_list"
-        tools:layout="@layout/activity_posts_list" />
+        tools:layout="@layout/activity_posts_list" >
+        <argument
+            android:name="loggedUserID"
+            app:argType="string" />
+    </activity>
 </navigation>

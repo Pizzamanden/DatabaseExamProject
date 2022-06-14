@@ -1,5 +1,7 @@
 package com.example.databaseexamproject;
 
+import static android.content.ContentValues.TAG;
+
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
@@ -10,6 +12,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +33,7 @@ public class ViewPostFragment extends Fragment {
     private static final String USER_NAME = "sentData_user_name";
     private static final String SAVED_RECYCLERVIEW_POSITION = "recyclerViewElementPosition";
 
+    private PostsListActivity parentActivity;
 
     private String user_id;
     private int post_id;
@@ -77,6 +81,7 @@ public class ViewPostFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        parentActivity = (PostsListActivity) getActivity();
         // Inflate the layout for this fragment
         binding = FragmentViewPostBinding.inflate(inflater, container, false);
         setDataToViews();

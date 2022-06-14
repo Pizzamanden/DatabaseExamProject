@@ -45,6 +45,8 @@ public class ManagePostFragment extends Fragment {
     // Binding
     private FragmentManagePostBinding binding;
 
+    private PostsListActivity parentActivity;
+
     public ManagePostFragment() {
         // Required empty public constructor
     }
@@ -80,6 +82,7 @@ public class ManagePostFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        parentActivity = (PostsListActivity) getActivity();
         // Inflate the layout for this fragment
         binding = FragmentManagePostBinding.inflate(inflater, container, false);
         setupViews();

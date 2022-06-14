@@ -1,5 +1,7 @@
 package com.example.databaseexamproject.login;
 
+import static android.content.ContentValues.TAG;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -210,6 +213,7 @@ public class UserLoginFragment extends Fragment {
         String welcome = getString(R.string.welcome) + model.getName();
         // TODO : initiate successful logged in experience
         Intent intent = new Intent(getActivity(), com.example.databaseexamproject.PostsListActivity.class);
+        intent.putExtra("loggedUserID", model.getUserid());
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
 
