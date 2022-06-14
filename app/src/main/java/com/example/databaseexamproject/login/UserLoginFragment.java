@@ -3,41 +3,26 @@ package com.example.databaseexamproject.login;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.fragment.NavHostFragment;
-
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.example.databaseexamproject.PostsListActivity;
-import com.example.databaseexamproject.R;
-import com.example.databaseexamproject.databinding.FragmentUserLoginBinding;
-
-import android.content.Intent;
-import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.databaseexamproject.MainActivity;
 import com.example.databaseexamproject.R;
+import com.example.databaseexamproject.databinding.FragmentUserLoginBinding;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -102,39 +87,29 @@ public class UserLoginFragment extends Fragment {
 
 
 
-        loginViewModel.getLoginFormState().observe(getActivity(), new Observer<LoginFormState>() {
-            @Override
-            public void onChanged(@Nullable LoginFormState loginFormState) {
-                if (loginFormState == null) {
-                    return;
-                }
-                loginButton.setEnabled(loginFormState.isDataValid());
-                if (loginFormState.getUsernameError() != null) {
-                    usernameEditText.setError(getString(loginFormState.getUsernameError()));
-                }
-/*                if (loginFormState.getPasswordError() != null) {
-                    passwordEditText.setError(getString(loginFormState.getPasswordError()));
-                }*/
+        loginViewModel.getLoginFormState().observe(getActivity(), loginFormState -> {
+            if (loginFormState == null) {
+                return;
             }
+            loginButton.setEnabled(loginFormState.isDataValid());
+            if (loginFormState.getUsernameError() != null) {
+                usernameEditText.setError(getString(loginFormState.getUsernameError()));
+            }
+/*                if (loginFormState.getPasswordError() != null) {
+                passwordEditText.setError(getString(loginFormState.getPasswordError()));
+            }*/
         });
 
-        loginViewModel.getLoginResult().observe(getActivity(), new Observer<LoginResult>() {
-            @Override
-            public void onChanged(@Nullable LoginResult loginResult) {
-                if (loginResult == null) {
-                    return;
-                }
-                loadingProgressBar.setVisibility(View.GONE);
-                if (loginResult.getError() != null) {
-                    showLoginFailed(loginResult.getError());
-                }
-                if (loginResult.getSuccess() != null) {
-                    updateUiWithUser(loginResult.getSuccess());
-                }
-                getActivity().setResult(Activity.RESULT_OK);
-
-                //Complete and destroy login activity once successful
-                getActivity().finish();
+        loginViewModel.getLoginResult().observe(getActivity(), loginResult -> {
+            if (loginResult == null) {
+                return;
+            }
+            loadingProgressBar.setVisibility(View.GONE);
+            if (loginResult.getError() != null) {
+                showLoginFailed(loginResult.getError());
+            }
+            if (loginResult.getSuccess() != null) {
+                updateUiWithUser(loginResult.getSuccess());
             }
         });
 
@@ -174,13 +149,10 @@ public class UserLoginFragment extends Fragment {
             }
         });*/
 
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loadingProgressBar.setVisibility(View.VISIBLE);
-                loginViewModel.login(usernameEditText.getText().toString(),
-                        getActivity());
-            }
+        loginButton.setOnClickListener(v -> {
+            loadingProgressBar.setVisibility(View.VISIBLE);
+            loginViewModel.login(usernameEditText.getText().toString(),
+                    getActivity());
         });
         binding.toCreateUserButton.setOnClickListener((v -> {
             // TODO Insert args into .navigate
@@ -214,6 +186,11 @@ public class UserLoginFragment extends Fragment {
         startActivity(intent);
 
         Toast.makeText(getActivity(), welcome, Toast.LENGTH_LONG).show();
+
+        getActivity().setResult(Activity.RESULT_OK);
+
+        //Complete and destroy login activity once successful
+        getActivity().finish();
     }
 
     private void showLoginFailed(@StringRes Integer errorString) {

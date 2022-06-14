@@ -1,6 +1,7 @@
 package com.example.databaseexamproject;
 
 import android.content.Intent;
+import android.nfc.Tag;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -20,6 +21,12 @@ import com.example.databaseexamproject.databinding.FragmentUserCreationBinding;
 import com.example.databaseexamproject.databinding.FragmentUserLoginBinding;
 import com.example.databaseexamproject.room.AppDatabase;
 import com.example.databaseexamproject.room.dataobjects.User;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -71,13 +78,23 @@ public class UserCreationFragment extends Fragment {
         final EditText fullNameEditText = binding.fullName;
 
         binding.toUserLoginButton.setOnClickListener( (v) -> {
-            AppDatabase db = Room.databaseBuilder(getActivity(), AppDatabase.class, "users").allowMainThreadQueries().fallbackToDestructiveMigration().build();
+            AppDatabase db = Room.databaseBuilder(getActivity(), AppDatabase.class, "database-name").allowMainThreadQueries().fallbackToDestructiveMigration().build();
             db.userDao().insertAll(new User(useridEditText.getText().toString(), fullNameEditText.getText().toString()));
             Log.d("UserCreationFragment", "User created");
+
+            try {
+                synchronizeWithRemoteDB();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             NavHostFragment.findNavController(UserCreationFragment.this)
                     .navigateUp();
         });
+    }
+
+    private void synchronizeWithRemoteDB() throws IOException {
+
     }
 
     @Override
