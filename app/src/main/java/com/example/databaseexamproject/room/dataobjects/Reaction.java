@@ -20,4 +20,10 @@ public class Reaction {
 
     @NonNull
     public Date stamp;
+
+    public Reaction(@NonNull String user_id, int post_id, int type) {
+        this.user_id = user_id;
+        this.post_id = post_id;
+        this.type = type;
+    }
 }

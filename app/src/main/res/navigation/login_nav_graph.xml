@@ -16,6 +16,14 @@
         <action
             android:id="@+id/action_userLoginFragment_to_postsListActivity"
             app:destination="@id/postsListActivity" />
+        <argument
+            android:name="USERNAME"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="HAS_CREATED_USER"
+            app:argType="boolean"
+            android:defaultValue="false" />
     </fragment>
     <fragment
         android:id="@+id/userCreationFragment"
@@ -30,5 +38,9 @@
         android:id="@+id/postsListActivity"
         android:name="com.example.databaseexamproject.PostsListActivity"
         android:label="activity_posts_list"
-        tools:layout="@layout/activity_posts_list" />
+        tools:layout="@layout/activity_posts_list" >
+        <argument
+            android:name="loggedUserID"
+            app:argType="string" />
+    </activity>
 </navigation>

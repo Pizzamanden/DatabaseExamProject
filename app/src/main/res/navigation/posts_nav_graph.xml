@@ -16,10 +16,6 @@
         <action
             android:id="@+id/action_postsListFragment_to_managePostFragment"
             app:destination="@id/managePostFragment" />
-        <argument
-            android:name="recyclerViewElementPosition"
-            app:argType="integer"
-            android:defaultValue="0" />
     </fragment>
     <fragment
         android:id="@+id/viewPostFragment"
@@ -30,21 +26,7 @@
             android:id="@+id/action_viewPostFragment_to_managePostFragment"
             app:destination="@id/managePostFragment" />
         <argument
-            android:name="sentData_user_id"
-            app:argType="string" />
-        <argument
             android:name="sentData_post_id"
-            app:argType="integer" />
-        <argument
-            android:name="sentData_content"
-            app:argType="string"
-            app:nullable="true" />
-        <argument
-            android:name="sentData_user_name"
-            app:argType="string"
-            app:nullable="true" />
-        <argument
-            android:name="recyclerViewElementPosition"
             app:argType="integer" />
     </fragment>
     <fragment

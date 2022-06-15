@@ -7,6 +7,8 @@ import android.content.Context;
 import android.util.Log;
 
 import com.example.databaseexamproject.room.dataobjects.Post;
+import com.example.databaseexamproject.room.dataobjects.Reaction;
+import com.example.databaseexamproject.room.dataobjects.User;
 import com.google.gson.Gson;
 
 import java.nio.charset.StandardCharsets;
@@ -34,11 +36,9 @@ public class RemoteDBRequest {
     // TODO complete the class for insertions, updates, and deletions.
     // Remember Injections!
 
-    public static void post(Context context, String type, Post post, Runnable runnableCallback){
-        HttpRequest httpRequest = new HttpRequest(context, (response, responseBody, requestName) -> {
-            processResponse(response, responseBody, requestName, runnableCallback);
-        }, "Post" + type);
-        String baselineURL = REMOTE_URL;
+    public static void post(Context context, String type, Post post, HttpRequest.HttpRequestResponse requestResponse){
+        HttpRequest httpRequest = new HttpRequest(context, requestResponse, "Post" + type);
+        String baselineURL = REMOTE_URL + "/posts";
 
         Gson gson = new Gson();
         String object = gson.toJson(post);
@@ -59,9 +59,9 @@ public class RemoteDBRequest {
             }
             case QUERY_TYPE_UPDATE: {
                 Log.d(TAG, "post: Update call on ID: " + post.id);
-
+                baselineURL = baselineURL + "?id=eq." + post.id;
                 httpRequest.makeHttpRequest(new Request.Builder()
-                        .put(RequestBody.create(toByteStream))
+                        .patch(RequestBody.create(toByteStream))
                         .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
                         .addHeader(AUTH_KEY, AUTH_VALUE)
                         .url(baselineURL)
@@ -85,9 +85,101 @@ public class RemoteDBRequest {
         }
     }
 
-    private static void processResponse(Response response, String body, String requestName, Runnable runnableCallback){
-        // This is on the Main Thread
-        // We now check the result (mainly with logs, i want to know what is going on :3)
-        runnableCallback.run();
+    public static void user(Context context, String type, User user, HttpRequest.HttpRequestResponse requestResponse){
+        HttpRequest httpRequest = new HttpRequest(context, requestResponse, "User" + type);
+        String baselineURL = REMOTE_URL + "/users";
+
+        Gson gson = new Gson();
+        String object = gson.toJson(user);
+
+        byte[] toByteStream = object.getBytes(StandardCharsets.UTF_8);
+
+        switch (type) {
+            case QUERY_TYPE_INSERT: {
+                Log.d(TAG, "post: Insert call");
+                httpRequest.makeHttpRequest(new Request.Builder()
+                        .post(RequestBody.create(toByteStream))
+                        .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
+                        .addHeader(AUTH_KEY, AUTH_VALUE)
+                        .url(baselineURL)
+                        .build()
+                );
+                break;
+            }
+            case QUERY_TYPE_UPDATE: {
+                Log.d(TAG, "post: Update call on ID: " + user.id);
+                baselineURL = baselineURL + "?id=eq." + user.id;
+
+                httpRequest.makeHttpRequest(new Request.Builder()
+                        .patch(RequestBody.create(toByteStream))
+                        .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
+                        .addHeader(AUTH_KEY, AUTH_VALUE)
+                        .url(baselineURL)
+                        .build()
+                );
+                break;
+            }
+            case QUERY_TYPE_DELETE:
+                Log.d(TAG, "post: Delete call on ID: " + user.id);
+                httpRequest.makeHttpRequest(new Request.Builder()
+                        .delete(RequestBody.create(toByteStream))
+                        .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
+                        .addHeader(AUTH_KEY, AUTH_VALUE)
+                        .url(baselineURL)
+                        .build()
+                );
+                break;
+            default:
+                Log.d(TAG, "post: Call was made without a type specification. No action will be taken");
+                break;
+        }
+    }
+
+    public static void reaction(Context context, String type, Reaction reaction, HttpRequest.HttpRequestResponse requestResponse){
+        HttpRequest httpRequest = new HttpRequest(context, requestResponse, "Reaction" + type);
+        String baselineURL = REMOTE_URL + "/reactions";
+
+        Gson gson = new Gson();
+        String object = gson.toJson(reaction);
+
+        byte[] toByteStream = object.getBytes(StandardCharsets.UTF_8);
+
+        switch (type) {
+            case QUERY_TYPE_INSERT: {
+                Log.d(TAG, "reaction: Insert call");
+                httpRequest.makeHttpRequest(new Request.Builder()
+                        .post(RequestBody.create(toByteStream))
+                        .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
+                        .addHeader(AUTH_KEY, AUTH_VALUE)
+                        .url(baselineURL)
+                        .build()
+                );
+                break;
+            }
+            case QUERY_TYPE_UPDATE: {
+                Log.d(TAG, "reaction: ");
+                baselineURL = baselineURL + "?post_id=eq." + reaction.post_id + "&user_id=eq." + reaction.user_id;
+                httpRequest.makeHttpRequest(new Request.Builder()
+                        .patch(RequestBody.create(toByteStream))
+                        .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
+                        .addHeader(AUTH_KEY, AUTH_VALUE)
+                        .url(baselineURL)
+                        .build()
+                );
+                break;
+            }
+            case QUERY_TYPE_DELETE:
+                httpRequest.makeHttpRequest(new Request.Builder()
+                        .delete(RequestBody.create(toByteStream))
+                        .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
+                        .addHeader(AUTH_KEY, AUTH_VALUE)
+                        .url(baselineURL)
+                        .build()
+                );
+                break;
+            default:
+                Log.d(TAG, "post: Call was made without a correct type specification. No action will be taken");
+                break;
+        }
     }
 }

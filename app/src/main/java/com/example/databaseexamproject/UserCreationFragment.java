@@ -1,25 +1,34 @@
 package com.example.databaseexamproject;
 
-import android.content.Intent;
+import android.nfc.Tag;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.room.Room;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.util.Patterns;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.example.databaseexamproject.databinding.FragmentUserCreationBinding;
-import com.example.databaseexamproject.databinding.FragmentUserLoginBinding;
 import com.example.databaseexamproject.room.AppDatabase;
+import com.example.databaseexamproject.room.SynchronizeLocalDB;
 import com.example.databaseexamproject.room.dataobjects.User;
+import com.example.databaseexamproject.webrequests.RemoteDBRequest;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -35,6 +44,12 @@ public class UserCreationFragment extends Fragment {
     private FragmentUserCreationBinding binding;
 
     private String mParam1;
+
+    private MutableLiveData<creationFormState> creationFormState = new MutableLiveData<>();
+
+    LiveData<creationFormState> getCreationFormState() {
+        return creationFormState;
+    }
 
     public UserCreationFragment() {
         // Required empty public constructor
@@ -69,14 +84,59 @@ public class UserCreationFragment extends Fragment {
 
         final EditText useridEditText = binding.userid;
         final EditText fullNameEditText = binding.fullName;
+        final Button toLoginButton = binding.toUserLoginButton;
 
-        binding.toUserLoginButton.setOnClickListener( (v) -> {
-            AppDatabase db = Room.databaseBuilder(getActivity(), AppDatabase.class, "users").allowMainThreadQueries().fallbackToDestructiveMigration().build();
-            db.userDao().insertAll(new User(useridEditText.getText().toString(), fullNameEditText.getText().toString()));
+        getCreationFormState().observe(getActivity(), creationFormState -> {
+            if (creationFormState == null) {
+                return;
+            }
+            toLoginButton.setEnabled(creationFormState.isDataValid());
+            if (creationFormState.getUsernameError() != null) {
+                useridEditText.setError(getString(creationFormState.getUsernameError()));
+            }
+            if (creationFormState.getNameError() != null) {
+                fullNameEditText.setError(getString(creationFormState.getNameError()));
+            }
+        });
+
+        TextWatcher afterTextChangedListener = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // ignore
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // ignore
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                creationDataChanged(useridEditText.getText().toString(),
+                        fullNameEditText.getText().toString());
+            }
+        };
+
+        useridEditText.addTextChangedListener(afterTextChangedListener);
+        fullNameEditText.addTextChangedListener(afterTextChangedListener);
+
+
+        toLoginButton.setOnClickListener( (v) -> {
+            AppDatabase db = Room.databaseBuilder(getActivity(), AppDatabase.class, "database-name").allowMainThreadQueries().fallbackToDestructiveMigration().build();
+            User user = new User(useridEditText.getText().toString(), fullNameEditText.getText().toString());
+            db.userDao().insertAll(user);
             Log.d("UserCreationFragment", "User created");
+            synchronizeWithRemoteDB(user);
+        });
+    }
 
+    private void synchronizeWithRemoteDB(User user) {
+        RemoteDBRequest.user(getActivity(), RemoteDBRequest.QUERY_TYPE_INSERT, user, (response, responseBody, requestName) -> {
+            Bundle bundle = new Bundle();
+            bundle.putString("USERNAME", user.id);
+            bundle.putBoolean("HAS_CREATED_USER", true);
             NavHostFragment.findNavController(UserCreationFragment.this)
-                    .navigateUp();
+                    .navigate(R.id.action_userCreationFragment_to_userLoginFragment, bundle);
         });
     }
 
@@ -88,5 +148,46 @@ public class UserCreationFragment extends Fragment {
 
 
         return binding.getRoot();
+    }
+
+    public void creationDataChanged(String username, String name) {
+        if (isFieldEmpty(username)) {
+            creationFormState.setValue(new creationFormState(R.string.invalid_name, null));
+        } else if (!isUserNameValid(username)) {
+            creationFormState.setValue(new creationFormState(R.string.invalid_username_taken, null));
+        }  else if (isFieldEmpty(name)) {
+            creationFormState.setValue(new creationFormState(null, R.string.invalid_name));
+        } else {
+            creationFormState.setValue(new creationFormState(true));
+        }
+    }
+
+    private boolean isFieldEmpty(String name) {
+        if (name == null) {
+            return true;
+        } else {
+            return name.trim().isEmpty();
+        }
+    }
+
+    private boolean isUserNameValid(String username) {
+        if (username == null) {
+            Log.d("here", "username is null");
+            return false;
+        }
+        AppDatabase db;
+        User user;
+        SynchronizeLocalDB.syncDB(getActivity(), (success) -> {
+
+        });
+        db = Room.databaseBuilder(getActivity(), AppDatabase.class, "database-name").allowMainThreadQueries().fallbackToDestructiveMigration().build();
+        user = db.userDao().findByName(username);
+
+        if (!(user == null)) {
+            return false;
+        } else {
+            return !username.trim().isEmpty();
+        }
+
     }
 }

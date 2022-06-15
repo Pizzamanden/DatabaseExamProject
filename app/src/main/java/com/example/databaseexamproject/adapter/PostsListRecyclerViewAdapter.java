@@ -2,28 +2,30 @@ package com.example.databaseexamproject.adapter;
 
 import static android.content.ContentValues.TAG;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.databaseexamproject.PostsListFragment;
 import com.example.databaseexamproject.R;
-import com.example.databaseexamproject.room.Converters;
-import com.example.databaseexamproject.room.dataobjects.BigFuckPost;
-import com.example.databaseexamproject.room.dataobjects.PostJoinUser;
-import com.example.databaseexamproject.room.dataobjects.PostReactions;
+import com.example.databaseexamproject.room.SynchronizeLocalDB;
+import com.example.databaseexamproject.room.dataobjects.PostWithReactions;
+import com.example.databaseexamproject.room.dataobjects.Reaction;
+import com.example.databaseexamproject.webrequests.HttpRequest;
+import com.example.databaseexamproject.webrequests.RemoteDBRequest;
 
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,12 +33,12 @@ import java.util.regex.Pattern;
 public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsListRecyclerViewAdapter.ViewHolder> {
 
     // The post, with the users name attached
-    private List<BigFuckPost> localData;
+    private List<PostWithReactions> localData; // We are changing the data within, so it could be final. But it is NOT unchanging!
 
-    // The 3 most recent comments for this post
-    // TODO get the 3 most recent comments
+    private final Fragment fragment;
 
-    private Fragment fragment;
+    private final String loggedUserID;
+
 
 
     public class ViewHolder extends RecyclerView.ViewHolder{
@@ -48,6 +50,7 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
         public Button buttonLikeReact;
         public Button buttonDislikeReact;
         public Button buttonAmbivalenceReact;
+        public ImageView imageViewContentImage;
 
 
         public ViewHolder(@NonNull View itemView) {
@@ -59,13 +62,15 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
             buttonLikeReact = itemView.findViewById(R.id.button_likeReact);
             buttonDislikeReact = itemView.findViewById(R.id.button_dislikeReact);
             buttonAmbivalenceReact = itemView.findViewById(R.id.button_ambivalentReact);
+            imageViewContentImage = itemView.findViewById(R.id.imageView_contentImage);
         }
     }
 
-    public PostsListRecyclerViewAdapter(Fragment fragment, List<BigFuckPost> data){
+    public PostsListRecyclerViewAdapter(Fragment fragment, List<PostWithReactions> data, String userID){
         localData = data;
         this.fragment = fragment;
         Log.d(TAG, "PostsListRecyclerViewAdapter: Posts length: " + localData.size());
+        loggedUserID = userID;
     }
 
 
@@ -88,14 +93,17 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
 
         // We must scan the content for any images, and fetch them in case they are there
         String content = localData.get(position).post.content;
-        String imageURL = textContainsImageURL(content);
-        // TODO is this shitty with long text?
-        if(imageURL != null){
-            Log.d(TAG, "onBindViewHolder: Content contained image!");
-            // Remove the Url from the String
-            content = content.replace(imageURL, "");
-            // TODO now do something with that URL
+        int[] imageURLLocation = textContainsImageURL(content);
+        if(imageURLLocation[1] != 0){
+            // Now, get the image url
+            String imageURL = content.substring(imageURLLocation[0], imageURLLocation[1]);
+            // We setup the image download and showing process immediately
+            setImageViewImageFromUrl(holder.imageViewContentImage, imageURL);
+            Log.d(TAG, "onBindViewHolder: " + imageURL);
+            // Remove the Url from the String, and continue as we were
+            content = content.substring(0, imageURLLocation[0]) + content.substring(imageURLLocation[1]);
         }
+        // TODO we could treat the content string, like removing strange chars from the beginning, like spaces, colons or others
         holder.textViewPostText.setText(content);
 
         Button[] buttons = {
@@ -125,13 +133,12 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
 
         // Set the listener for the posts, to view them
         holder.layout.setOnClickListener( (v) -> {
-            // We now send all the data required to show a post!
+            // Set the variable in the parent activity to remember the recycler position
+            PostsListFragment postsListFragment = (PostsListFragment) fragment;
+            postsListFragment.setRememberRecyclerViewPosition(holder.getAdapterPosition());
+            // Send the post id only, we make a SQL query on the other side (and we just need the id for that)
             Bundle args = new Bundle();
-            args.putString("sentData_user_id" , localData.get(holder.getAdapterPosition()).post.user_id);
             args.putInt("sentData_post_id", localData.get(holder.getAdapterPosition()).post.id);
-            args.putString("sentData_content" , localData.get(holder.getAdapterPosition()).post.content);
-            args.putString("sentData_user_name" , localData.get(holder.getAdapterPosition()).name);
-            args.putInt("recyclerViewElementPosition", holder.getAdapterPosition());
             NavHostFragment.findNavController(fragment)
                     .navigate(R.id.action_postsListFragment_to_viewPostFragment, args);
         });
@@ -146,56 +153,89 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
 
         for(int i = 0; i < buttons.length; i++){
             final int thisButtonType = i;
-            // TODO work out listener states
             // First we setup the state of our buttons
             if(isReacted[i]){
                 // Set the new styling, to show it is pressed down and synch
                 setButtonActive(buttons[i]);
             }
+            Log.d(TAG, "stylePostButtons: Has the user reacted on button " + thisButtonType + " for post " + postPosition + "?: " + isReacted[thisButtonType]);
             buttons[i].setText(counts[i] + " " + names[i]);
             // Then we attach the listener, which handles changes when the user clicks any button
             buttons[i].setOnClickListener(new View.OnClickListener() {
-                final public String buttonName = names[thisButtonType];
-                final public int buttonCount = counts[thisButtonType];
-                final public int buttonPosition = postPosition;
-                final public int buttonNumber = thisButtonType + 1;
+                final public String buttonName = names[thisButtonType]; // What the applicable textString is for this type
+                final public int buttonCount = counts[thisButtonType] - ( isReacted[thisButtonType] ? 1 : 0); // What the default value is
+                final public int buttonPosition = postPosition; // The position in the dataset
+                final public int buttonNumber = thisButtonType + 1; // The actual integer representation in the database: 0 = deleted, 1 = like, 2 = displike, 3 = meh
 
                 @Override
                 public void onClick(View v) {
                     Button clickedButton = (Button) v;
                     Log.d(TAG, "styleButton: The number is " + buttonNumber);
+                    Log.d(TAG, "styleButton: Post id is: " + localData.get(buttonPosition).post.id + " at position: " + buttonPosition);
+                    Log.d(TAG, "styleButton: Has the user already reacted?: " + localData.get(buttonPosition).userReaction);
                     int savedUserReaction = localData.get(buttonPosition).userReaction;
                     if(savedUserReaction == buttonNumber){
                         // This button should have had been active
+                        Log.d(TAG, "onClick: Unpress button " + (buttonNumber - 1) + " for post " + buttonPosition);
                         // This is the easy case. We had reacted this reaction, and now we want to remove it.
-                        // First we launch a database request. (we do not wait for a response) TODO should we?
-                        // TODO do remote shizz
+                        // First we launch a database request. (we do not wait for a response)
+                        updateRemoteReactionTable(buttonPosition, 0, (response, responseBody, requestName) -> {
+                            // Error handling?
+                            SynchronizeLocalDB.syncDB(fragment.getContext(), (success) ->{});
+                        });
                         // We then update the visual amount and status.
                         localData.get(buttonPosition).userReaction = 0;
-                        clickedButton.setText((buttonCount - 1) + " " + buttonName);
+                        clickedButton.setText(buttonCount + " " + buttonName);
                         setButtonInactive(buttons[thisButtonType]);
 
                     } else {
                         // This button should have had been inactive
-                        // We know we must add 1 to the count of this button, and update the remote DB
-                        // TODO update remote
+                        // This means we have a new value, for this user, for this reaction.
                         // Now we need to see if the value was set to something other than 0
                         if(savedUserReaction != 0){
                             // Now it gets less simple
                             // Another button was pressed, and we must now de-press that one and update the remote DB.
                             // We know which one it was, based on the saved user reaction
-                            // TODO do remote shizz
-                            buttons[savedUserReaction - 1].setText((counts[savedUserReaction - 1] - 1) + " " + names[savedUserReaction - 1]);
-                            setButtonInactive(clickedButton);
+                            // NO DATABASE HERE
+                            Log.d(TAG, "onClick: Unpress button " + (savedUserReaction - 1) + " for post " + buttonPosition);
+                            buttons[savedUserReaction - 1].setText(buttonCount + " " + names[savedUserReaction - 1]);
+                            setButtonInactive(buttons[savedUserReaction - 1]);
                         }
+                        Log.d(TAG, "onClick: Press button " + (buttonNumber - 1) + " for post " + buttonPosition);
                         // As we change the saved user reaction here, we do it after checking/handling the already pressed button (if there is one)
                         localData.get(buttonPosition).userReaction = buttonNumber;
                         clickedButton.setText((buttonCount + 1) + " " + buttonName);
                         setButtonActive(buttons[thisButtonType]);
+                        // Now we update remote
+                        updateRemoteReactionTable(buttonPosition, buttonNumber, (response, responseBody, requestName) -> {
+                            // Error handling?
+                            SynchronizeLocalDB.syncDB(fragment.getContext(), (success) ->{});
+                        });
                     }
                 }
             });
         }
+    }
+
+    private void updateRemoteReactionTable(int dataPosition, int newReactionType, HttpRequest.HttpRequestResponse requestResponse){
+        int post_id = localData.get(dataPosition).post.id;
+        Log.d(TAG, "updateRemoteReactionTable: " + localData.get(dataPosition).post.content);
+        Date userReactionTimestamp = localData.get(dataPosition).stamp;
+        Reaction reaction = new Reaction(loggedUserID, post_id, newReactionType);
+        Log.d(TAG, "updateRemoteReactionTable: " + loggedUserID);
+        Log.d(TAG, "updateRemoteReactionTable: " + post_id);
+        Log.d(TAG, "updateRemoteReactionTable: " + newReactionType);
+        Log.d(TAG, "updateRemoteReactionTable: " + userReactionTimestamp);
+        if(userReactionTimestamp != null){
+            // Update action
+            reaction.stamp = userReactionTimestamp;
+        } else {
+            long stamp = System.currentTimeMillis();
+            reaction.stamp = new Date(stamp);
+            localData.get(dataPosition).stamp = reaction.stamp;
+        }
+        RemoteDBRequest.reaction(fragment.getContext(), ( userReactionTimestamp != null ? RemoteDBRequest.QUERY_TYPE_UPDATE : RemoteDBRequest.QUERY_TYPE_INSERT),
+                reaction, requestResponse);
     }
 
     private void setButtonActive(Button button){
@@ -208,7 +248,8 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
         // TODO
     }
 
-    private String textContainsImageURL(String text){
+    private int[] textContainsImageURL(String text){
+        int[] substringLocation = new int[2];
         String regex = "(http(s?):/)(/[^/]+)+\\.(?:jpg|gif|png)"; // Regex for mathing image urls
         // Regex explanation:
         // It was not made by hand, but with a tool, but still:
@@ -217,13 +258,17 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
         // It also breaks the regex if at any point (ignoring the first forward slash in group 1) there are two consequent forward slashes.
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(text);
-        String result = null;
-        while(matcher.find()){
-            result = matcher.group();
+        if(matcher.find()){
             Log.d(TAG, "textContainsImageURL: URL location starts at: " + matcher.start());
             Log.d(TAG, "textContainsImageURL: URL location ends at: " + matcher.end());
             Log.d(TAG, "textContainsImageURL: The found URL is: " + matcher.group());
+            substringLocation[0] = matcher.start();
+            substringLocation[1] = matcher.end();
         }
-        return result;
+        return substringLocation;
+    }
+
+    public void setImageViewImageFromUrl(ImageView imageView, String URL){
+        // TODO what is an async task, and how do we convert URL into bitstream, into bitmaps?????????????????
     }
 }
