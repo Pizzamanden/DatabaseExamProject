@@ -55,7 +55,7 @@ public interface PostDao {
             " (SELECT COUNT(*) FROM (SELECT COUNT(*) FROM reactions WHERE reactions.type = 2 AND posts.id = reactions.post_id GROUP BY reactions.user_id, reactions.post_id)) AS 'type2Reactions'," +
             " (SELECT COUNT(*) FROM (SELECT COUNT(*) FROM reactions WHERE reactions.type = 3 AND posts.id = reactions.post_id GROUP BY reactions.user_id, reactions.post_id)) AS 'type3Reactions' " +
             "FROM posts JOIN users ON posts.user_id = users.id " +
-            "WHERE posts.content NOT LIKE 'somethingCool%' AND posts.id = (:postID)" +
+            "WHERE posts.content NOT LIKE 're:\"%\"%' AND posts.id = (:postID)" +
             "ORDER BY posts.stamp DESC")
     PostWithReactions getSpecificPostWithReactionByUserAnAllReactionsCounter(String userID, int postID);
 
