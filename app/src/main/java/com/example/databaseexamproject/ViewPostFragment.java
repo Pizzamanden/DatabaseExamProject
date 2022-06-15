@@ -6,11 +6,14 @@ import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 
 import android.util.Log;
@@ -19,10 +22,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.example.databaseexamproject.adapter.CommentForPostRecyclerViewAdapter;
+import com.example.databaseexamproject.adapter.PostsListRecyclerViewAdapter;
 import com.example.databaseexamproject.databinding.FragmentViewPostBinding;
 import com.example.databaseexamproject.room.AppDatabase;
 import com.example.databaseexamproject.room.DatabaseRequest;
 import com.example.databaseexamproject.room.SynchronizeLocalDB;
+import com.example.databaseexamproject.room.dataobjects.Comment;
+import com.example.databaseexamproject.room.dataobjects.CommentWithUserName;
 import com.example.databaseexamproject.room.dataobjects.PostWithReactions;
 import com.example.databaseexamproject.room.dataobjects.Reaction;
 import com.example.databaseexamproject.webrequests.HttpRequest;
@@ -146,6 +153,26 @@ public class ViewPostFragment extends Fragment {
                 postData.userReaction == 3
         };
         stylePostButtons(buttons, counts, names, isReacted);
+
+        // Now we fill in the comments
+        getAndInsertComments();
+    }
+
+    private void getAndInsertComments() {
+        AppDatabase db = Room.databaseBuilder(getActivity().getApplicationContext(),
+                AppDatabase.class, "database-name").build();
+
+        DatabaseRequest<List<CommentWithUserName>> databaseRequest = new DatabaseRequest<>(getActivity(), (result) -> {
+            RecyclerView recyclerView = binding.recyclerViewCommentsForPost;
+            // Create a layout manager for the recyclerView
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
+            recyclerView.setLayoutManager(linearLayoutManager);
+
+            // Create and attach our adapter
+            recyclerView.setAdapter(new CommentForPostRecyclerViewAdapter(result));
+
+        });
+        databaseRequest.runRequest(() -> db.commentDao().getByPostSortedDateDesc(post_id));
     }
 
     private void stylePostButtons(Button[] buttons, int[] counts, String[] names, boolean[] isReacted){

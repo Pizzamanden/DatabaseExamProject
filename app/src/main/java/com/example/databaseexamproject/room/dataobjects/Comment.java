@@ -25,4 +25,11 @@ public class Comment {
     @NonNull
     public Date stamp;
 
+    public Comment(int id, @NonNull String user_id, int post_id, @NonNull String text, Date stamp) {
+        this.id = id;
+        this.user_id = user_id;
+        this.post_id = post_id;
+        this.text = text;
+        this.stamp = stamp;
+    }
 }

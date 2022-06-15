@@ -6,6 +6,7 @@ import static android.content.ContentValues.TAG;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.databaseexamproject.room.dataobjects.Comment;
 import com.example.databaseexamproject.room.dataobjects.Post;
 import com.example.databaseexamproject.room.dataobjects.Reaction;
 import com.example.databaseexamproject.room.dataobjects.User;
@@ -70,6 +71,7 @@ public class RemoteDBRequest {
                 break;
             }
             case QUERY_TYPE_DELETE:
+                // TODO handle cascade of reactions and comments!
                 Log.d(TAG, "post: Delete call on ID: " + post.id);
                 baselineURL = baselineURL + "?id=eq." + post.id;
                 httpRequest.makeHttpRequest(new Request.Builder()
@@ -170,8 +172,49 @@ public class RemoteDBRequest {
                 );
                 break;
             }
+            default:
+                Log.d(TAG, "post: Call was made without a correct type specification. No action will be taken");
+                break;
+        }
+    }
+
+    public static void comment(Context context, String type, Comment comment, HttpRequest.HttpRequestResponse requestResponse){
+        HttpRequest httpRequest = new HttpRequest(context, requestResponse, "Post" + type);
+        String baselineURL = REMOTE_URL + "/posts";
+
+        Gson gson = new Gson();
+        String object = gson.toJson(comment);
+
+        byte[] toByteStream = object.getBytes(StandardCharsets.UTF_8);
+
+        switch (type) {
+            case QUERY_TYPE_INSERT: {
+                Log.d(TAG, "post: Insert call");
+                httpRequest.makeHttpRequest(new Request.Builder()
+                        .post(RequestBody.create(toByteStream))
+                        .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
+                        .addHeader(AUTH_KEY, AUTH_VALUE)
+                        .url(baselineURL)
+                        .build()
+                );
+                break;
+            }
+            case QUERY_TYPE_UPDATE: {
+                Log.d(TAG, "post: Update call on ID: " + comment.id);
+                baselineURL = baselineURL + "?id=eq." + comment.id;
+                httpRequest.makeHttpRequest(new Request.Builder()
+                        .patch(RequestBody.create(toByteStream))
+                        .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
+                        .addHeader(AUTH_KEY, AUTH_VALUE)
+                        .url(baselineURL)
+                        .build()
+                );
+                break;
+            }
             case QUERY_TYPE_DELETE:
-                baselineURL = baselineURL + "?post_id=eq." + reaction.post_id + "&user_id=eq." + reaction.user_id;
+                // TODO handle cascade
+                Log.d(TAG, "post: Delete call on ID: " + comment.id);
+                baselineURL = baselineURL + "?id=eq." + comment.id;
                 httpRequest.makeHttpRequest(new Request.Builder()
                         .delete(RequestBody.create(toByteStream))
                         .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
@@ -181,7 +224,7 @@ public class RemoteDBRequest {
                 );
                 break;
             default:
-                Log.d(TAG, "post: Call was made without a correct type specification. No action will be taken");
+                Log.d(TAG, "post: Call was made without a type specification. No action will be taken");
                 break;
         }
     }
