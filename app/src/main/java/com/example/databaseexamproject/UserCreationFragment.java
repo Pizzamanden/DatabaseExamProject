@@ -1,6 +1,5 @@
 package com.example.databaseexamproject;
 
-import android.nfc.Tag;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,15 +13,11 @@ import androidx.room.Room;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.util.Patterns;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.example.databaseexamproject.databinding.FragmentUserCreationBinding;
 import com.example.databaseexamproject.room.AppDatabase;
@@ -45,9 +40,9 @@ public class UserCreationFragment extends Fragment {
 
     private String mParam1;
 
-    private MutableLiveData<creationFormState> creationFormState = new MutableLiveData<>();
+    private MutableLiveData<CreationFormState> creationFormState = new MutableLiveData<>();
 
-    LiveData<creationFormState> getCreationFormState() {
+    LiveData<CreationFormState> getCreationFormState() {
         return creationFormState;
     }
 
@@ -86,16 +81,16 @@ public class UserCreationFragment extends Fragment {
         final EditText fullNameEditText = binding.fullName;
         final Button toLoginButton = binding.toUserLoginButton;
 
-        getCreationFormState().observe(getActivity(), creationFormState -> {
-            if (creationFormState == null) {
+        getCreationFormState().observe(getActivity(), CreationFormState -> {
+            if (CreationFormState == null) {
                 return;
             }
-            toLoginButton.setEnabled(creationFormState.isDataValid());
-            if (creationFormState.getUsernameError() != null) {
-                useridEditText.setError(getString(creationFormState.getUsernameError()));
+            toLoginButton.setEnabled(CreationFormState.isDataValid());
+            if (CreationFormState.getUsernameError() != null) {
+                useridEditText.setError(getString(CreationFormState.getUsernameError()));
             }
-            if (creationFormState.getNameError() != null) {
-                fullNameEditText.setError(getString(creationFormState.getNameError()));
+            if (CreationFormState.getNameError() != null) {
+                fullNameEditText.setError(getString(CreationFormState.getNameError()));
             }
         });
 
@@ -152,13 +147,13 @@ public class UserCreationFragment extends Fragment {
 
     public void creationDataChanged(String username, String name) {
         if (isFieldEmpty(username)) {
-            creationFormState.setValue(new creationFormState(R.string.invalid_name, null));
+            creationFormState.setValue(new CreationFormState(R.string.invalid_name, null));
         } else if (!isUserNameValid(username)) {
-            creationFormState.setValue(new creationFormState(R.string.invalid_username_taken, null));
+            creationFormState.setValue(new CreationFormState(R.string.invalid_username_taken, null));
         }  else if (isFieldEmpty(name)) {
-            creationFormState.setValue(new creationFormState(null, R.string.invalid_name));
+            creationFormState.setValue(new CreationFormState(null, R.string.invalid_name));
         } else {
-            creationFormState.setValue(new creationFormState(true));
+            creationFormState.setValue(new CreationFormState(true));
         }
     }
 
