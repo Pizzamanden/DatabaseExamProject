@@ -158,7 +158,6 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
                 // Set the new styling, to show it is pressed down and synch
                 setButtonActive(buttons[i]);
             }
-            Log.d(TAG, "stylePostButtons: Has the user reacted on button " + thisButtonType + " for post " + postPosition + "?: " + isReacted[thisButtonType]);
             buttons[i].setText(counts[i] + " " + names[i]);
             // Then we attach the listener, which handles changes when the user clicks any button
             buttons[i].setOnClickListener(new View.OnClickListener() {
@@ -262,9 +261,6 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
             Pattern pattern = Pattern.compile(regex);
             Matcher matcher = pattern.matcher(text);
             if(matcher.find()){
-                Log.d(TAG, "textContainsImageURL: URL location starts at: " + matcher.start());
-                Log.d(TAG, "textContainsImageURL: URL location ends at: " + matcher.end());
-                Log.d(TAG, "textContainsImageURL: The found URL is: " + matcher.group());
                 substringLocation[0] = matcher.start();
                 substringLocation[1] = matcher.end();
             }
