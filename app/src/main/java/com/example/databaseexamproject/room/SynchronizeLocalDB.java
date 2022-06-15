@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.databaseexamproject.R;
 import com.example.databaseexamproject.room.dataobjects.Post;
 import com.example.databaseexamproject.room.dataobjects.Reaction;
 import com.example.databaseexamproject.room.dataobjects.User;
@@ -46,11 +47,12 @@ public class SynchronizeLocalDB {
           "posts",
           "reactions"
         };
+
         ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1);
         ExecutorCompletionService<Boolean> completionService = new ExecutorCompletionService<>( executor );
 
         AppDatabase db = Room.databaseBuilder(context.getApplicationContext(),
-                AppDatabase.class, "database-name").build();
+                AppDatabase.class, "database-name").fallbackToDestructiveMigration().build();
 
         int successfulSyncs = 0;
 

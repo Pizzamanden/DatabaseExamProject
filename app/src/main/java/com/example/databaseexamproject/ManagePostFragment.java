@@ -16,6 +16,11 @@ import com.example.databaseexamproject.databinding.FragmentManagePostBinding;
 import com.example.databaseexamproject.room.dataobjects.Post;
 import com.example.databaseexamproject.webrequests.RemoteDBRequest;
 
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.Date;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link ManagePostFragment#newInstance} factory method to
@@ -28,6 +33,7 @@ public class ManagePostFragment extends Fragment {
     private static final String EXISTING_POST = "isExistingPost";
     private static final String POST_ID = "existingPost_id";
     private static final String POST_CONTENT = "existingPost_content";
+
 
     // Fragment argument parameters
     private String user_id;
@@ -98,10 +104,19 @@ public class ManagePostFragment extends Fragment {
     private void submitPost(String content){
         Log.d(TAG, "submitPost: Content submitted was: " + content);
         // Now we have the content from our textEdit, and we must do the SQL thing
-        // TODO generate ID's for posts
-        Post post = new Post(post_id, content, user_id);
+        int idToUse;
+        if(!isExistingPost){
+            // Insert action
+            long stamp = System.currentTimeMillis();
+            long post_generated_id = user_id.hashCode() + stamp;
+            idToUse = (int) post_generated_id;
+        } else {
+            // Update action
+            idToUse = post_id;
+        }
+        Post post = new Post(idToUse, content, user_id);
 
-        RemoteDBRequest.post(getContext(), (isExistingPost ? RemoteDBRequest.QUERY_TYPE_UPDATE : RemoteDBRequest.QUERY_TYPE_INSERT), post, post_id, () -> {
+        RemoteDBRequest.post(getContext(), (isExistingPost ? RemoteDBRequest.QUERY_TYPE_UPDATE : RemoteDBRequest.QUERY_TYPE_INSERT), post, () -> {
             // TODO this is where we continue (on main thread)
             NavHostFragment.findNavController(ManagePostFragment.this)
                     .navigateUp();

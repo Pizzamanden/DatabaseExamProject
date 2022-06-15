@@ -91,7 +91,7 @@ public class ViewPostFragment extends Fragment {
             Bundle args = new Bundle();
             args.putInt("recyclerViewElementPosition", saved_recyclerview_position);
             NavController navController = NavHostFragment.findNavController(ViewPostFragment.this);
-            navController.navigate(R.id.action_viewPostFragment_to_postsListFragment, args);
+            navController.navigateUp();
         });
 
         binding.toManagePost.setOnClickListener(v->{

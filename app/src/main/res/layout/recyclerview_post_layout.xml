@@ -25,6 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:text="TextView"
+        android:maxLines="20"
         app:layout_constraintEnd_toEndOf="@+id/textView_userName"
         app:layout_constraintStart_toStartOf="@+id/textView_userName"
         app:layout_constraintTop_toBottomOf="@+id/textView_userName" />
@@ -50,7 +51,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView_contentImage">
 
-        <Button
+        <ToggleButton
             android:id="@+id/button_likeReact"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -58,26 +59,32 @@
             android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp"
             android:text="@string/likeReact"
+            android:textOff="@string/likeReact"
+            android:textOn="@string/likeReact"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <Button
+        <ToggleButton
             android:id="@+id/button_dislikeReact"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/dislikeReact"
+            android:textOff="@string/dislikeReact"
+            android:textOn="@string/dislikeReact"
             app:layout_constraintBottom_toBottomOf="@+id/button_likeReact"
             app:layout_constraintEnd_toStartOf="@+id/button_ambivalentReact"
             app:layout_constraintStart_toEndOf="@+id/button_likeReact"
             app:layout_constraintTop_toTopOf="@+id/button_likeReact" />
 
-        <Button
+        <ToggleButton
             android:id="@+id/button_ambivalentReact"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="30dp"
             android:text="@string/ambivalenceReact"
+            android:textOff="@string/ambivalenceReact"
+            android:textOn="@string/ambivalenceReact"
             app:layout_constraintBottom_toBottomOf="@+id/button_dislikeReact"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/button_dislikeReact" />
