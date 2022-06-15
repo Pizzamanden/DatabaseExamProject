@@ -102,7 +102,7 @@ public class PostsListFragment extends Fragment {
 
         // Create and attach our adapter
         recyclerView.setAdapter(new PostsListRecyclerViewAdapter(PostsListFragment.this, posts, loggedInUserID));
-        linearLayoutManager.scrollToPosition(parentActivity.getReyclerViewPosition());
+        linearLayoutManager.scrollToPosition((parentActivity.getReyclerViewPosition() > posts.size() ? 0 : parentActivity.getReyclerViewPosition()));
 
         binding.fabNewPost.setOnClickListener((v) -> {
             parentActivity.setReyclerViewPosition(linearLayoutManager.findFirstVisibleItemPosition());

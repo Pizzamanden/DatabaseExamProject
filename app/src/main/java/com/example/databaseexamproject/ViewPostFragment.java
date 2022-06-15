@@ -106,17 +106,6 @@ public class ViewPostFragment extends Fragment {
     }
 
     private void setupViewsWithData(){
-        // OLD METHOD TO GO BACK!
-        /*binding.toPostsListButton.setOnClickListener(v->{
-            // TODO the back button in toolbar and on the phone itself does not trigger this!
-            // This button cant be here, but the functionalities must be transferred to toolbar and back button
-            // (the functionality is just to make the recyclerview remember where it was)
-            Bundle args = new Bundle();
-            args.putInt("recyclerViewElementPosition", saved_recyclerview_position);
-            NavController navController = NavHostFragment.findNavController(ViewPostFragment.this);
-            navController.navigateUp();
-        });*/
-
         if(postData.post.user_id.equals(loggedUserID)){ // The user logged in is the same as the owner of this post!
             binding.fabEditPost.setOnClickListener(v->{
                 Log.d(TAG, "setupViewsWithData: click");
@@ -131,6 +120,7 @@ public class ViewPostFragment extends Fragment {
         } else {
             binding.fabEditPost.setVisibility(View.GONE);
         }
+        // TODO handle images here also
         binding.include.textViewUserName.setText(postData.name);
         binding.include.textViewPostText.setText(postData.post.content);
 

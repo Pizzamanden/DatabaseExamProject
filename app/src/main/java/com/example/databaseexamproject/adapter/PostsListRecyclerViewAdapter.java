@@ -249,23 +249,27 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
     }
 
     private int[] textContainsImageURL(String text){
-        int[] substringLocation = new int[2];
-        String regex = "(http(s?):/)(/[^/]+)+\\.(?:jpg|gif|png)"; // Regex for mathing image urls
-        // Regex explanation:
-        // It was not made by hand, but with a tool, but still:
-        // Group 1: matches (http)(s)(:/), where the (s) is optional
-        // Group 3: It must end with (/)(*)(.)(format) where * is any NOT forward slash character, and format is an allowed image format.
-        // It also breaks the regex if at any point (ignoring the first forward slash in group 1) there are two consequent forward slashes.
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(text);
-        if(matcher.find()){
-            Log.d(TAG, "textContainsImageURL: URL location starts at: " + matcher.start());
-            Log.d(TAG, "textContainsImageURL: URL location ends at: " + matcher.end());
-            Log.d(TAG, "textContainsImageURL: The found URL is: " + matcher.group());
-            substringLocation[0] = matcher.start();
-            substringLocation[1] = matcher.end();
+        if(text == null){
+            return new int[2];
+        } else {
+            int[] substringLocation = new int[2];
+            String regex = "(http(s?):/)(/[^/]+)+\\.(?:jpg|gif|png)"; // Regex for mathing image urls
+            // Regex explanation:
+            // It was not made by hand, but with a tool, but still:
+            // Group 1: matches (http)(s)(:/), where the (s) is optional
+            // Group 3: It must end with (/)(*)(.)(format) where * is any NOT forward slash character, and format is an allowed image format.
+            // It also breaks the regex if at any point (ignoring the first forward slash in group 1) there are two consequent forward slashes.
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(text);
+            if(matcher.find()){
+                Log.d(TAG, "textContainsImageURL: URL location starts at: " + matcher.start());
+                Log.d(TAG, "textContainsImageURL: URL location ends at: " + matcher.end());
+                Log.d(TAG, "textContainsImageURL: The found URL is: " + matcher.group());
+                substringLocation[0] = matcher.start();
+                substringLocation[1] = matcher.end();
+            }
+            return substringLocation;
         }
-        return substringLocation;
     }
 
     public void setImageViewImageFromUrl(ImageView imageView, String URL){
