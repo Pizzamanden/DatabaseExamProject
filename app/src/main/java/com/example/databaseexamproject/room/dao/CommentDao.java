@@ -11,6 +11,12 @@ import java.util.List;
 
 @Dao
 public interface CommentDao {
+
+
+    @Query("SELECT id FROM comments WHERE post_id = (:postID)")
+    List<Integer> getAllCommentIDByPostID(int postID);
+
+
     @Query("SELECT comments.*, users.name FROM comments JOIN users ON users.id = comments.user_id" +
             " ORDER BY stamp DESC")
     List<CommentWithUserName> getAllSortedDateDesc();

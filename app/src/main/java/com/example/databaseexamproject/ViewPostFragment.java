@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
@@ -18,6 +19,9 @@ import androidx.room.Room;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -30,6 +34,7 @@ import com.example.databaseexamproject.room.DatabaseRequest;
 import com.example.databaseexamproject.room.SynchronizeLocalDB;
 import com.example.databaseexamproject.room.dataobjects.Comment;
 import com.example.databaseexamproject.room.dataobjects.CommentWithUserName;
+import com.example.databaseexamproject.room.dataobjects.Post;
 import com.example.databaseexamproject.room.dataobjects.PostWithReactions;
 import com.example.databaseexamproject.room.dataobjects.Reaction;
 import com.example.databaseexamproject.webrequests.HttpRequest;
@@ -47,6 +52,7 @@ public class ViewPostFragment extends Fragment {
 
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String POST_ID = "sentData_post_id";
+    private static final String USER_ID = "sentData_user_id";
 
     // Parent activity and the userID
     private PostsListActivity parentActivity;
@@ -57,6 +63,7 @@ public class ViewPostFragment extends Fragment {
 
     // Fragment data values
     private int post_id;
+    private String user_id;
 
     // Binding
     FragmentViewPostBinding binding;
@@ -71,10 +78,11 @@ public class ViewPostFragment extends Fragment {
      *
      * @return A new instance of fragment ViewPostFragment.
      */
-    public static ViewPostFragment newInstance(int post_id) {
+    public static ViewPostFragment newInstance(int post_id, String user_id) {
         ViewPostFragment fragment = new ViewPostFragment();
         Bundle args = new Bundle();
         args.putInt(POST_ID, post_id);
+        args.putString(USER_ID, user_id);
         fragment.setArguments(args);
         return fragment;
     }
@@ -82,9 +90,33 @@ public class ViewPostFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         if (getArguments() != null) {
             post_id = getArguments().getInt(POST_ID);
+            user_id = getArguments().getString(USER_ID);
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        Log.d(TAG, "onCreateOptionsMenu: " + loggedUserID);
+        if(loggedUserID.equals(user_id)){
+            inflater.inflate(R.menu.view_post_menu, menu);
+        }
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if(id == R.id.item1){
+            RemoteDBRequest.deletePost(getActivity(),post_id, (response, responseBody, requestName) -> {
+                Log.d(TAG, "onOptionsItemSelected: We are now done with the deletion");
+                SynchronizeLocalDB.syncDB(getActivity(), (success -> {}));
+            });
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -94,6 +126,20 @@ public class ViewPostFragment extends Fragment {
         loggedUserID = parentActivity.getUserID();
         // Inflate the layout for this fragment
         binding = FragmentViewPostBinding.inflate(inflater, container, false);
+        binding.buttonSubmitComment.setOnClickListener((v)->{
+            // Create content
+            String content = "forPost:" + post_id + " " + binding.editTextCommentCreation.getText();
+            long stamp = System.currentTimeMillis();
+            Long post_generated_id = loggedUserID.hashCode() + stamp;
+            int idToUse = post_generated_id.intValue();
+            Post post = new Post(idToUse, loggedUserID, content);
+            RemoteDBRequest.post(getActivity(), RemoteDBRequest.QUERY_TYPE_INSERT, post, (response, responseBody, requestName) ->{
+                SynchronizeLocalDB.syncDB(getActivity(), (success)->{
+                    Log.d(TAG, "onCreateView: Comment Created!");
+                    // TODO refresh the view? Return to other posts list?
+                });
+            });
+        });
         setDataToViews();
         return binding.getRoot();
     }
@@ -169,7 +215,7 @@ public class ViewPostFragment extends Fragment {
             recyclerView.setLayoutManager(linearLayoutManager);
 
             // Create and attach our adapter
-            recyclerView.setAdapter(new CommentForPostRecyclerViewAdapter(result));
+            recyclerView.setAdapter(new CommentForPostRecyclerViewAdapter(result, loggedUserID));
 
         });
         databaseRequest.runRequest(() -> db.commentDao().getByPostSortedDateDesc(post_id));
@@ -179,18 +225,18 @@ public class ViewPostFragment extends Fragment {
 
         for(int i = 0; i < buttons.length; i++){
             final int thisButtonType = i;
-            // TODO work out listener states
             // First we setup the state of our buttons
-            if(isReacted[i]){
-                // Set the new styling, to show it is pressed down and sync
-                setButtonActive(buttons[i]);
-            }
             buttons[i].setText(counts[i] + " " + names[i]);
+            if(isReacted[i]){
+                // Set the new styling, to show it is pressed down and synch
+                setButtonActive(buttons[i]);
+                counts[i] = counts[i] - 1;
+            }
             // Then we attach the listener, which handles changes when the user clicks any button
             buttons[i].setOnClickListener(new View.OnClickListener() {
                 final public String buttonName = names[thisButtonType]; // What the applicable textString is for this type
-                final public int buttonCount = counts[thisButtonType] - ( isReacted[thisButtonType] ? 1 : 0); // What the default value is
-                final public int buttonNumber = thisButtonType + 1; // The actual integer representation in the database: 0 = deleted, 1 = like, 2 = dislike, 3 = meh
+                final public int buttonCount = counts[thisButtonType];
+                final public int buttonNumber = thisButtonType + 1; // The actual integer representation in the database: 0 = deleted, 1 = like, 2 = displike, 3 = meh
 
                 @Override
                 public void onClick(View v) {
@@ -218,7 +264,7 @@ public class ViewPostFragment extends Fragment {
                             // Another button was pressed, and we must now de-press that one and update the remote DB.
                             // We know which one it was, based on the saved user reaction
                             // NO DATABASE HERE
-                            buttons[savedUserReaction - 1].setText(buttonCount + " " + names[savedUserReaction - 1]);
+                            buttons[savedUserReaction - 1].setText(counts[savedUserReaction - 1] + " " + names[savedUserReaction - 1]);
                             setButtonInactive(buttons[savedUserReaction - 1]);
                         }
                         // As we change the saved user reaction here, we do it after checking/handling the already pressed button (if there is one)

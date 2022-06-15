@@ -25,10 +25,12 @@ import java.util.List;
 public class CommentForPostRecyclerViewAdapter extends RecyclerView.Adapter<CommentForPostRecyclerViewAdapter.ViewHolder>{
 
     private List<CommentWithUserName> commentsForPost;
+    private String loggedUserID;
 
 
-    public CommentForPostRecyclerViewAdapter(List<CommentWithUserName> commentsForPost){
+    public CommentForPostRecyclerViewAdapter(List<CommentWithUserName> commentsForPost, String loggedUserID){
         this.commentsForPost = commentsForPost;
+        this.loggedUserID = loggedUserID;
     }
 
 
@@ -64,6 +66,12 @@ public class CommentForPostRecyclerViewAdapter extends RecyclerView.Adapter<Comm
             holder.textViewUserName.setText(commentsForPost.get(position).name);
         }
         holder.textViewCommentText.setText(commentsForPost.get(position).comment.text);
+        if(loggedUserID.equals(commentsForPost.get(position).comment.user_id)){
+            // We own the comment
+            // TODO delete/edit comment action here
+        } else {
+            // We do not own the comment
+        }
     }
 
     @Override

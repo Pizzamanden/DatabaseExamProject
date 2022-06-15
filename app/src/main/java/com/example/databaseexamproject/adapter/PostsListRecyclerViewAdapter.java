@@ -139,6 +139,7 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
             // Send the post id only, we make a SQL query on the other side (and we just need the id for that)
             Bundle args = new Bundle();
             args.putInt("sentData_post_id", localData.get(holder.getAdapterPosition()).post.id);
+            args.putString("sentData_user_id", localData.get(holder.getAdapterPosition()).post.user_id);
             NavHostFragment.findNavController(fragment)
                     .navigate(R.id.action_postsListFragment_to_viewPostFragment, args);
         });
@@ -154,15 +155,16 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
         for(int i = 0; i < buttons.length; i++){
             final int thisButtonType = i;
             // First we setup the state of our buttons
+            buttons[i].setText(counts[i] + " " + names[i]);
             if(isReacted[i]){
                 // Set the new styling, to show it is pressed down and synch
                 setButtonActive(buttons[i]);
+                counts[i] = counts[i] - 1;
             }
-            buttons[i].setText(counts[i] + " " + names[i]);
             // Then we attach the listener, which handles changes when the user clicks any button
             buttons[i].setOnClickListener(new View.OnClickListener() {
                 final public String buttonName = names[thisButtonType]; // What the applicable textString is for this type
-                final public int buttonCount = counts[thisButtonType] - ( isReacted[thisButtonType] ? 1 : 0); // What the default value is
+                final public int buttonCount = counts[thisButtonType];
                 final public int buttonPosition = postPosition; // The position in the dataset
                 final public int buttonNumber = thisButtonType + 1; // The actual integer representation in the database: 0 = deleted, 1 = like, 2 = displike, 3 = meh
 
@@ -195,9 +197,7 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
                             // Now it gets less simple
                             // Another button was pressed, and we must now de-press that one and update the remote DB.
                             // We know which one it was, based on the saved user reaction
-                            // NO DATABASE HERE
-                            Log.d(TAG, "onClick: Unpress button " + (savedUserReaction - 1) + " for post " + buttonPosition);
-                            buttons[savedUserReaction - 1].setText(buttonCount + " " + names[savedUserReaction - 1]);
+                            buttons[savedUserReaction - 1].setText((counts[savedUserReaction - 1]) + " " + names[savedUserReaction - 1]);
                             setButtonInactive(buttons[savedUserReaction - 1]);
                         }
                         Log.d(TAG, "onClick: Press button " + (buttonNumber - 1) + " for post " + buttonPosition);

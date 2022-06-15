@@ -6,17 +6,33 @@ import static android.content.ContentValues.TAG;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.room.Room;
+
+import com.example.databaseexamproject.room.AppDatabase;
+import com.example.databaseexamproject.room.DatabaseRequest;
+import com.example.databaseexamproject.room.SynchronizeLocalDB;
 import com.example.databaseexamproject.room.dataobjects.Comment;
 import com.example.databaseexamproject.room.dataobjects.Post;
 import com.example.databaseexamproject.room.dataobjects.Reaction;
 import com.example.databaseexamproject.room.dataobjects.User;
 import com.google.gson.Gson;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
@@ -31,7 +47,6 @@ public class RemoteDBRequest {
 
     public static final String QUERY_TYPE_INSERT = "queryTypeInsert";
     public static final String QUERY_TYPE_UPDATE = "queryTypeUpdate";
-    public static final String QUERY_TYPE_DELETE = "queryTypeDelete";
 
 
     // TODO complete the class for insertions, updates, and deletions.
@@ -70,18 +85,6 @@ public class RemoteDBRequest {
                 );
                 break;
             }
-            case QUERY_TYPE_DELETE:
-                // TODO handle cascade of reactions and comments!
-                Log.d(TAG, "post: Delete call on ID: " + post.id);
-                baselineURL = baselineURL + "?id=eq." + post.id;
-                httpRequest.makeHttpRequest(new Request.Builder()
-                        .delete(RequestBody.create(toByteStream))
-                        .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
-                        .addHeader(AUTH_KEY, AUTH_VALUE)
-                        .url(baselineURL)
-                        .build()
-                );
-                break;
             default:
                 Log.d(TAG, "post: Call was made without a type specification. No action will be taken");
                 break;
@@ -122,17 +125,6 @@ public class RemoteDBRequest {
                 );
                 break;
             }
-            case QUERY_TYPE_DELETE:
-                Log.d(TAG, "post: Delete call on ID: " + user.id);
-                baselineURL = baselineURL + "?id=eq." + user.id;
-                httpRequest.makeHttpRequest(new Request.Builder()
-                        .delete(RequestBody.create(toByteStream))
-                        .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
-                        .addHeader(AUTH_KEY, AUTH_VALUE)
-                        .url(baselineURL)
-                        .build()
-                );
-                break;
             default:
                 Log.d(TAG, "post: Call was made without a type specification. No action will be taken");
                 break;
@@ -211,21 +203,83 @@ public class RemoteDBRequest {
                 );
                 break;
             }
-            case QUERY_TYPE_DELETE:
-                // TODO handle cascade
-                Log.d(TAG, "post: Delete call on ID: " + comment.id);
-                baselineURL = baselineURL + "?id=eq." + comment.id;
-                httpRequest.makeHttpRequest(new Request.Builder()
-                        .delete(RequestBody.create(toByteStream))
-                        .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
-                        .addHeader(AUTH_KEY, AUTH_VALUE)
-                        .url(baselineURL)
-                        .build()
-                );
-                break;
             default:
                 Log.d(TAG, "post: Call was made without a type specification. No action will be taken");
                 break;
         }
+    }
+
+    public static void deletePost(Context context, int post_id, HttpRequest.HttpRequestResponse requestResponse){
+        new Thread(() -> {
+            // At the very start, we synchronize the local database.
+            SynchronizeLocalDB.syncDB(context, (success) ->{});
+
+            AppDatabase db = Room.databaseBuilder(context.getApplicationContext(),
+                    AppDatabase.class, "database-name").build();
+            // Then we check the post we want to delete is still here.
+
+            List<Integer> affectedComments = cascadeDeletion(db, post_id);
+            affectedComments.add(post_id);
+            // Now we can use these ID's to delete all reactions, comments and the post.
+            String reactionsToDeleteURL = REMOTE_URL + "/reactions?post_id=eq.";
+            for(int i = 0; i < affectedComments.size(); i++){
+                reactionsToDeleteURL = reactionsToDeleteURL + affectedComments.get(i);
+                if(i + 1 < affectedComments.size()){
+                    reactionsToDeleteURL = reactionsToDeleteURL + ";eq."; // TODO should be OR not AND
+                }
+            }
+            Log.d(TAG, "deletePost: Reaction URL query: " + reactionsToDeleteURL);
+
+            Request requestDeleteReactions = new Request.Builder()
+                    .delete()
+                    .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
+                    .addHeader(AUTH_KEY, AUTH_VALUE)
+                    .url(reactionsToDeleteURL)
+                    .build();
+            OkHttpClient client = new OkHttpClient();
+            // Make call on client with request
+            try {
+                Response response = client.newCall(requestDeleteReactions).execute();
+                Log.d(TAG, "deletePost: " + response.code());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            String postsToDeleteURL = REMOTE_URL + "/posts?id=eq.";
+            for(int i = 0; i < affectedComments.size(); i++){
+                postsToDeleteURL = postsToDeleteURL + affectedComments.get(i);
+                if(i + 1 < affectedComments.size()){
+                    postsToDeleteURL = postsToDeleteURL + ";eq."; // TODO should be OR not AND
+                }
+            }
+            Log.d(TAG, "deletePost: Posts URL query: " + postsToDeleteURL);
+
+            Request requestDeletePosts = new Request.Builder()
+                    .delete()
+                    .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
+                    .addHeader(AUTH_KEY, AUTH_VALUE)
+                    .url(postsToDeleteURL)
+                    .build();
+            // Make call on client with request
+            try {
+                Response response = client.newCall(requestDeletePosts).execute();
+                Log.d(TAG, "deletePost: " + response.code());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }).start();
+    }
+
+    private static List<Integer> cascadeDeletion(AppDatabase db, int commentID){
+        // The comment this method is run on is already in the list
+        // Get all comments, which depends on this comment
+        List<Integer> commentsOfThisComment = db.commentDao().getAllCommentIDByPostID(commentID);
+        // Then run this method on all of them
+        for(Integer dependingCommentID : commentsOfThisComment){
+            commentsOfThisComment.addAll(cascadeDeletion(db, dependingCommentID));
+        }
+        // At the end, we should have one single list of all impacted comments (from this comment)
+        return commentsOfThisComment;
     }
 }

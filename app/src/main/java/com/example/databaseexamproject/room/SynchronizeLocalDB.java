@@ -89,7 +89,6 @@ public class SynchronizeLocalDB {
 
                             List<Post> postParsePosts = new ArrayList<>();
                             List<Comment> postParseComment = new ArrayList<>();
-                            // TODO sort and fill comment table with found comments
                             String regexForPostID = "(-?)(\\d+)";
                             Pattern patternForPostID = Pattern.compile(regexForPostID);
 
@@ -170,13 +169,7 @@ public class SynchronizeLocalDB {
         boolean success = successfulSyncs == table_names.length;
         Log.d(TAG, "syncDB: Completed sync, success: " + success);
 
-        runCallbackOnUIThread(context, afterSync, success);
-    }
-
-    private static void runCallbackOnUIThread(Context context, CompletedSync afterSync, boolean success){
-        Log.d(TAG, "runCallbackOnUIThread: Fired");
-        Activity activity = (Activity) context;
-        activity.runOnUiThread( () -> afterSync.onCompletedSync(success));
+        afterSync.onCompletedSync(success);
     }
 
 

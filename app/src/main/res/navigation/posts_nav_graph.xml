@@ -28,6 +28,9 @@
         <argument
             android:name="sentData_post_id"
             app:argType="integer" />
+        <argument
+            android:name="sentData_user_id"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/managePostFragment"

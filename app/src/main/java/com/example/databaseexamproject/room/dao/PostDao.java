@@ -13,6 +13,9 @@ import java.util.List;
 
 @Dao
 public interface PostDao {
+    @Query("SELECT * FROM posts WHERE id = (:postID)")
+    Post getPostByID(int postID);
+
     @Query("SELECT * FROM posts ORDER BY stamp DESC")
     List<Post> getAllSortedDateDesc();
 
