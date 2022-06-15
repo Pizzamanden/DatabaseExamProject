@@ -7,7 +7,6 @@ import androidx.room.Query;
 import com.example.databaseexamproject.room.dataobjects.PostWithReactions;
 import com.example.databaseexamproject.room.dataobjects.Post;
 import com.example.databaseexamproject.room.dataobjects.PostJoinUser;
-import com.example.databaseexamproject.room.dataobjects.PostReactions;
 
 import java.util.Date;
 import java.util.List;
@@ -29,15 +28,7 @@ public interface PostDao {
     @Query("SELECT * FROM posts JOIN users ON posts.user_id = users.id ORDER BY posts.stamp DESC")
     List<PostJoinUser> getAllPostsWithUserNameSortedDateDesc();
 
-    @Query("SELECT posts.id AS 'post_id'," +
-            " (SELECT type FROM reactions WHERE (:userID) = reactions.user_id AND posts.id = reactions.post_id) AS 'userReaction', " +
-            " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 1) AS 'type0Reactions'," +
-            " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 2) AS 'type1Reactions'," +
-            " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 3) AS 'type2Reactions' " +
-            "FROM posts ORDER BY posts.stamp DESC")
-    List<PostReactions> getAllPostsReactionsWithUserReactedSortedDesc(String userID);
-
-    @Query("SELECT posts.*, " +
+    @Query("SELECT posts.*, users.name, " +
             " (SELECT type FROM reactions WHERE (:userID) = reactions.user_id AND posts.id = reactions.post_id) AS 'userReaction', " +
             " (SELECT stamp FROM reactions WHERE (:userID) = reactions.user_id AND posts.id = reactions.post_id) AS 'reactionStamp', " +
             " (SELECT COUNT(*) FROM (SELECT COUNT(*) FROM reactions WHERE reactions.type = 1 AND posts.id = reactions.post_id GROUP BY reactions.user_id, reactions.post_id)) AS 'type1Reactions'," +
@@ -47,7 +38,7 @@ public interface PostDao {
             "ORDER BY posts.stamp DESC")
     List<PostWithReactions> getAllPostsWithReactionByUserAndAllReactionsCounter(String userID);
 
-    @Query("SELECT posts.*, " +
+    @Query("SELECT posts.*, users.name, " +
             " (SELECT type FROM reactions WHERE (:userID) = reactions.user_id AND posts.id = reactions.post_id) AS 'userReaction', " +
             " (SELECT stamp FROM reactions WHERE (:userID) = reactions.user_id AND posts.id = reactions.post_id) AS 'reactionStamp', " +
             " (SELECT COUNT(*) FROM (SELECT COUNT(*) FROM reactions WHERE reactions.type = 1 AND posts.id = reactions.post_id GROUP BY reactions.user_id, reactions.post_id)) AS 'type1Reactions'," +

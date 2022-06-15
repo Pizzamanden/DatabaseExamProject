@@ -23,5 +23,5 @@ public interface CommentDao {
     List<Comment> getByPostAndUserSortedDateDesc(int postID, String userID);
 
     @Insert
-    void insertComment(Comment comment);
+    void insertComment(Comment... comment);
 }

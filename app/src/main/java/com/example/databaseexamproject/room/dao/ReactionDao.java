@@ -1,12 +1,9 @@
 package com.example.databaseexamproject.room.dao;
 
 import androidx.room.Dao;
-import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 
-import com.example.databaseexamproject.room.dataobjects.Post;
-import com.example.databaseexamproject.room.dataobjects.PostReactions;
 import com.example.databaseexamproject.room.dataobjects.Reaction;
 
 import java.util.List;
