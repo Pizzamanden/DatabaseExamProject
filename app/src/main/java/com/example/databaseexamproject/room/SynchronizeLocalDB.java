@@ -81,6 +81,13 @@ public class SynchronizeLocalDB {
                             break;
                         case "posts":
                             Post[] posts = gson.fromJson(response.body().string(), Post[].class);
+                            // TODO sort and fill comment table with found comments
+                            //(?:(forPost:)|(re:"))(-?)(\d+)
+                            // Check content for null, if it is, its a post
+                            // Check with regular expresso, if one match is found, its a comment
+                            // Then extract foreign key, which is post_id from match-substring
+                            // Then insert this comment as a comment, with its post_id, user_id, and the rest as content.
+                            // If no regex match is found, do nothing.
                             Log.d(TAG, "syncDB: Posts: Parsed JSON");
                             db.postDao().deleteEverything();
                             Log.d(TAG, "syncDB: Posts: Deleted table");

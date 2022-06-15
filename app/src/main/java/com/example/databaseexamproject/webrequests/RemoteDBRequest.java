@@ -71,6 +71,7 @@ public class RemoteDBRequest {
             }
             case QUERY_TYPE_DELETE:
                 Log.d(TAG, "post: Delete call on ID: " + post.id);
+                baselineURL = baselineURL + "?id=eq." + post.id;
                 httpRequest.makeHttpRequest(new Request.Builder()
                         .delete(RequestBody.create(toByteStream))
                         .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
@@ -121,6 +122,7 @@ public class RemoteDBRequest {
             }
             case QUERY_TYPE_DELETE:
                 Log.d(TAG, "post: Delete call on ID: " + user.id);
+                baselineURL = baselineURL + "?id=eq." + user.id;
                 httpRequest.makeHttpRequest(new Request.Builder()
                         .delete(RequestBody.create(toByteStream))
                         .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
@@ -169,6 +171,7 @@ public class RemoteDBRequest {
                 break;
             }
             case QUERY_TYPE_DELETE:
+                baselineURL = baselineURL + "?post_id=eq." + reaction.post_id + "&user_id=eq." + reaction.user_id;
                 httpRequest.makeHttpRequest(new Request.Builder()
                         .delete(RequestBody.create(toByteStream))
                         .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)

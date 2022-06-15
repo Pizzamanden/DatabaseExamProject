@@ -101,7 +101,7 @@ public class ViewPostFragment extends Fragment {
             // Now we have the data to setup our other views
             setupViewsWithData();
         });
-        databaseRequest.runRequest(() -> db.postDao().getSpecificPostWithReactionByUserAnAllReactionsCounter(loggedUserID, post_id));
+        databaseRequest.runRequest(() -> db.postDao().getSpecificPostWithReactionByUserAndAllReactionsCounter(loggedUserID, post_id));
 
     }
 
@@ -155,7 +155,7 @@ public class ViewPostFragment extends Fragment {
             // TODO work out listener states
             // First we setup the state of our buttons
             if(isReacted[i]){
-                // Set the new styling, to show it is pressed down and synch
+                // Set the new styling, to show it is pressed down and sync
                 setButtonActive(buttons[i]);
             }
             buttons[i].setText(counts[i] + " " + names[i]);
@@ -163,7 +163,7 @@ public class ViewPostFragment extends Fragment {
             buttons[i].setOnClickListener(new View.OnClickListener() {
                 final public String buttonName = names[thisButtonType]; // What the applicable textString is for this type
                 final public int buttonCount = counts[thisButtonType] - ( isReacted[thisButtonType] ? 1 : 0); // What the default value is
-                final public int buttonNumber = thisButtonType + 1; // The actual integer representation in the database: 0 = deleted, 1 = like, 2 = displike, 3 = meh
+                final public int buttonNumber = thisButtonType + 1; // The actual integer representation in the database: 0 = deleted, 1 = like, 2 = dislike, 3 = meh
 
                 @Override
                 public void onClick(View v) {
