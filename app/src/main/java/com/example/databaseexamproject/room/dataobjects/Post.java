@@ -26,6 +26,7 @@ public class Post {
         this.content = content;
     }
 
+
     public boolean equals(Object other){
         if(other == null)
             return false;

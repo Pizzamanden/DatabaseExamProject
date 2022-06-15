@@ -21,6 +21,9 @@ public class PostsListActivity extends AppCompatActivity {
     private ActivityPostsListBinding binding;
     private String loggedUserID;
 
+    // RecyclerView position remember majiggy
+    private int reyclerViewPosition = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,5 +59,15 @@ public class PostsListActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_posts_list);
         return NavigationUI.navigateUp(navController, appBarConfiguration)
                 || super.onSupportNavigateUp();
+    }
+
+
+    // Set and get the recyclerview position
+    // Fragments can access these by calling their parent activity!
+    public int getReyclerViewPosition(){
+        return reyclerViewPosition;
+    }
+    public void setReyclerViewPosition(int reyclerViewPosition){
+        this.reyclerViewPosition = reyclerViewPosition;
     }
 }

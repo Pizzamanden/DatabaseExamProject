@@ -18,6 +18,55 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/textView_imageHeader"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="@string/image_header"
+        app:layout_constraintBottom_toTopOf="@+id/editTextImageURL"
+        app:layout_constraintEnd_toEndOf="@+id/editText_postContent"
+        app:layout_constraintStart_toStartOf="@+id/editText_postContent" />
+
+    <EditText
+        android:id="@+id/editText_postContent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="24dp"
+        android:ems="10"
+        android:gravity="start|top"
+        android:hint="Type the post here"
+        android:inputType="textMultiLine"
+        app:layout_constraintBottom_toTopOf="@+id/textView_imageHeader"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView_contentEditHeader" />
+
+    <TextView
+        android:id="@+id/textView_contentEditHeader"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/post_edit_header"
+        app:layout_constraintEnd_toEndOf="@+id/editText_postContent"
+        app:layout_constraintStart_toStartOf="@+id/editText_postContent"
+        app:layout_constraintTop_toBottomOf="@+id/textView_managePostStatus" />
+
+    <EditText
+        android:id="@+id/editTextImageURL"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:ems="10"
+        android:hint="Image URL"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toTopOf="@+id/button_submitAction"
+        app:layout_constraintEnd_toEndOf="@+id/editText_postContent"
+        app:layout_constraintStart_toStartOf="@+id/editText_postContent" />
+
     <Button
         android:id="@+id/button_submitAction"
         android:layout_width="0dp"
@@ -30,19 +79,4 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <EditText
-        android:id="@+id/editText_postContent"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="80dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="80dp"
-        android:ems="10"
-        android:gravity="start|top"
-        android:inputType="textMultiLine"
-        app:layout_constraintBottom_toTopOf="@+id/button_submitAction"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView_managePostStatus" />
 </androidx.constraintlayout.widget.ConstraintLayout>

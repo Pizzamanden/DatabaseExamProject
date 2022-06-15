@@ -1,11 +1,10 @@
 package com.example.databaseexamproject.room.dao;
 
 import androidx.room.Dao;
-import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 
-import com.example.databaseexamproject.room.dataobjects.BigFuckPost;
+import com.example.databaseexamproject.room.dataobjects.PostWithReactions;
 import com.example.databaseexamproject.room.dataobjects.Post;
 import com.example.databaseexamproject.room.dataobjects.PostJoinUser;
 import com.example.databaseexamproject.room.dataobjects.PostReactions;
@@ -41,14 +40,13 @@ public interface PostDao {
     @Query("SELECT posts.*, " +
             " (SELECT type FROM reactions WHERE (:userID) = reactions.user_id AND posts.id = reactions.post_id) AS 'userReaction', " +
             " (SELECT stamp FROM reactions WHERE (:userID) = reactions.user_id AND posts.id = reactions.post_id) AS 'reactionStamp', " +
-            " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 1) AS 'type1Reactions'," +
-            " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 2) AS 'type2Reactions'," +
-            " (SELECT COUNT(*) FROM reactions WHERE post_id = posts.id AND type = 3) AS 'type3Reactions' " +
+            " (SELECT COUNT(*) FROM (SELECT COUNT(*) FROM reactions WHERE reactions.type = 1 AND posts.id = reactions.post_id GROUP BY reactions.user_id, reactions.post_id)) AS 'type1Reactions'," +
+            " (SELECT COUNT(*) FROM (SELECT COUNT(*) FROM reactions WHERE reactions.type = 2 AND posts.id = reactions.post_id GROUP BY reactions.user_id, reactions.post_id)) AS 'type2Reactions'," +
+            " (SELECT COUNT(*) FROM (SELECT COUNT(*) FROM reactions WHERE reactions.type = 3 AND posts.id = reactions.post_id GROUP BY reactions.user_id, reactions.post_id)) AS 'type3Reactions' " +
             "FROM posts JOIN users ON posts.user_id = users.id " +
-            "WHERE posts.content NOT LIKE 'somethingCool%'" + // <-- Excalibur
+            "WHERE posts.content NOT LIKE 'somethingCool%'" +
             "ORDER BY posts.stamp DESC")
-    List<BigFuckPost> bigFuck(String userID);
-    // TODO kun den nyeste reaction fra hver bruger skal tælle
+    List<PostWithReactions> getAllPostsWithReactionByUserAndAllReactionsCounter(String userID);
 
     @Query("SELECT posts.*, " +
             " (SELECT type FROM reactions WHERE (:userID) = reactions.user_id AND posts.id = reactions.post_id) AS 'userReaction', " +
@@ -57,9 +55,9 @@ public interface PostDao {
             " (SELECT COUNT(*) FROM (SELECT COUNT(*) FROM reactions WHERE reactions.type = 2 AND posts.id = reactions.post_id GROUP BY reactions.user_id, reactions.post_id)) AS 'type2Reactions'," +
             " (SELECT COUNT(*) FROM (SELECT COUNT(*) FROM reactions WHERE reactions.type = 3 AND posts.id = reactions.post_id GROUP BY reactions.user_id, reactions.post_id)) AS 'type3Reactions' " +
             "FROM posts JOIN users ON posts.user_id = users.id " +
-            "WHERE posts.content NOT LIKE 'somethingCool%'" +
+            "WHERE posts.content NOT LIKE 'somethingCool%' AND posts.id = (:postID)" +
             "ORDER BY posts.stamp DESC")
-    List<BigFuckPost> bigFuckTest(String userID);
+    PostWithReactions getSpecificPostWithReactionByUserAnAllReactionsCounter(String userID, int postID);
 
     @Insert
     void insertAll(Post... post);

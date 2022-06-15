@@ -5,7 +5,7 @@ import androidx.room.Embedded;
 
 import java.util.Date;
 
-public class BigFuckPost {
+public class PostWithReactions {
 
     @Embedded
     public Post post;

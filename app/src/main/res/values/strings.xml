@@ -18,5 +18,10 @@
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
     <string name="prompt_userid">Username</string>
+    <string name="post_comment">Post comment</string>
+    <string name="comment_header">Post a comment for this post!</string>
+    <string name="post_edit_header">Type your desired post into here!</string>
+    <string name="image_header">If you want an image, copy a URL into this field:</string>
+
 
 </resources>

@@ -5,6 +5,7 @@ import static android.content.ContentValues.TAG;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
@@ -16,20 +17,12 @@ import android.view.ViewGroup;
 
 import com.example.databaseexamproject.adapter.PostsListRecyclerViewAdapter;
 import com.example.databaseexamproject.databinding.FragmentPostsListBinding;
+import com.example.databaseexamproject.login.UserLoginFragment;
 import com.example.databaseexamproject.room.AppDatabase;
 import com.example.databaseexamproject.room.DatabaseRequest;
-import com.example.databaseexamproject.room.dataobjects.BigFuckPost;
-import com.example.databaseexamproject.room.dataobjects.PostJoinUser;
-import com.example.databaseexamproject.room.dataobjects.PostReactions;
+import com.example.databaseexamproject.room.dataobjects.PostWithReactions;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -39,13 +32,6 @@ import java.util.concurrent.TimeUnit;
 public class PostsListFragment extends Fragment {
 
     FragmentPostsListBinding binding;
-
-
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String SAVED_RECYCLERVIEW_POSITION = "recyclerViewElementPosition";
-
-
-    private int saved_recyclerview_position;
 
 
     private PostsListActivity parentActivity;
@@ -59,14 +45,12 @@ public class PostsListFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param saved_recyclerview_position Integer for recyclerview postion. Has a default of 0.
      * @return A new instance of fragment PostsListFragment.
      */
-    public static PostsListFragment newInstance(int saved_recyclerview_position) {
+    public static PostsListFragment newInstance() {
         PostsListFragment fragment = new PostsListFragment();
         Log.d(TAG, "newInstance Fragment: called");
         Bundle args = new Bundle();
-        args.putInt(SAVED_RECYCLERVIEW_POSITION, saved_recyclerview_position);
         fragment.setArguments(args);
         return fragment;
     }
@@ -76,7 +60,7 @@ public class PostsListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate Fragment: called");
         if (getArguments() != null) {
-            saved_recyclerview_position = getArguments().getInt(SAVED_RECYCLERVIEW_POSITION);
+
         }
     }
 
@@ -90,6 +74,7 @@ public class PostsListFragment extends Fragment {
         binding = FragmentPostsListBinding.inflate(inflater, container, false);
         updateLoadingStatus(true);
         getDataForRecyclerView();
+
         return binding.getRoot();
     }
 
@@ -98,11 +83,15 @@ public class PostsListFragment extends Fragment {
         AppDatabase db = Room.databaseBuilder(getActivity().getApplicationContext(),
                 AppDatabase.class, "database-name").build();
 
-        DatabaseRequest<List<BigFuckPost>> databaseRequest = new DatabaseRequest<>(getActivity(), this::onDatabaseRequestResponse);
-        databaseRequest.runRequest(() -> db.postDao().bigFuckTest(loggedInUserID));
+        DatabaseRequest<List<PostWithReactions>> databaseRequest = new DatabaseRequest<>(getActivity(), this::onDatabaseRequestResponse);
+        databaseRequest.runRequest(() -> db.postDao().getAllPostsWithReactionByUserAndAllReactionsCounter(loggedInUserID));
     }
 
-    public void onDatabaseRequestResponse(List<BigFuckPost> posts){
+    public void setRememberRecyclerViewPosition(int recyclerViewPosition){
+        parentActivity.setReyclerViewPosition(recyclerViewPosition);
+    }
+
+    public void onDatabaseRequestResponse(List<PostWithReactions> posts){
         // Now that we have the content for the RecyclerView, we can fill our adapter
 
         // Find our RecyclerView our recyclerView
@@ -113,7 +102,13 @@ public class PostsListFragment extends Fragment {
 
         // Create and attach our adapter
         recyclerView.setAdapter(new PostsListRecyclerViewAdapter(PostsListFragment.this, posts, loggedInUserID));
-        linearLayoutManager.scrollToPosition(saved_recyclerview_position);
+        linearLayoutManager.scrollToPosition(parentActivity.getReyclerViewPosition());
+
+        binding.fabNewPost.setOnClickListener((v) -> {
+            parentActivity.setReyclerViewPosition(linearLayoutManager.findFirstVisibleItemPosition());
+            NavHostFragment.findNavController(PostsListFragment.this)
+                    .navigate(R.id.action_postsListFragment_to_managePostFragment);
+        });
 
         updateLoadingStatus(false);
     }

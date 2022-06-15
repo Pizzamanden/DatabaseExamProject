@@ -7,34 +7,73 @@
     android:layout_height="match_parent"
     tools:context=".ViewPostFragment">
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
+    <include
+        android:id="@+id/include"
+        layout="@layout/recyclerview_post_layout"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="ViewPost"
-        app:layout_constraintBottom_toTopOf="@+id/toPostsListButton"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/toManagePost"
-        android:layout_width="wrap_content"
+    <TextView
+        android:id="@+id/textView_commentHeader"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="ManagePost"
-        app:layout_constraintBottom_toBottomOf="@+id/toPostsListButton"
-        app:layout_constraintEnd_toStartOf="@+id/toPostsListButton"
+        android:layout_marginTop="8dp"
+        android:text="@string/comment_header"
+        app:layout_constraintEnd_toEndOf="@+id/button_submitComment"
+        app:layout_constraintStart_toStartOf="@+id/editText_commentCreation"
+        app:layout_constraintTop_toBottomOf="@+id/include" />
+
+    <EditText
+        android:id="@+id/editText_commentCreation"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="5dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="Name"
+        app:layout_constraintEnd_toStartOf="@+id/button_submitComment"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/toPostsListButton" />
+        app:layout_constraintTop_toBottomOf="@+id/textView_commentHeader" />
 
     <Button
-        android:id="@+id/toPostsListButton"
+        android:id="@+id/button_submitComment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="PostsList"
+        android:layout_marginEnd="8dp"
+        android:text="@string/post_comment"
+        app:layout_constraintBottom_toBottomOf="@+id/editText_commentCreation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/editText_commentCreation" />
+
+    <TableLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editText_commentCreation">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </TableLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_edit_post"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/toManagePost"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:srcCompat="@android:drawable/ic_menu_edit" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

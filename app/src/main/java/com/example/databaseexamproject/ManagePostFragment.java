@@ -49,6 +49,7 @@ public class ManagePostFragment extends Fragment {
     private FragmentManagePostBinding binding;
 
     private PostsListActivity parentActivity;
+    private String loggedUserID;
 
     public ManagePostFragment() {
         // Required empty public constructor
@@ -86,6 +87,7 @@ public class ManagePostFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         parentActivity = (PostsListActivity) getActivity();
+        loggedUserID = parentActivity.getUserID();
         // Inflate the layout for this fragment
         binding = FragmentManagePostBinding.inflate(inflater, container, false);
         setupViews();
@@ -102,35 +104,41 @@ public class ManagePostFragment extends Fragment {
         }
         // Set our listener on our submit button
         binding.buttonSubmitAction.setOnClickListener((v)->{
+            String imageURL = "";
+            imageURL = binding.editTextImageURL.getText().toString();
             String postContent = binding.editTextPostContent.getText().toString();
-            //submitPost(postContent);
+            submitPost(imageURL + " " + postContent);
         });
     }
 
     private void submitPost(String content){
-        // TODO TEST AND FINISH
-        Log.d(TAG, "submitPost: Content submitted was: " + content);
+        // TODO make loading spinning circle thingy
         // Now we have the content from our textEdit, and we must do the SQL thing
         int idToUse;
         if(!isExistingPost){
-            // Insert action
+            // Insert action, create a new ID!
             long stamp = System.currentTimeMillis();
-            long post_generated_id = user_id.hashCode() + stamp;
+            long post_generated_id = loggedUserID.hashCode() + stamp;
             idToUse = (int) post_generated_id;
         } else {
-            // Update action
+            // Update action, we use the same ID as before
             idToUse = post_id;
         }
-        Post post = new Post(idToUse, content, user_id);
+        Post post = new Post(idToUse, loggedUserID, content);
+        Log.d(TAG, "submitPost: ID: " + post.id);
+        Log.d(TAG, "submitPost: Content: " + content);
+        Log.d(TAG, "submitPost: UserID: " + loggedUserID);
 
         RemoteDBRequest.post(getContext(), (isExistingPost ? RemoteDBRequest.QUERY_TYPE_UPDATE : RemoteDBRequest.QUERY_TYPE_INSERT),
                 post, (response, responseBody, requestName) -> {
-            // TODO this is where we continue (on main thread)
-            SynchronizeLocalDB.syncDB(getContext(),(success) -> {
+            // We can check the response of our action here, and handle errors
 
+            // We now sync the local database, to make sure it reflects the new changes!
+            SynchronizeLocalDB.syncDB(getContext(),(success) -> {
+                // And after the sync, we send the user back
+                NavHostFragment.findNavController(ManagePostFragment.this)
+                        .navigateUp();
             });
-            NavHostFragment.findNavController(ManagePostFragment.this)
-                    .navigateUp();
         });
     }
 }
