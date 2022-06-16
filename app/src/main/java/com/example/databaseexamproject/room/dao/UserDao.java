@@ -11,12 +11,15 @@ import java.util.List;
 
 @Dao
 public interface UserDao {
+    //Only used for log
     @Query("SELECT * FROM users")
     List<User> getAll();
 
+    //not in use
     @Query("SELECT * FROM users WHERE name = (:name)")
     List<User> getByName(String name);
 
+    //rename to findById!?!?!
     @Query("SELECT * FROM users WHERE id LIKE :id LIMIT 1")
     User findByName(String id);
 
