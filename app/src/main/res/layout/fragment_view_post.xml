@@ -7,57 +7,14 @@
     android:layout_height="match_parent"
     tools:context=".ViewPostFragment">
 
-    <include
-        android:id="@+id/include"
-        layout="@layout/recyclerview_post_layout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/textView_commentHeader"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/comment_header"
-        app:layout_constraintEnd_toEndOf="@+id/button_submitComment"
-        app:layout_constraintStart_toStartOf="@+id/editText_commentCreation"
-        app:layout_constraintTop_toBottomOf="@+id/include" />
-
-    <EditText
-        android:id="@+id/editText_commentCreation"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="5dp"
-        android:ems="10"
-        android:hint="Type a comment here!"
-        android:inputType="textPersonName"
-        app:layout_constraintEnd_toStartOf="@+id/button_submitComment"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView_commentHeader" />
-
-    <Button
-        android:id="@+id/button_submitComment"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:text="@string/post_comment"
-        app:layout_constraintBottom_toBottomOf="@+id/editText_commentCreation"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/editText_commentCreation" />
-
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView_commentsForPost"
+        android:id="@+id/recyclerview_singlePostAndComments"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText_commentCreation" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_edit_post"

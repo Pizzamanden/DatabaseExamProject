@@ -64,6 +64,7 @@ public class ViewPostFragment extends Fragment {
 
     // Our data for this post
     private PostWithReactions postData;
+    private List<CommentWithUserName> commentsForPost;
 
     // Integer counter for remote calls in progress
     AtomicInteger remoteCallsInProgress = new AtomicInteger(0);
@@ -133,41 +134,31 @@ public class ViewPostFragment extends Fragment {
         loggedUserID = parentActivity.getUserID();
         // Inflate the layout for this fragment
         binding = FragmentViewPostBinding.inflate(inflater, container, false);
-        binding.buttonSubmitComment.setOnClickListener((v)->{
-            // Create content
-            String content = "forPost:" + post_id + " " + binding.editTextCommentCreation.getText();
-            long stamp = System.currentTimeMillis();
-            Long post_generated_id = loggedUserID.hashCode() + stamp;
-            int idToUse = post_generated_id.intValue();
-            Post post = new Post(idToUse, loggedUserID, content);
-            RemoteDBRequest.post(getActivity(), RemoteDBRequest.QUERY_TYPE_INSERT, post, (response, responseBody, requestName) ->{
-                SynchronizeLocalDB.syncDB(getActivity(), (success)->{
-                    Log.d(TAG, "onCreateView: Comment Created!");
-                    parentActivity.recreate();
-                });
-            });
-        });
-        setDataToViews();
+        getDataForViews();
         return binding.getRoot();
     }
 
-    private void setDataToViews(){
+    private void getDataForViews(){
         // We cannot send the data we need
         AppDatabase db = Room.databaseBuilder(getActivity().getApplicationContext(),
                 AppDatabase.class, "database-name").build();
 
-        DatabaseRequest<PostWithReactions> databaseRequest = new DatabaseRequest<>(getActivity(), (result) -> {
-            postData = result;
-            // Now we have the data to setup our other views
-            setupViewsWithData();
-        });
-        databaseRequest.runRequest(() -> db.postDao().getSpecificPostWithReactionByUserAndAllReactionsCounter(loggedUserID, post_id));
-
+        new DatabaseRequest<PostWithReactions>(getActivity(), (postResult) -> {
+            postData = postResult;
+            // We also need all comments for this post
+            new DatabaseRequest<List<CommentWithUserName>>(getActivity(), (commentsResult) -> {
+                commentsForPost = commentsResult;
+                // Now we can setup our views
+                setupViewsWithData();
+            }).runRequest(() -> db.commentDao().getByPostSortedDateDesc(post_id));
+        }).runRequest(() -> db.postDao().getSpecificPostWithReactionByUserAndAllReactionsCounter(loggedUserID, post_id));
     }
 
-    private void setupViewsWithData(){
-        if(postData.post.user_id.equals(loggedUserID)){ // The user logged in is the same as the owner of this post!
-            binding.fabEditPost.setOnClickListener(v->{
+    private void setupViewsWithData() {
+
+        // Make the user able to edit this post, if they own it
+        if (postData.post.user_id.equals(loggedUserID)) { // The user logged in is the same as the owner of this post!
+            binding.fabEditPost.setOnClickListener(v -> {
                 Log.d(TAG, "setupViewsWithData: click");
                 Bundle args = new Bundle();
                 args.putString("existingPost_userID", postData.post.user_id);
@@ -180,201 +171,14 @@ public class ViewPostFragment extends Fragment {
         } else {
             binding.fabEditPost.setVisibility(View.GONE);
         }
-        if(postData.name == null){
-            binding.include.textViewUserName.setText(postData.post.user_id);
-        } else {
-            binding.include.textViewUserName.setText(postData.name);
-        }
-        String content = postData.post.content;
-        int[] imageURLLocation = textContainsImageURL(content);
-        if(imageURLLocation[1] != 0){
-            binding.include.imageViewContentImage.setVisibility(View.VISIBLE);
-            // Now, get the image url
-            String imageURL = content.substring(imageURLLocation[0], imageURLLocation[1]);
-            // We setup the image download and showing process immediately
-            new ImageDownload(binding.include.imageViewContentImage).execute(imageURL);
-            Log.d(TAG, "onBindViewHolder: " + imageURL);
-            Log.d(TAG, "onBindViewHolder: On post ID: " + postData.post.id);
-            // Remove the Url from the String, and continue as we were
-            content = content.substring(0, imageURLLocation[0]) + content.substring(imageURLLocation[1]);
-        } else {
-            binding.include.imageViewContentImage.setVisibility(View.GONE);
-        }
-        // While loop to remove spaces in front of text
-        while(content.charAt(0) == ' ' && content.length() > 1){
-            content = content.substring(1);
-        }
-        Log.d(TAG, "onBindViewHolder: " + content);
-        if(content != null && content.length() > 200){
-            binding.include.textViewPostText.setText(content.substring(0, 200));
-        } else {
-            binding.include.textViewPostText.setText(content);
-        }
+        // Setup the recycler view
+        RecyclerView recyclerView = binding.recyclerviewSinglePostAndComments;
+        // Create a layout manager for the recyclerView
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
+        recyclerView.setLayoutManager(linearLayoutManager);
 
-        // Setup reaction buttons
-        Button[] buttons = {
-                binding.include.buttonLikeReact,
-                binding.include.buttonDislikeReact,
-                binding.include.buttonAmbivalentReact
-        };
-        int[] counts = {
-                postData.type1Reactions,
-                postData.type2Reactions,
-                postData.type3Reactions
-        };
-        String[] names = {
-                getString(R.string.likeReact),
-                getString(R.string.dislikeReact),
-                getString(R.string.ambivalenceReact)
-        };
-        boolean[] isReacted = {
-                postData.userReaction == 1,
-                postData.userReaction == 2,
-                postData.userReaction == 3
-        };
-        stylePostButtons(buttons, counts, names, isReacted);
+        // Create and attach our adapter
+        recyclerView.setAdapter(new CommentForPostRecyclerViewAdapter(ViewPostFragment.this, commentsForPost, postData, loggedUserID));
 
-        // Now we fill in the comments
-        getAndInsertComments();
-    }
-
-    private void getAndInsertComments() {
-        AppDatabase db = Room.databaseBuilder(getActivity().getApplicationContext(),
-                AppDatabase.class, "database-name").build();
-
-        DatabaseRequest<List<CommentWithUserName>> databaseRequest = new DatabaseRequest<>(getActivity(), (result) -> {
-            RecyclerView recyclerView = binding.recyclerViewCommentsForPost;
-            // Create a layout manager for the recyclerView
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-            recyclerView.setLayoutManager(linearLayoutManager);
-
-            // Create and attach our adapter
-            recyclerView.setAdapter(new CommentForPostRecyclerViewAdapter(this, result, loggedUserID));
-
-        });
-        databaseRequest.runRequest(() -> db.commentDao().getByPostSortedDateDesc(post_id));
-    }
-
-    private void stylePostButtons(Button[] buttons, int[] counts, String[] names, boolean[] isReacted){
-
-        for(int i = 0; i < buttons.length; i++){
-            final int thisButtonType = i;
-            // First we setup the state of our buttons
-            buttons[i].setText(counts[i] + " " + names[i]);
-            if(isReacted[i]){
-                // Set the new styling, to show it is pressed down and synch
-                setButtonActive(buttons[i]);
-                counts[i] = counts[i] - 1;
-            }
-            // Then we attach the listener, which handles changes when the user clicks any button
-            buttons[i].setOnClickListener(new View.OnClickListener() {
-                final public String buttonName = names[thisButtonType]; // What the applicable textString is for this type
-                final public int buttonCount = counts[thisButtonType];
-                final public int buttonNumber = thisButtonType + 1; // The actual integer representation in the database: 0 = deleted, 1 = like, 2 = displike, 3 = meh
-
-                @Override
-                public void onClick(View v) {
-                    Button clickedButton = (Button) v;
-                    int savedUserReaction = postData.userReaction;
-                    if(savedUserReaction == buttonNumber){
-                        // This button should have had been active
-                        // This is the easy case. We had reacted this reaction, and now we want to remove it.
-                        // First we launch a database request. (we do not wait for a response)
-                        remoteCallsInProgress.incrementAndGet();
-                        updateRemoteReactionTable( 0, (response, responseBody, requestName) -> {
-                            // Error handling?
-                            if(remoteCallsInProgress.decrementAndGet() == 0){
-                                SynchronizeLocalDB.syncDB(getActivity(), (success) ->{});
-                            }
-                        });
-                        // We then update the visual amount and status.
-                        postData.userReaction = 0;
-                        clickedButton.setText(buttonCount + " " + buttonName);
-                        setButtonInactive(buttons[thisButtonType]);
-
-                    } else {
-                        // This button should have had been inactive
-                        // This means we have a new value, for this user, for this reaction.
-                        // Now we need to see if the value was set to something other than 0
-                        if(savedUserReaction != 0){
-                            // Now it gets less simple
-                            // Another button was pressed, and we must now de-press that one and update the remote DB.
-                            // We know which one it was, based on the saved user reaction
-                            // NO DATABASE HERE
-                            buttons[savedUserReaction - 1].setText(counts[savedUserReaction - 1] + " " + names[savedUserReaction - 1]);
-                            setButtonInactive(buttons[savedUserReaction - 1]);
-                        }
-                        // As we change the saved user reaction here, we do it after checking/handling the already pressed button (if there is one)
-                        postData.userReaction = buttonNumber;
-                        clickedButton.setText((buttonCount + 1) + " " + buttonName);
-                        setButtonActive(buttons[thisButtonType]);
-                        // Now we update remote
-                        remoteCallsInProgress.incrementAndGet();
-                        updateRemoteReactionTable(buttonNumber, (response, responseBody, requestName) -> {
-                            // Error handling?
-                            if(remoteCallsInProgress.decrementAndGet() == 0){
-                                SynchronizeLocalDB.syncDB(getActivity(), (success) ->{});
-                            }
-                        });
-                    }
-                }
-            });
-        }
-    }
-
-    /*
-    * Sets a button as active
-    * It is purely cosmetic
-    * */
-    public void setButtonActive(Button button){
-
-    }
-
-    /*
-     * Sets a button as inactive
-     * It is purely cosmetic
-     * */
-    public void setButtonInactive(Button button){
-
-    }
-
-    private void updateRemoteReactionTable(int newReactionType, HttpRequest.HttpRequestResponse requestResponse){
-        Date userReactionTimestamp = postData.stamp;
-        Reaction reaction = new Reaction(loggedUserID, post_id, newReactionType);
-        Log.d(TAG, "updateRemoteReactionTable: " + loggedUserID);
-        Log.d(TAG, "updateRemoteReactionTable: " + post_id);
-        Log.d(TAG, "updateRemoteReactionTable: " + newReactionType);
-        Log.d(TAG, "updateRemoteReactionTable: " + userReactionTimestamp);
-        if(userReactionTimestamp != null){
-            // Update action
-            reaction.stamp = userReactionTimestamp;
-        } else {
-            long stamp = System.currentTimeMillis();
-            reaction.stamp = new Date(stamp);
-            postData.stamp = reaction.stamp;
-        }
-        RemoteDBRequest.reaction(getActivity(), ( userReactionTimestamp != null ? RemoteDBRequest.QUERY_TYPE_UPDATE : RemoteDBRequest.QUERY_TYPE_INSERT),
-                reaction, requestResponse);
-    }
-
-    private int[] textContainsImageURL(String text){
-        if(text == null){
-            return new int[2];
-        } else {
-            int[] substringLocation = new int[2];
-            String regex = "(http(s?):/)(/[^/]+)+\\.(?:jpg|gif|png)"; // Regex for mathing image urls
-            // Regex explanation:
-            // It was not made by hand, but with a tool, but still:
-            // Group 1: matches (http)(s)(:/), where the (s) is optional
-            // Group 3: It must end with (/)(*)(.)(format) where * is any NOT forward slash character, and format is an allowed image format.
-            // It also breaks the regex if at any point (ignoring the first forward slash in group 1) there are two consequent forward slashes.
-            Pattern pattern = Pattern.compile(regex);
-            Matcher matcher = pattern.matcher(text);
-            if(matcher.find()){
-                substringLocation[0] = matcher.start();
-                substringLocation[1] = matcher.end();
-            }
-            return substringLocation;
-        }
     }
 }

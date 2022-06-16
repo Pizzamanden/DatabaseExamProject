@@ -76,7 +76,6 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
         loggedUserID = userID;
     }
 
-
     @NonNull
     @Override
     public PostsListRecyclerViewAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -86,78 +85,81 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        if(position == 0){
 
-        // Set the users name and the content
-        if(localData.get(position).name == null){
-            holder.textViewUserName.setText(localData.get(position).post.user_id);
         } else {
-            holder.textViewUserName.setText(localData.get(position).name);
+            // Set the users name and the content
+            if (localData.get(position).name == null) {
+                holder.textViewUserName.setText(localData.get(position).post.user_id);
+            } else {
+                holder.textViewUserName.setText(localData.get(position).name);
+            }
+
+            // We must scan the content for any images, and fetch them in case they are there
+            String content = localData.get(position).post.content;
+            int[] imageURLLocation = textContainsImageURL(content);
+            if (imageURLLocation[1] != 0) {
+                holder.imageViewContentImage.setVisibility(View.VISIBLE);
+                // Now, get the image url
+                String imageURL = content.substring(imageURLLocation[0], imageURLLocation[1]);
+                // We setup the image download and showing process immediately
+                new ImageDownload(holder.imageViewContentImage).execute(imageURL);
+                Log.d(TAG, "onBindViewHolder: " + imageURL);
+                Log.d(TAG, "onBindViewHolder: On post ID: " + localData.get(position).post.id);
+                // Remove the Url from the String, and continue as we were
+                content = content.substring(0, imageURLLocation[0]) + content.substring(imageURLLocation[1]);
+            } else {
+                holder.imageViewContentImage.setVisibility(View.GONE);
+            }
+            // While loop to remove spaces in front of text
+            while (content.charAt(0) == ' ' && content.length() > 1) {
+                content = content.substring(1);
+            }
+            Log.d(TAG, "onBindViewHolder: " + content);
+            if (content != null && content.length() > 200) {
+                holder.textViewPostText.setText(content.substring(0, 200));
+            } else {
+                holder.textViewPostText.setText(content);
+            }
+
+            Button[] buttons = {
+                    holder.buttonLikeReact,
+                    holder.buttonDislikeReact,
+                    holder.buttonAmbivalenceReact
+            };
+            int[] counts = {
+                    localData.get(position).type1Reactions,
+                    localData.get(position).type2Reactions,
+                    localData.get(position).type3Reactions
+            };
+            String[] names = {
+                    fragment.getString(R.string.likeReact),
+                    fragment.getString(R.string.dislikeReact),
+                    fragment.getString(R.string.ambivalenceReact)
+            };
+            boolean[] isReacted = {
+                    localData.get(position).userReaction == 1,
+                    localData.get(position).userReaction == 2,
+                    localData.get(position).userReaction == 3
+            };
+
+            // Set our buttons
+            stylePostButtons(buttons, counts, names, isReacted, position);
+
+
+            // Set the listener for the posts, to view them
+            holder.layout.setOnClickListener((v) -> {
+                // Set the variable in the parent activity to remember the recycler position
+                PostsListFragment postsListFragment = (PostsListFragment) fragment;
+                postsListFragment.setRememberRecyclerViewPosition(holder.getAdapterPosition());
+                // Send the post id only, we make a SQL query on the other side (and we just need the id for that)
+                Bundle args = new Bundle();
+                args.putInt("sentData_post_id", localData.get(holder.getAdapterPosition()).post.id);
+                args.putString("sentData_user_id", localData.get(holder.getAdapterPosition()).post.user_id);
+                NavHostFragment.findNavController(fragment)
+                        .navigate(R.id.action_postsListFragment_to_viewPostFragment, args);
+            });
         }
-
-        // We must scan the content for any images, and fetch them in case they are there
-        String content = localData.get(position).post.content;
-        int[] imageURLLocation = textContainsImageURL(content);
-        if(imageURLLocation[1] != 0){
-            holder.imageViewContentImage.setVisibility(View.VISIBLE);
-            // Now, get the image url
-            String imageURL = content.substring(imageURLLocation[0], imageURLLocation[1]);
-            // We setup the image download and showing process immediately
-            new ImageDownload(holder.imageViewContentImage).execute(imageURL);
-            Log.d(TAG, "onBindViewHolder: " + imageURL);
-            Log.d(TAG, "onBindViewHolder: On post ID: " + localData.get(position).post.id);
-            // Remove the Url from the String, and continue as we were
-            content = content.substring(0, imageURLLocation[0]) + content.substring(imageURLLocation[1]);
-        } else {
-            holder.imageViewContentImage.setVisibility(View.GONE);
-        }
-        // While loop to remove spaces in front of text
-        while(content.charAt(0) == ' ' && content.length() > 1){
-            content = content.substring(1);
-        }
-        Log.d(TAG, "onBindViewHolder: " + content);
-        if(content != null && content.length() > 200){
-            holder.textViewPostText.setText(content.substring(0, 200));
-        } else {
-            holder.textViewPostText.setText(content);
-        }
-
-        Button[] buttons = {
-                holder.buttonLikeReact,
-                holder.buttonDislikeReact,
-                holder.buttonAmbivalenceReact
-        };
-        int[] counts = {
-                localData.get(position).type1Reactions,
-                localData.get(position).type2Reactions,
-                localData.get(position).type3Reactions
-        };
-        String[] names = {
-                fragment.getString(R.string.likeReact),
-                fragment.getString(R.string.dislikeReact),
-                fragment.getString(R.string.ambivalenceReact)
-        };
-        boolean[] isReacted = {
-                localData.get(position).userReaction == 1,
-                localData.get(position).userReaction == 2,
-                localData.get(position).userReaction == 3
-        };
-
-        // Set our buttons
-        stylePostButtons(buttons, counts, names, isReacted, position);
-
-
-        // Set the listener for the posts, to view them
-        holder.layout.setOnClickListener( (v) -> {
-            // Set the variable in the parent activity to remember the recycler position
-            PostsListFragment postsListFragment = (PostsListFragment) fragment;
-            postsListFragment.setRememberRecyclerViewPosition(holder.getAdapterPosition());
-            // Send the post id only, we make a SQL query on the other side (and we just need the id for that)
-            Bundle args = new Bundle();
-            args.putInt("sentData_post_id", localData.get(holder.getAdapterPosition()).post.id);
-            args.putString("sentData_user_id", localData.get(holder.getAdapterPosition()).post.user_id);
-            NavHostFragment.findNavController(fragment)
-                    .navigate(R.id.action_postsListFragment_to_viewPostFragment, args);
-        });
     }
 
     @Override
