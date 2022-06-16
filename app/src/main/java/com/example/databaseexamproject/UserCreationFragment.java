@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.databaseexamproject.databinding.FragmentUserCreationBinding;
 import com.example.databaseexamproject.room.AppDatabase;
@@ -117,11 +118,21 @@ public class UserCreationFragment extends Fragment {
 
 
         toLoginButton.setOnClickListener( (v) -> {
+            SynchronizeLocalDB.syncDB(getActivity(), (success) -> {});
+            String username = useridEditText.getText().toString();
             AppDatabase db = Room.databaseBuilder(getActivity(), AppDatabase.class, "database-name").allowMainThreadQueries().fallbackToDestructiveMigration().build();
-            User user = new User(useridEditText.getText().toString(), fullNameEditText.getText().toString());
-            db.userDao().insertAll(user);
-            Log.d("UserCreationFragment", "User created");
-            synchronizeWithRemoteDB(user);
+            User userExists = db.userDao().findByName(username);
+
+            if (userExists == null) {
+                User user = new User(username.trim(), fullNameEditText.getText().toString());
+                db.userDao().insertAll(user);
+                Log.d("UserCreationFragment", "User created");
+                synchronizeWithRemoteDB(user);
+            }
+            else {
+                Toast.makeText(getActivity(), R.string.user_already_exists, Toast.LENGTH_LONG).show();
+            }
+            db.close();
         });
     }
 
@@ -180,13 +191,13 @@ public class UserCreationFragment extends Fragment {
             Log.d("here", "username is null");
             return false;
         }
-        AppDatabase db;
-        User user;
-        SynchronizeLocalDB.syncDB(getActivity(), (success) -> {
 
-        });
-        db = Room.databaseBuilder(getActivity(), AppDatabase.class, "database-name").allowMainThreadQueries().fallbackToDestructiveMigration().build();
-        user = db.userDao().findByName(username);
+        while (username.charAt(0) == ' ' && username.length() > 1) {
+            username = username.substring(1);
+        }
+
+        AppDatabase db = Room.databaseBuilder(getActivity(), AppDatabase.class, "database-name").allowMainThreadQueries().fallbackToDestructiveMigration().build();
+        User user = db.userDao().findByName(username);
 
         if (!(user == null)) {
             return false;

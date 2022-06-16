@@ -27,6 +27,7 @@
     <string name="editCommentButton">Edit \n comment</string>
     <string name="editCommentSubmitDelete">Delete this \n comment</string>
     <string name="editCommentSubmitEdit">Submit changes</string>
+    <string name="user_already_exists">Username already in use</string>
 
 
 </resources>
