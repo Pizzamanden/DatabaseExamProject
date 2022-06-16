@@ -24,5 +24,4 @@ public class PostWithReactions {
 
     public int type3Reactions;
 
-
 }

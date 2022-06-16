@@ -13,10 +13,7 @@ import java.util.Date;
 @Entity(tableName = "users")
 public class User {
 
-    public User(@NonNull String id, String name) {
-        this.id = id;
-        this.name = name;
-    }
+
 
     @NonNull
     @PrimaryKey
@@ -28,5 +25,10 @@ public class User {
     @ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
     public Date stamp;
 
+
+    public User(@NonNull String id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 
 }

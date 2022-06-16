@@ -151,6 +151,9 @@ public class CommentForPostRecyclerViewAdapter extends RecyclerView.Adapter<Comm
 
             // Handle images
             String content = postData.post.content;
+            if(content == null){
+                content = "";
+            }
             int[] imageURLLocation = textContainsImageURL(content);
             if(imageURLLocation[1] != 0){
                 holder.imageViewContentImage.setVisibility(View.VISIBLE);
@@ -165,12 +168,12 @@ public class CommentForPostRecyclerViewAdapter extends RecyclerView.Adapter<Comm
             }
 
             // While loop to remove spaces in front of text
-            while(content.charAt(0) == ' ' && content.length() > 1){
+            while(content.length() > 0 && content.charAt(0) == ' '){
                 content = content.substring(1);
             }
             Log.d(TAG, "onBindViewHolder: " + content);
             // We limit content which is just too long
-            if(content != null && content.length() > 200){
+            if(content.length() > 200){
                 holder.textViewPostText.setText(content.substring(0, 200));
             } else {
                 holder.textViewPostText.setText(content);
@@ -211,6 +214,7 @@ public class CommentForPostRecyclerViewAdapter extends RecyclerView.Adapter<Comm
                 RemoteDBRequest.post(fragment.getActivity(), RemoteDBRequest.QUERY_TYPE_INSERT, post, (response, responseBody, requestName) ->{
                     SynchronizeLocalDB.syncDB(fragment.getActivity(), (success)->{
                         Log.d(TAG, "onCreateView: Comment Created!");
+                        // TODO reload fragment
                     });
                 });
             });
@@ -243,12 +247,6 @@ public class CommentForPostRecyclerViewAdapter extends RecyclerView.Adapter<Comm
                 }));
             }
         }
-    }
-
-    private void setupViewsWithData(){
-
-        // Make the user able to edit this post, if they own it
-
     }
 
     private void stylePostButtons(Button[] buttons, int[] counts, String[] names, boolean[] isReacted){
@@ -354,24 +352,20 @@ public class CommentForPostRecyclerViewAdapter extends RecyclerView.Adapter<Comm
     }
 
     private int[] textContainsImageURL(String text){
-        if(text == null){
-            return new int[2];
-        } else {
-            int[] substringLocation = new int[2];
-            String regex = "(http(s?):/)(/[^/]+)+\\.(?:jpg|gif|png)"; // Regex for mathing image urls
-            // Regex explanation:
-            // It was not made by hand, but with a tool, but still:
-            // Group 1: matches (http)(s)(:/), where the (s) is optional
-            // Group 3: It must end with (/)(*)(.)(format) where * is any NOT forward slash character, and format is an allowed image format.
-            // It also breaks the regex if at any point (ignoring the first forward slash in group 1) there are two consequent forward slashes.
-            Pattern pattern = Pattern.compile(regex);
-            Matcher matcher = pattern.matcher(text);
-            if(matcher.find()){
-                substringLocation[0] = matcher.start();
-                substringLocation[1] = matcher.end();
-            }
-            return substringLocation;
+        int[] substringLocation = new int[2];
+        String regex = "(http(s?):/)(/[^/]+)+\\.(?:jpg|gif|png)"; // Regex for mathing image urls
+        // Regex explanation:
+        // It was not made by hand, but with a tool, but still:
+        // Group 1: matches (http)(s)(:/), where the (s) is optional
+        // Group 3: It must end with (/)(*)(.)(format) where * is any NOT forward slash character, and format is an allowed image format.
+        // It also breaks the regex if at any point (ignoring the first forward slash in group 1) there are two consequent forward slashes.
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(text);
+        if(matcher.find()){
+            substringLocation[0] = matcher.start();
+            substringLocation[1] = matcher.end();
         }
+        return substringLocation;
     }
 
     @Override

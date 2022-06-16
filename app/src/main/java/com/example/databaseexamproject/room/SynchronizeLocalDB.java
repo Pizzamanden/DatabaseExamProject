@@ -92,7 +92,7 @@ public class SynchronizeLocalDB {
                             String regexForPostID = "(-?)(\\d+)";
                             Pattern patternForPostID = Pattern.compile(regexForPostID);
 
-                            String regexCommentFormat = "(?:(forPost:)|(re:\"))(-?)(\\d+)";
+                            String regexCommentFormat = "(?:(forPost:)|(re:\")|(\"__COMMENT_FOR\":))(-?)(\\d+)";
                             Pattern patternCommentFormat = Pattern.compile(regexCommentFormat);
 
                             for(Post post : posts){

@@ -141,6 +141,8 @@ public class ViewPostFragment extends Fragment {
                 SynchronizeLocalDB.syncDB(getActivity(), (success -> {}));
             });
             return true;
+        } else if(id == R.id.item2){
+            // TODO refresh
         }
         return super.onOptionsItemSelected(item);
     }
@@ -156,7 +158,7 @@ public class ViewPostFragment extends Fragment {
         return binding.getRoot();
     }
 
-    private void getDataForViews(){
+    public void getDataForViews(){
         // We cannot send the data we need
         AppDatabase db = Room.databaseBuilder(getActivity().getApplicationContext(),
                 AppDatabase.class, "database-name").build();

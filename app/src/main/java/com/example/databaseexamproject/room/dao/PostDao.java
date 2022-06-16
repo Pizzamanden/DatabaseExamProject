@@ -6,7 +6,6 @@ import androidx.room.Query;
 
 import com.example.databaseexamproject.room.dataobjects.PostWithReactions;
 import com.example.databaseexamproject.room.dataobjects.Post;
-import com.example.databaseexamproject.room.dataobjects.PostJoinUser;
 
 import java.util.Date;
 import java.util.List;
@@ -27,9 +26,6 @@ public interface PostDao {
 
     @Query("SELECT * FROM posts WHERE stamp >= (:specificDate) ORDER BY stamp DESC")
     List<Post> getAfterDateSortedDateDesc(Date specificDate);
-
-    @Query("SELECT * FROM posts JOIN users ON posts.user_id = users.id ORDER BY posts.stamp DESC")
-    List<PostJoinUser> getAllPostsWithUserNameSortedDateDesc();
 
     @Query("SELECT posts.*, users.name, " +
             " (SELECT type FROM reactions WHERE (:userID) = reactions.user_id AND posts.id = reactions.post_id) AS 'userReaction', " +
