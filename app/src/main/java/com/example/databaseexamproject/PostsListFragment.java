@@ -128,9 +128,11 @@ public class PostsListFragment extends Fragment {
         if(isLoading){
             binding.loadingIndicator.setVisibility(View.VISIBLE);
             binding.recyclerviewPostsList.setVisibility(View.GONE);
+            binding.fabNewPost.setVisibility(View.GONE);
         } else {
             binding.recyclerviewPostsList.setVisibility(View.VISIBLE);
             binding.loadingIndicator.setVisibility(View.GONE);
+            binding.fabNewPost.setVisibility(View.VISIBLE);
         }
     }
 
