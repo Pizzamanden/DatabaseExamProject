@@ -38,10 +38,14 @@ import com.example.databaseexamproject.room.dataobjects.Post;
 import com.example.databaseexamproject.room.dataobjects.PostWithReactions;
 import com.example.databaseexamproject.room.dataobjects.Reaction;
 import com.example.databaseexamproject.webrequests.HttpRequest;
+import com.example.databaseexamproject.webrequests.ImageDownload;
 import com.example.databaseexamproject.webrequests.RemoteDBRequest;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -60,6 +64,9 @@ public class ViewPostFragment extends Fragment {
 
     // Our data for this post
     private PostWithReactions postData;
+
+    // Integer counter for remote calls in progress
+    AtomicInteger remoteCallsInProgress = new AtomicInteger(0);
 
     // Fragment data values
     private int post_id;
@@ -110,7 +117,7 @@ public class ViewPostFragment extends Fragment {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.item1){
-            RemoteDBRequest.deletePost(getActivity(),post_id, (response, responseBody, requestName) -> {
+            RemoteDBRequest.deletePost(getActivity(),post_id, () -> {
                 Log.d(TAG, "onOptionsItemSelected: We are now done with the deletion");
                 SynchronizeLocalDB.syncDB(getActivity(), (success -> {}));
             });
@@ -136,7 +143,7 @@ public class ViewPostFragment extends Fragment {
             RemoteDBRequest.post(getActivity(), RemoteDBRequest.QUERY_TYPE_INSERT, post, (response, responseBody, requestName) ->{
                 SynchronizeLocalDB.syncDB(getActivity(), (success)->{
                     Log.d(TAG, "onCreateView: Comment Created!");
-                    // TODO refresh the view? Return to other posts list?
+                    parentActivity.recreate();
                 });
             });
         });
@@ -173,9 +180,36 @@ public class ViewPostFragment extends Fragment {
         } else {
             binding.fabEditPost.setVisibility(View.GONE);
         }
-        // TODO handle images here also
-        binding.include.textViewUserName.setText(postData.name);
-        binding.include.textViewPostText.setText(postData.post.content);
+        if(postData.name == null){
+            binding.include.textViewUserName.setText(postData.post.user_id);
+        } else {
+            binding.include.textViewUserName.setText(postData.name);
+        }
+        String content = postData.post.content;
+        int[] imageURLLocation = textContainsImageURL(content);
+        if(imageURLLocation[1] != 0){
+            binding.include.imageViewContentImage.setVisibility(View.VISIBLE);
+            // Now, get the image url
+            String imageURL = content.substring(imageURLLocation[0], imageURLLocation[1]);
+            // We setup the image download and showing process immediately
+            new ImageDownload(binding.include.imageViewContentImage).execute(imageURL);
+            Log.d(TAG, "onBindViewHolder: " + imageURL);
+            Log.d(TAG, "onBindViewHolder: On post ID: " + postData.post.id);
+            // Remove the Url from the String, and continue as we were
+            content = content.substring(0, imageURLLocation[0]) + content.substring(imageURLLocation[1]);
+        } else {
+            binding.include.imageViewContentImage.setVisibility(View.GONE);
+        }
+        // While loop to remove spaces in front of text
+        while(content.charAt(0) == ' ' && content.length() > 1){
+            content = content.substring(1);
+        }
+        Log.d(TAG, "onBindViewHolder: " + content);
+        if(content != null && content.length() > 200){
+            binding.include.textViewPostText.setText(content.substring(0, 200));
+        } else {
+            binding.include.textViewPostText.setText(content);
+        }
 
         // Setup reaction buttons
         Button[] buttons = {
@@ -215,7 +249,7 @@ public class ViewPostFragment extends Fragment {
             recyclerView.setLayoutManager(linearLayoutManager);
 
             // Create and attach our adapter
-            recyclerView.setAdapter(new CommentForPostRecyclerViewAdapter(result, loggedUserID));
+            recyclerView.setAdapter(new CommentForPostRecyclerViewAdapter(this, result, loggedUserID));
 
         });
         databaseRequest.runRequest(() -> db.commentDao().getByPostSortedDateDesc(post_id));
@@ -246,9 +280,12 @@ public class ViewPostFragment extends Fragment {
                         // This button should have had been active
                         // This is the easy case. We had reacted this reaction, and now we want to remove it.
                         // First we launch a database request. (we do not wait for a response)
+                        remoteCallsInProgress.incrementAndGet();
                         updateRemoteReactionTable( 0, (response, responseBody, requestName) -> {
                             // Error handling?
-                            SynchronizeLocalDB.syncDB(getActivity(), (success) ->{});
+                            if(remoteCallsInProgress.decrementAndGet() == 0){
+                                SynchronizeLocalDB.syncDB(getActivity(), (success) ->{});
+                            }
                         });
                         // We then update the visual amount and status.
                         postData.userReaction = 0;
@@ -272,9 +309,12 @@ public class ViewPostFragment extends Fragment {
                         clickedButton.setText((buttonCount + 1) + " " + buttonName);
                         setButtonActive(buttons[thisButtonType]);
                         // Now we update remote
+                        remoteCallsInProgress.incrementAndGet();
                         updateRemoteReactionTable(buttonNumber, (response, responseBody, requestName) -> {
                             // Error handling?
-                            SynchronizeLocalDB.syncDB(getActivity(), (success) ->{});
+                            if(remoteCallsInProgress.decrementAndGet() == 0){
+                                SynchronizeLocalDB.syncDB(getActivity(), (success) ->{});
+                            }
                         });
                     }
                 }
@@ -315,5 +355,26 @@ public class ViewPostFragment extends Fragment {
         }
         RemoteDBRequest.reaction(getActivity(), ( userReactionTimestamp != null ? RemoteDBRequest.QUERY_TYPE_UPDATE : RemoteDBRequest.QUERY_TYPE_INSERT),
                 reaction, requestResponse);
+    }
+
+    private int[] textContainsImageURL(String text){
+        if(text == null){
+            return new int[2];
+        } else {
+            int[] substringLocation = new int[2];
+            String regex = "(http(s?):/)(/[^/]+)+\\.(?:jpg|gif|png)"; // Regex for mathing image urls
+            // Regex explanation:
+            // It was not made by hand, but with a tool, but still:
+            // Group 1: matches (http)(s)(:/), where the (s) is optional
+            // Group 3: It must end with (/)(*)(.)(format) where * is any NOT forward slash character, and format is an allowed image format.
+            // It also breaks the regex if at any point (ignoring the first forward slash in group 1) there are two consequent forward slashes.
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(text);
+            if(matcher.find()){
+                substringLocation[0] = matcher.start();
+                substringLocation[1] = matcher.end();
+            }
+            return substringLocation;
+        }
     }
 }

@@ -25,6 +25,8 @@
     <string name="invalid_name">Field cannot be empty</string>
     <string name="invalid_username_taken">Username taken</string>
     <string name="editCommentButton">Edit \n comment</string>
+    <string name="editCommentSubmitDelete">Delete this \n comment</string>
+    <string name="editCommentSubmitEdit">Submit changes</string>
 
 
 </resources>

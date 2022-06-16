@@ -28,6 +28,7 @@ import com.example.databaseexamproject.webrequests.RemoteDBRequest;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,7 +41,8 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
 
     private final String loggedUserID;
 
-
+    // Integer counter for remote calls in progress
+    AtomicInteger remoteCallsInProgress = new AtomicInteger(0);
 
     public class ViewHolder extends RecyclerView.ViewHolder{
 
@@ -96,16 +98,23 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
         String content = localData.get(position).post.content;
         int[] imageURLLocation = textContainsImageURL(content);
         if(imageURLLocation[1] != 0){
+            holder.imageViewContentImage.setVisibility(View.VISIBLE);
             // Now, get the image url
             String imageURL = content.substring(imageURLLocation[0], imageURLLocation[1]);
             // We setup the image download and showing process immediately
             new ImageDownload(holder.imageViewContentImage).execute(imageURL);
             Log.d(TAG, "onBindViewHolder: " + imageURL);
+            Log.d(TAG, "onBindViewHolder: On post ID: " + localData.get(position).post.id);
             // Remove the Url from the String, and continue as we were
             content = content.substring(0, imageURLLocation[0]) + content.substring(imageURLLocation[1]);
+        } else {
+            holder.imageViewContentImage.setVisibility(View.GONE);
+        }
+        // While loop to remove spaces in front of text
+        while(content.charAt(0) == ' ' && content.length() > 1){
+            content = content.substring(1);
         }
         Log.d(TAG, "onBindViewHolder: " + content);
-        // TODO we could treat the content string, like removing strange chars from the beginning, like spaces, colons or others
         if(content != null && content.length() > 200){
             holder.textViewPostText.setText(content.substring(0, 200));
         } else {
@@ -186,9 +195,12 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
                         Log.d(TAG, "onClick: Unpress button " + (buttonNumber - 1) + " for post " + buttonPosition);
                         // This is the easy case. We had reacted this reaction, and now we want to remove it.
                         // First we launch a database request. (we do not wait for a response)
+                        remoteCallsInProgress.incrementAndGet();
                         updateRemoteReactionTable(buttonPosition, 0, (response, responseBody, requestName) -> {
                             // Error handling?
-                            SynchronizeLocalDB.syncDB(fragment.getContext(), (success) ->{});
+                            if(remoteCallsInProgress.decrementAndGet() == 0){
+                                SynchronizeLocalDB.syncDB(fragment.getContext(), (success) ->{});
+                            }
                         });
                         // We then update the visual amount and status.
                         localData.get(buttonPosition).userReaction = 0;
@@ -212,9 +224,12 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
                         clickedButton.setText((buttonCount + 1) + " " + buttonName);
                         setButtonActive(buttons[thisButtonType]);
                         // Now we update remote
+                        remoteCallsInProgress.incrementAndGet();
                         updateRemoteReactionTable(buttonPosition, buttonNumber, (response, responseBody, requestName) -> {
                             // Error handling?
-                            SynchronizeLocalDB.syncDB(fragment.getContext(), (success) ->{});
+                            if(remoteCallsInProgress.decrementAndGet() == 0){
+                                SynchronizeLocalDB.syncDB(fragment.getContext(), (success) ->{});
+                            }
                         });
                     }
                 }

@@ -3,6 +3,7 @@ package com.example.databaseexamproject.webrequests;
 
 import static android.content.ContentValues.TAG;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
@@ -209,7 +210,7 @@ public class RemoteDBRequest {
         }
     }
 
-    public static void deletePost(Context context, int post_id, HttpRequest.HttpRequestResponse requestResponse){
+    public static void deletePost(Context context, int post_id, Runnable runAfterCompletion){
         new Thread(() -> {
             // At the very start, we synchronize the local database.
             SynchronizeLocalDB.syncDB(context, (success) ->{});
@@ -267,7 +268,8 @@ public class RemoteDBRequest {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
+            Activity activity = (Activity) context;
+            activity.runOnUiThread(runAfterCompletion);
         }).start();
     }
 

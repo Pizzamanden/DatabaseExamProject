@@ -107,7 +107,8 @@ public class SynchronizeLocalDB {
                                         Matcher matcherForPostID = patternForPostID.matcher(matchedString);
                                         if(matcherForPostID.find()){
                                             // Now we add our found comment
-                                            postParseComment.add(new Comment(post.id, post.user_id, Integer.parseInt(matcherForPostID.group()), commentContent, post.stamp));
+                                            int forPost = Integer.parseInt(matcherForPostID.group());
+                                            postParseComment.add(new Comment(post.id, post.user_id, forPost, commentContent, post.stamp));
                                         }
                                     } else {
                                         // Not a comment we can recognize
