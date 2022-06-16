@@ -239,12 +239,12 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
 
     private void setButtonActive(Button button){
         // Here we style buttons for when they are active/highlighted
-        // TODO
+        // TODO button styling when clicked
     }
 
     private void setButtonInactive(Button button){
         // Here we style buttons for when they are inactive/just normal
-        // TODO
+        // TODO button styling when clicked
     }
 
     private int[] textContainsImageURL(String text){
