@@ -20,6 +20,7 @@ import com.example.databaseexamproject.room.dataobjects.Comment;
 import com.example.databaseexamproject.room.dataobjects.CommentWithUserName;
 import com.example.databaseexamproject.room.dataobjects.PostWithReactions;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CommentForPostRecyclerViewAdapter extends RecyclerView.Adapter<CommentForPostRecyclerViewAdapter.ViewHolder>{
@@ -27,10 +28,15 @@ public class CommentForPostRecyclerViewAdapter extends RecyclerView.Adapter<Comm
     private List<CommentWithUserName> commentsForPost;
     private String loggedUserID;
 
+    private List<Integer> layouts = new ArrayList<>();
+
 
     public CommentForPostRecyclerViewAdapter(List<CommentWithUserName> commentsForPost, String loggedUserID){
         this.commentsForPost = commentsForPost;
         this.loggedUserID = loggedUserID;
+        // Adding the types of layout we can use
+        layouts.add(R.layout.recyclerview_comment_layout);
+        layouts.add(R.layout.recyclerview_comment_owned_layout);
     }
 
 
@@ -39,6 +45,7 @@ public class CommentForPostRecyclerViewAdapter extends RecyclerView.Adapter<Comm
         // Declare views
         public TextView textViewUserName;
         public TextView textViewCommentText;
+        public Button commentEditButton;
 
 
         public ViewHolder(@NonNull View itemView) {
@@ -46,6 +53,7 @@ public class CommentForPostRecyclerViewAdapter extends RecyclerView.Adapter<Comm
             // Setup views
             textViewUserName = itemView.findViewById(R.id.textView_commentUserName);
             textViewCommentText = itemView.findViewById(R.id.textView_commentContent);
+            commentEditButton = itemView.findViewById(R.id.button_editComment);
         }
     }
 
@@ -53,8 +61,20 @@ public class CommentForPostRecyclerViewAdapter extends RecyclerView.Adapter<Comm
     @Override
     public CommentForPostRecyclerViewAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // The layout to inflate
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recyclerview_comment_layout, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(layouts.get(viewType), parent, false);
         return new CommentForPostRecyclerViewAdapter.ViewHolder(view);
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if(loggedUserID.equals(commentsForPost.get(position).comment.user_id)){
+            // The comment is owned
+            return 1;
+        } else {
+            // The comment is not owned
+            return 0;
+        }
+        // Yes, this could just be "return (loggedUserID.equals(commentsForPost.get(position).comment.user_id) ? 1 : 0);"
     }
 
     @Override
@@ -67,10 +87,11 @@ public class CommentForPostRecyclerViewAdapter extends RecyclerView.Adapter<Comm
         }
         holder.textViewCommentText.setText(commentsForPost.get(position).comment.text);
         if(loggedUserID.equals(commentsForPost.get(position).comment.user_id)){
-            // We own the comment
-            // TODO delete/edit comment action here
-        } else {
-            // We do not own the comment
+            // The comment is owned, and the layout has the button
+            holder.commentEditButton.setOnClickListener((v -> {
+                int commentID = commentsForPost.get(position).comment.id;
+                Log.d(TAG, "onBindViewHolder: Comment ID is: " + commentID);
+            }));
         }
     }
 

@@ -23,6 +23,7 @@ import com.example.databaseexamproject.room.SynchronizeLocalDB;
 import com.example.databaseexamproject.room.dataobjects.PostWithReactions;
 import com.example.databaseexamproject.room.dataobjects.Reaction;
 import com.example.databaseexamproject.webrequests.HttpRequest;
+import com.example.databaseexamproject.webrequests.ImageDownload;
 import com.example.databaseexamproject.webrequests.RemoteDBRequest;
 
 import java.util.Date;
@@ -98,13 +99,18 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
             // Now, get the image url
             String imageURL = content.substring(imageURLLocation[0], imageURLLocation[1]);
             // We setup the image download and showing process immediately
-            setImageViewImageFromUrl(holder.imageViewContentImage, imageURL);
+            new ImageDownload(holder.imageViewContentImage).execute(imageURL);
             Log.d(TAG, "onBindViewHolder: " + imageURL);
             // Remove the Url from the String, and continue as we were
             content = content.substring(0, imageURLLocation[0]) + content.substring(imageURLLocation[1]);
         }
+        Log.d(TAG, "onBindViewHolder: " + content);
         // TODO we could treat the content string, like removing strange chars from the beginning, like spaces, colons or others
-        holder.textViewPostText.setText(content);
+        if(content != null && content.length() > 200){
+            holder.textViewPostText.setText(content.substring(0, 200));
+        } else {
+            holder.textViewPostText.setText(content);
+        }
 
         Button[] buttons = {
                 holder.buttonLikeReact,
@@ -268,7 +274,4 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
         }
     }
 
-    public void setImageViewImageFromUrl(ImageView imageView, String URL){
-        // TODO what is an async task, and how do we convert URL into bitstream, into bitmaps?????????????????
-    }
 }

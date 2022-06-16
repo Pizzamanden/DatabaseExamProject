@@ -24,6 +24,7 @@
     <string name="image_header">If you want an image, copy a URL into this field:</string>
     <string name="invalid_name">Field cannot be empty</string>
     <string name="invalid_username_taken">Username taken</string>
+    <string name="editCommentButton">Edit \n comment</string>
 
 
 </resources>
