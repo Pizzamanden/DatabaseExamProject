@@ -11,7 +11,9 @@
         android:id="@+id/username"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="96dp"
+        android:layout_marginEnd="8dp"
         android:hint="@string/prompt_userid"
         android:inputType="textEmailAddress"
         android:selectAllOnFocus="true"
@@ -39,15 +41,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="64dp"
+        android:layout_marginTop="122dp"
         android:enabled="false"
         android:text="@string/action_sign_in_short"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/password"
-        app:layout_constraintVertical_bias="0.2" />
+        app:layout_constraintTop_toBottomOf="@+id/username" />
 
     <ProgressBar
         android:id="@+id/loading"
@@ -67,19 +66,10 @@
         android:id="@+id/toCreateUserButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="CreateUser"
-        app:layout_constraintBottom_toBottomOf="@+id/toPostsListButton"
-        app:layout_constraintEnd_toStartOf="@+id/toPostsListButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/toPostsListButton" />
-
-    <Button
-        android:id="@+id/toPostsListButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="PostsList"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="24dp"
+        android:text="Create a user here"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/toCreateUserButton"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/login" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -111,6 +111,20 @@ public class ManagePostFragment extends Fragment {
         });
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        PostsListActivity parentActivity = (PostsListActivity) getActivity();
+        if(parentActivity != null){
+            if(isExistingPost){
+                parentActivity.getSupportActionBar().setTitle("Edit your post");
+            } else {
+                parentActivity.getSupportActionBar().setTitle("Create a new post");
+            }
+        }
+    }
+
     private void submitPost(String content){
         // TODO make loading spinning circle thingy
         // Now we have the content from our textEdit, and we must do the SQL thing

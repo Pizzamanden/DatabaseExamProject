@@ -24,6 +24,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.databaseexamproject.MainActivity;
 import com.example.databaseexamproject.R;
 import com.example.databaseexamproject.databinding.FragmentUserLoginBinding;
 
@@ -173,6 +174,16 @@ public class UserLoginFragment extends Fragment {
             getActivity().finish();
             // TODO send the username and ID to the activity
         }));*/
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        MainActivity parentActivity = (MainActivity) getActivity();
+        if(parentActivity != null){
+            parentActivity.getSupportActionBar().setTitle("Login");
+        }
     }
 
     @Override

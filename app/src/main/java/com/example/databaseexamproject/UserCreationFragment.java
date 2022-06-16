@@ -125,6 +125,16 @@ public class UserCreationFragment extends Fragment {
         });
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        MainActivity parentActivity = (MainActivity) getActivity();
+        if(parentActivity != null){
+            parentActivity.getSupportActionBar().setTitle("Create a new user");
+        }
+    }
+
     private void synchronizeWithRemoteDB(User user) {
         RemoteDBRequest.user(getActivity(), RemoteDBRequest.QUERY_TYPE_INSERT, user, (response, responseBody, requestName) -> {
             Bundle bundle = new Bundle();

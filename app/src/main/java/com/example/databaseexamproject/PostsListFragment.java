@@ -65,6 +65,15 @@ public class PostsListFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        if(parentActivity != null){
+            parentActivity.getSupportActionBar().setTitle("Viewing all posts");
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -73,6 +82,7 @@ public class PostsListFragment extends Fragment {
         Log.d(TAG, "onCreateView: User ID is: " + loggedInUserID);
         binding = FragmentPostsListBinding.inflate(inflater, container, false);
         updateLoadingStatus(true);
+
         getDataForRecyclerView();
 
         return binding.getRoot();

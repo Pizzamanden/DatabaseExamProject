@@ -57,6 +57,8 @@ public class ViewPostFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String POST_ID = "sentData_post_id";
     private static final String USER_ID = "sentData_user_id";
+    private static final String USER_NAME = "sentData_user_name";
+
 
     // Parent activity and the userID
     private PostsListActivity parentActivity;
@@ -72,6 +74,7 @@ public class ViewPostFragment extends Fragment {
     // Fragment data values
     private int post_id;
     private String user_id;
+    private String user_name;
 
     // Binding
     FragmentViewPostBinding binding;
@@ -86,11 +89,12 @@ public class ViewPostFragment extends Fragment {
      *
      * @return A new instance of fragment ViewPostFragment.
      */
-    public static ViewPostFragment newInstance(int post_id, String user_id) {
+    public static ViewPostFragment newInstance(int post_id, String user_id, String user_name) {
         ViewPostFragment fragment = new ViewPostFragment();
         Bundle args = new Bundle();
         args.putInt(POST_ID, post_id);
         args.putString(USER_ID, user_id);
+        args.putString(USER_NAME, user_name);
         fragment.setArguments(args);
         return fragment;
     }
@@ -102,6 +106,20 @@ public class ViewPostFragment extends Fragment {
         if (getArguments() != null) {
             post_id = getArguments().getInt(POST_ID);
             user_id = getArguments().getString(USER_ID);
+            user_name = getArguments().getString(USER_NAME);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if(parentActivity != null){
+            if(user_name != null){
+                parentActivity.getSupportActionBar().setTitle("Post by " + user_name);
+            } else {
+                parentActivity.getSupportActionBar().setTitle("Viewing post");
+            }
         }
     }
 

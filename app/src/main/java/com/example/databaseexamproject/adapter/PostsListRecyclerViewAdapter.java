@@ -156,6 +156,7 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
                 Bundle args = new Bundle();
                 args.putInt("sentData_post_id", localData.get(holder.getAdapterPosition()).post.id);
                 args.putString("sentData_user_id", localData.get(holder.getAdapterPosition()).post.user_id);
+                args.putString("sentData_user_name", localData.get(holder.getAdapterPosition()).name);
                 NavHostFragment.findNavController(fragment)
                         .navigate(R.id.action_postsListFragment_to_viewPostFragment, args);
             });

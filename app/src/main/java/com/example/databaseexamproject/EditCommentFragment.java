@@ -72,6 +72,15 @@ public class EditCommentFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        if(parentActivity != null){
+            parentActivity.getSupportActionBar().setTitle("Edit you comment");
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment

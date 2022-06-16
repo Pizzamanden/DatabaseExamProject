@@ -34,6 +34,9 @@
         <action
             android:id="@+id/action_viewPostFragment_to_editCommentFragment"
             app:destination="@id/editCommentFragment" />
+        <argument
+            android:name="sentData_user_name"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/managePostFragment"
