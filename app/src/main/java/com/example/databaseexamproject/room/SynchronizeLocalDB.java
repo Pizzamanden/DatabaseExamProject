@@ -1,40 +1,31 @@
 package com.example.databaseexamproject.room;
 
-import android.app.Activity;
+import static android.content.ContentValues.TAG;
+
 import android.content.Context;
 import android.util.Log;
 
-import com.example.databaseexamproject.R;
+import androidx.room.Room;
+
 import com.example.databaseexamproject.room.dataobjects.Comment;
 import com.example.databaseexamproject.room.dataobjects.Post;
 import com.example.databaseexamproject.room.dataobjects.Reaction;
 import com.example.databaseexamproject.room.dataobjects.User;
-import com.example.databaseexamproject.webrequests.HttpRequest;
 import com.google.gson.Gson;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
-
-import static android.content.ContentValues.TAG;
-
-import androidx.room.Room;
 
 public class SynchronizeLocalDB {
 

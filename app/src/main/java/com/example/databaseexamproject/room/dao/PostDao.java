@@ -2,31 +2,15 @@ package com.example.databaseexamproject.room.dao;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
-import com.example.databaseexamproject.room.dataobjects.PostWithReactions;
 import com.example.databaseexamproject.room.dataobjects.Post;
+import com.example.databaseexamproject.room.dataobjects.PostWithReactions;
 
-import java.util.Date;
 import java.util.List;
 
 @Dao
 public interface PostDao {
-    @Query("SELECT * FROM posts WHERE id = (:postID)")
-    Post getPostByID(int postID);
-
-    @Query("SELECT * FROM posts ORDER BY stamp DESC")
-    List<Post> getAllSortedDateDesc();
-
-    @Query("SELECT * FROM posts WHERE posts.user_id = (:userID) ORDER BY stamp DESC")
-    List<Post> getByUserSortedDateDesc(String userID);
-
-    @Query("SELECT * FROM posts WHERE stamp < (:specificDate) ORDER BY stamp DESC")
-    List<Post> getBeforeDateSortedDateDesc(Date specificDate);
-
-    @Query("SELECT * FROM posts WHERE stamp >= (:specificDate) ORDER BY stamp DESC")
-    List<Post> getAfterDateSortedDateDesc(Date specificDate);
 
     @Query("SELECT posts.*, users.name, " +
             " (SELECT type FROM reactions WHERE (:userID) = reactions.user_id AND posts.id = reactions.post_id) AS 'userReaction', " +

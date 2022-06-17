@@ -3,6 +3,13 @@ package com.example.databaseexamproject;
 import static android.content.ContentValues.TAG;
 
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -11,14 +18,6 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
-
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.example.databaseexamproject.adapter.PostsListRecyclerViewAdapter;
 import com.example.databaseexamproject.databinding.FragmentPostsListBinding;
@@ -66,9 +65,7 @@ public class PostsListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         Log.d(TAG, "onCreate Fragment: called");
-        if (getArguments() != null) {
-
-        }
+        SynchronizeLocalDB.syncDB(getActivity(), (success) -> {});
     }
 
     @Override

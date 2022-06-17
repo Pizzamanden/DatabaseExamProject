@@ -14,20 +14,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.room.Room;
 
-import com.example.databaseexamproject.ManagePostFragment;
 import com.example.databaseexamproject.R;
-import com.example.databaseexamproject.ViewPostFragment;
-import com.example.databaseexamproject.room.DatabaseRequest;
 import com.example.databaseexamproject.room.SynchronizeLocalDB;
-import com.example.databaseexamproject.room.dataobjects.Comment;
 import com.example.databaseexamproject.room.dataobjects.CommentWithUserName;
 import com.example.databaseexamproject.room.dataobjects.Post;
 import com.example.databaseexamproject.room.dataobjects.PostWithReactions;
@@ -39,7 +32,6 @@ import com.example.databaseexamproject.webrequests.RemoteDBRequest;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,9 +42,6 @@ public class CommentForPostRecyclerViewAdapter extends RecyclerView.Adapter<Comm
     private String loggedUserID;
     // Our data for this post
     private PostWithReactions postData;
-
-    // Integer counter for remote calls in progress
-    AtomicInteger remoteCallsInProgress = new AtomicInteger(0);
 
     private List<Integer> layouts = new ArrayList<>();
     private Fragment fragment;
@@ -281,14 +270,10 @@ public class CommentForPostRecyclerViewAdapter extends RecyclerView.Adapter<Comm
                         // This button should have had been active
                         // This is the easy case. We had reacted this reaction, and now we want to remove it.
                         // First we launch a database request. (we do not wait for a response)
-                        remoteCallsInProgress.incrementAndGet();
                         updateRemoteReactionTable( 0, (response, responseBody, requestName) -> {
                             if(response.code() >= 300){
                                 // If some error occurred because the post was deleted, we get kicked out of viewing the post anyway
                                 Toast.makeText(fragment.getActivity(), "Something went wrong", Toast.LENGTH_LONG).show();
-                            }
-                            if(remoteCallsInProgress.decrementAndGet() == 0){
-                                SynchronizeLocalDB.syncDB(fragment.getActivity(), (success) ->{});
                             }
                         });
                         // We then update the visual amount and status.
@@ -313,14 +298,10 @@ public class CommentForPostRecyclerViewAdapter extends RecyclerView.Adapter<Comm
                         clickedButton.setText((buttonCount + 1) + " " + buttonName);
                         setButtonActive(buttons[thisButtonType]);
                         // Now we update remote
-                        remoteCallsInProgress.incrementAndGet();
                         updateRemoteReactionTable(buttonNumber, (response, responseBody, requestName) -> {
                             if(response.code() >= 300){
                                 // If some error occurred because the post was deleted, we get kicked out of viewing the post anyway
                                 Toast.makeText(fragment.getActivity(), "Something went wrong", Toast.LENGTH_LONG).show();
-                            }
-                            if(remoteCallsInProgress.decrementAndGet() == 0){
-                                SynchronizeLocalDB.syncDB(fragment.getActivity(), (success) ->{});
                             }
                         });
                     }

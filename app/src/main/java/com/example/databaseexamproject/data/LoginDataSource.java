@@ -1,7 +1,6 @@
 package com.example.databaseexamproject.data;
 
 import android.content.Context;
-import android.nfc.Tag;
 import android.util.Log;
 
 import androidx.room.Room;

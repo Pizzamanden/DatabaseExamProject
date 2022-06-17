@@ -12,29 +12,14 @@ import java.util.List;
 @Dao
 public interface CommentDao {
 
-
+    // Is used in cascade deletion
     @Query("SELECT id FROM comments WHERE post_id = (:postID)")
     List<Integer> getAllCommentIDByPostID(int postID);
-
-
-    @Query("SELECT comments.*, users.name FROM comments JOIN users ON users.id = comments.user_id" +
-            " ORDER BY stamp DESC")
-    List<CommentWithUserName> getAllSortedDateDesc();
 
     @Query("SELECT comments.*, users.name FROM comments JOIN users ON users.id = comments.user_id" +
             " WHERE comments.post_id = (:postID)" +
             " ORDER BY stamp DESC")
     List<CommentWithUserName> getByPostSortedDateDesc(int postID);
-
-    @Query("SELECT comments.*, users.name FROM comments JOIN users ON users.id = comments.user_id" +
-            " WHERE comments.user_id = (:userID)" +
-            " ORDER BY stamp DESC")
-    List<CommentWithUserName> getByUserSortedDateDesc(String userID);
-
-    @Query("SELECT comments.*, users.name FROM comments JOIN users ON users.id = comments.user_id" +
-            " WHERE comments.post_id = (:postID) AND comments.user_id = (:userID)" +
-            " ORDER BY stamp DESC")
-    List<CommentWithUserName> getByPostAndUserSortedDateDesc(int postID, String userID);
 
     @Insert
     void insertAll(Comment... comment);

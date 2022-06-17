@@ -3,12 +3,6 @@ package com.example.databaseexamproject;
 import static android.content.ContentValues.TAG;
 
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.fragment.NavHostFragment;
-
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -17,16 +11,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
+
 import com.example.databaseexamproject.databinding.FragmentManagePostBinding;
 import com.example.databaseexamproject.room.SynchronizeLocalDB;
 import com.example.databaseexamproject.room.dataobjects.Post;
-import com.example.databaseexamproject.webrequests.ImageDownload;
 import com.example.databaseexamproject.webrequests.RemoteDBRequest;
 
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

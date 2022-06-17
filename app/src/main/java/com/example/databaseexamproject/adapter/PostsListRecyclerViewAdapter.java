@@ -42,9 +42,6 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
 
     private final String loggedUserID;
 
-    // Integer counter for remote calls in progress
-    AtomicInteger remoteCallsInProgress = new AtomicInteger(0);
-
     public class ViewHolder extends RecyclerView.ViewHolder{
 
         // Declare views
@@ -196,13 +193,9 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
                         Log.d(TAG, "onClick: Unpress button " + (buttonNumber - 1) + " for post " + buttonPosition);
                         // This is the easy case. We had reacted this reaction, and now we want to remove it.
                         // First we launch a database request. (we do not wait for a response)
-                        remoteCallsInProgress.incrementAndGet();
                         updateRemoteReactionTable(buttonPosition, 0, (response, responseBody, requestName) -> {
                             if(response.code() >= 300){
                                 Toast.makeText(fragment.getActivity(), "Something went wrong", Toast.LENGTH_LONG).show();
-                            }
-                            if(remoteCallsInProgress.decrementAndGet() == 0){
-                                SynchronizeLocalDB.syncDB(fragment.getContext(), (success) ->{});
                             }
                         });
                         // We then update the visual amount and status.
@@ -227,13 +220,9 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
                         clickedButton.setText((buttonCount + 1) + " " + buttonName);
                         setButtonActive(buttons[thisButtonType]);
                         // Now we update remote
-                        remoteCallsInProgress.incrementAndGet();
                         updateRemoteReactionTable(buttonPosition, buttonNumber, (response, responseBody, requestName) -> {
                             if(response.code() >= 300){
                                 Toast.makeText(fragment.getActivity(), "Something went wrong", Toast.LENGTH_LONG).show();
-                            }
-                            if(remoteCallsInProgress.decrementAndGet() == 0){
-                                SynchronizeLocalDB.syncDB(fragment.getContext(), (success) ->{});
                             }
                         });
                     }

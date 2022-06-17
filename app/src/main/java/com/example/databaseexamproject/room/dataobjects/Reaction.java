@@ -1,10 +1,8 @@
 package com.example.databaseexamproject.room.dataobjects;
 
 import androidx.annotation.NonNull;
-import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 
-import java.sql.Timestamp;
 import java.util.Date;
 
 @Entity(tableName = "reactions", primaryKeys = {"user_id", "post_id"}) // Refer to ColumnInfo names!

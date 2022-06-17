@@ -1,7 +1,6 @@
 package com.example.databaseexamproject.room.dao;
 
 import androidx.room.Dao;
-import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 
@@ -13,9 +12,6 @@ import java.util.List;
 public interface UserDao {
     @Query("SELECT * FROM users")
     List<User> getAll();
-
-    @Query("SELECT * FROM users WHERE name = (:name)")
-    List<User> getByName(String name);
 
     @Query("SELECT * FROM users WHERE id LIKE :id LIMIT 1")
     User findByName(String id);

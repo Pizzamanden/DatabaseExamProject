@@ -3,15 +3,6 @@ package com.example.databaseexamproject;
 import static android.content.ContentValues.TAG;
 
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.navigation.fragment.NavHostFragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.room.Room;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,6 +11,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
 import com.example.databaseexamproject.adapter.CommentForPostRecyclerViewAdapter;
 import com.example.databaseexamproject.databinding.FragmentViewPostBinding;
@@ -149,7 +148,6 @@ public class ViewPostFragment extends Fragment {
         loggedUserID = parentActivity.getUserID();
         // Inflate the layout for this fragment
         binding = FragmentViewPostBinding.inflate(inflater, container, false);
-        getDataForViews();
         return binding.getRoot();
     }
 
