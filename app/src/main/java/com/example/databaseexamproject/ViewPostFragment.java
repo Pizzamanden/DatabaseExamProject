@@ -26,6 +26,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.databaseexamproject.adapter.CommentForPostRecyclerViewAdapter;
 import com.example.databaseexamproject.adapter.PostsListRecyclerViewAdapter;
@@ -147,6 +148,10 @@ public class ViewPostFragment extends Fragment {
             RemoteDBRequest.deletePost(getActivity(),post_id, () -> {
                 Log.d(TAG, "onOptionsItemSelected: We are now done with the deletion");
                 SynchronizeLocalDB.syncDB(getActivity(), (success -> {}));
+                // Then we go back
+                Toast.makeText(getActivity(), "Deletion successful!", Toast.LENGTH_LONG).show();
+                NavHostFragment.findNavController(ViewPostFragment.this)
+                        .navigateUp();
             });
             return true;
         }
@@ -165,19 +170,29 @@ public class ViewPostFragment extends Fragment {
     }
 
     public void getDataForViews(){
+        SynchronizeLocalDB.syncDB(getActivity(), (success -> {}));
         // We cannot send the data we need
         AppDatabase db = Room.databaseBuilder(getActivity().getApplicationContext(),
                 AppDatabase.class, "database-name").build();
 
         new DatabaseRequest<PostWithReactions>(getActivity(), (postResult) -> {
             postData = postResult;
-            // We also need all comments for this post
-            new DatabaseRequest<List<CommentWithUserName>>(getActivity(), (commentsResult) -> {
-                commentsForPost = commentsResult;
-                // Now we can setup our views
-                db.close();
-                setupViewsWithData();
-            }).runRequest(() -> db.commentDao().getByPostSortedDateDesc(post_id));
+            // If the post got deleted while we were viewing it, we need to know
+            if(postData != null) {
+                // We also need all comments for this post
+                new DatabaseRequest<List<CommentWithUserName>>(getActivity(), (commentsResult) -> {
+                    commentsForPost = commentsResult;
+                    // Now we can setup our views
+                    db.close();
+                    setupViewsWithData();
+                }).runRequest(() -> db.commentDao().getByPostSortedDateDesc(post_id));
+            } else {
+                // Our post got deleted while viewing it, or something?
+                // Kick our user back to postsList
+                Toast.makeText(getActivity(), "The post could not be found", Toast.LENGTH_LONG).show();
+                NavHostFragment.findNavController(ViewPostFragment.this)
+                        .navigateUp();
+            }
         }).runRequest(() -> db.postDao().getSpecificPostWithReactionByUserAndAllReactionsCounter(loggedUserID, post_id));
     }
 

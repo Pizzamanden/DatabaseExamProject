@@ -21,6 +21,7 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
@@ -212,7 +213,7 @@ public class RemoteDBRequest {
 
     public static void deletePost(Context context, int post_id, Runnable runAfterCompletion){
         new Thread(() -> {
-            // Why do we cascade comments of comments, if we don't allow them in our app?
+            // Why do we cascade on comments of comments, if we don't allow them in our app?
             // Because, maybe another group does!
 
             // At the very start, we synchronize the local database.
@@ -225,20 +226,21 @@ public class RemoteDBRequest {
             List<Integer> affectedComments = cascadeDeletion(db, post_id);
             affectedComments.add(post_id);
             // Now we can use these ID's to delete all reactions, comments and the post.
-            String reactionsToDeleteURL = REMOTE_URL + "/reactions?post_id=eq.";
+            StringBuilder reactionsToDeleteURL = new StringBuilder(REMOTE_URL + "/reactions?or=(");
             for(int i = 0; i < affectedComments.size(); i++){
-                reactionsToDeleteURL = reactionsToDeleteURL + affectedComments.get(i);
+                reactionsToDeleteURL.append("post_id.eq.").append(affectedComments.get(i));
                 if(i + 1 < affectedComments.size()){
-                    reactionsToDeleteURL = reactionsToDeleteURL + ";eq.";
+                    reactionsToDeleteURL.append(",");
                 }
             }
+            reactionsToDeleteURL.append(")");
             Log.d(TAG, "deletePost: Reaction URL query: " + reactionsToDeleteURL);
 
             Request requestDeleteReactions = new Request.Builder()
                     .delete()
                     .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
                     .addHeader(AUTH_KEY, AUTH_VALUE)
-                    .url(reactionsToDeleteURL)
+                    .url(reactionsToDeleteURL.toString())
                     .build();
             OkHttpClient client = new OkHttpClient();
             // Make call on client with request
@@ -249,20 +251,21 @@ public class RemoteDBRequest {
                 e.printStackTrace();
             }
 
-            String postsToDeleteURL = REMOTE_URL + "/posts?id=eq.";
+            StringBuilder postsToDeleteURL = new StringBuilder(REMOTE_URL + "/posts?or=(");
             for(int i = 0; i < affectedComments.size(); i++){
-                postsToDeleteURL = postsToDeleteURL + affectedComments.get(i);
+                postsToDeleteURL.append("id.eq.").append(affectedComments.get(i));
                 if(i + 1 < affectedComments.size()){
-                    postsToDeleteURL = postsToDeleteURL + ";eq.";
+                    postsToDeleteURL.append(",");
                 }
             }
+            postsToDeleteURL.append(")");
             Log.d(TAG, "deletePost: Posts URL query: " + postsToDeleteURL);
 
             Request requestDeletePosts = new Request.Builder()
                     .delete()
                     .addHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE)
                     .addHeader(AUTH_KEY, AUTH_VALUE)
-                    .url(postsToDeleteURL)
+                    .url(postsToDeleteURL.toString())
                     .build();
             // Make call on client with request
             try {
@@ -281,10 +284,12 @@ public class RemoteDBRequest {
         // The comment this method is run on is already in the list
         // Get all comments, which depends on this comment
         List<Integer> commentsOfThisComment = db.commentDao().getAllCommentIDByPostID(commentID);
+        List<Integer> dependingComments = new ArrayList<>();
         // Then run this method on all of them
-        for(Integer dependingCommentID : commentsOfThisComment){
-            commentsOfThisComment.addAll(cascadeDeletion(db, dependingCommentID));
+        for (Integer dependingCommentID : commentsOfThisComment) {
+            dependingComments.addAll(cascadeDeletion(db, dependingCommentID));
         }
+        commentsOfThisComment.addAll(dependingComments);
         // At the end, we should have one single list of all impacted comments (from this comment)
         return commentsOfThisComment;
     }
