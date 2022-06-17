@@ -7,7 +7,7 @@ import androidx.room.Entity;
 import java.sql.Timestamp;
 import java.util.Date;
 
-@Entity(tableName = "reactions", primaryKeys = {"user_id", "post_id", "stamp"}) // Refer to ColumnInfo names!
+@Entity(tableName = "reactions", primaryKeys = {"user_id", "post_id"}) // Refer to ColumnInfo names!
 public class Reaction {
 
     @NonNull
