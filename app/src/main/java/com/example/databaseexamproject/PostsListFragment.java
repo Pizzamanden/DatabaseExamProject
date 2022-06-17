@@ -2,6 +2,7 @@ package com.example.databaseexamproject;
 
 import static android.content.ContentValues.TAG;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -25,6 +27,7 @@ import com.example.databaseexamproject.room.AppDatabase;
 import com.example.databaseexamproject.room.DatabaseRequest;
 import com.example.databaseexamproject.room.SynchronizeLocalDB;
 import com.example.databaseexamproject.room.dataobjects.PostWithReactions;
+import com.example.databaseexamproject.room.dataobjects.User;
 import com.example.databaseexamproject.webrequests.RemoteDBRequest;
 
 import java.util.List;
@@ -65,7 +68,6 @@ public class PostsListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         Log.d(TAG, "onCreate Fragment: called");
-        SynchronizeLocalDB.syncDB(getActivity(), (success) -> {});
     }
 
     @Override
@@ -91,13 +93,11 @@ public class PostsListFragment extends Fragment {
         int id = item.getItemId();
         if(id == R.id.item1){
             Log.d(TAG, "onOptionsItemSelected: called");
-            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-            transaction.detach(this);
-            transaction.commit();
-            FragmentTransaction transaction2 = getParentFragmentManager().beginTransaction();
-            transaction2.attach(this);
-            transaction2.commit();
+            refreshFragment();
             return true;
+        } else if(id == R.id.item2){
+            loggedUserID = null;
+            syncAndAuth(true);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -118,9 +118,10 @@ public class PostsListFragment extends Fragment {
     }
 
     public void getDataForRecyclerView(){
+        syncAndAuth(false);
         // We must first, async, get the data for the recyclerview
         AppDatabase db = Room.databaseBuilder(getActivity().getApplicationContext(),
-                AppDatabase.class, "database-name").build();
+                AppDatabase.class, "database-name").allowMainThreadQueries().build();
 
         DatabaseRequest<List<PostWithReactions>> databaseRequest = new DatabaseRequest<>(getActivity(), (result) -> {
             db.close();
@@ -168,5 +169,36 @@ public class PostsListFragment extends Fragment {
         }
     }
 
+    public void refreshFragment(){
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        transaction.detach(this);
+        transaction.commit();
+        FragmentTransaction transaction2 = getParentFragmentManager().beginTransaction();
+        transaction2.attach(this);
+        transaction2.commit();
+    }
+
+    public void syncAndAuth(boolean logoutOnPurpose){
+        // First we sync
+        SynchronizeLocalDB.syncDB(getActivity(), (success -> {}));
+
+        AppDatabase db = Room.databaseBuilder(getActivity().getApplicationContext(),
+                AppDatabase.class, "database-name").allowMainThreadQueries().build();
+        // Check our logged in user exists
+        User thisUser = db.userDao().findByName(loggedUserID);
+        db.close();
+        if(thisUser == null){
+            // Our user is not logged in / does not exists
+            Intent intent = new Intent(getActivity(), com.example.databaseexamproject.MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            if(!logoutOnPurpose){
+                Toast.makeText(getActivity(), "Authentication failed, please login again", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(getActivity(), "You are now logged out", Toast.LENGTH_LONG).show();
+            }
+            getActivity().finish();
+        }
+    }
 
 }

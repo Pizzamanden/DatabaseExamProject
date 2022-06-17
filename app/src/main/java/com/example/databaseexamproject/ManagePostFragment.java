@@ -2,21 +2,30 @@ package com.example.databaseexamproject;
 
 import static android.content.ContentValues.TAG;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.room.Room;
 
 import com.example.databaseexamproject.databinding.FragmentManagePostBinding;
+import com.example.databaseexamproject.room.AppDatabase;
 import com.example.databaseexamproject.room.SynchronizeLocalDB;
 import com.example.databaseexamproject.room.dataobjects.Post;
+import com.example.databaseexamproject.room.dataobjects.User;
 import com.example.databaseexamproject.webrequests.RemoteDBRequest;
 
 import java.util.regex.Matcher;
@@ -73,12 +82,45 @@ public class ManagePostFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         if (getArguments() != null) {
             user_id = getArguments().getString(USER_ID);
             isExistingPost = getArguments().getBoolean(EXISTING_POST);
             post_id = getArguments().getInt(POST_ID);
             post_content = getArguments().getString(POST_CONTENT);
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        PostsListActivity parentActivity = (PostsListActivity) getActivity();
+        if(parentActivity != null){
+            if(isExistingPost){
+                parentActivity.getSupportActionBar().setTitle("Edit your post");
+            } else {
+                parentActivity.getSupportActionBar().setTitle("Create a new post");
+            }
+        }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        Log.d(TAG, "onCreateOptionsMenu: ViewPostFragment: " + loggedUserID);
+        inflater.inflate(R.menu.only_logout_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if(id == R.id.item1){
+            loggedUserID = null;
+            syncAndAuth(true);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -93,6 +135,8 @@ public class ManagePostFragment extends Fragment {
     }
 
     private void setupViews(){
+        syncAndAuth(false);
+
         if(isExistingPost) {
             // Set the header and button to reflect this is an edit
             binding.buttonSubmitAction.setText(R.string.editPostButton);
@@ -145,19 +189,7 @@ public class ManagePostFragment extends Fragment {
         });
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
 
-        PostsListActivity parentActivity = (PostsListActivity) getActivity();
-        if(parentActivity != null){
-            if(isExistingPost){
-                parentActivity.getSupportActionBar().setTitle("Edit your post");
-            } else {
-                parentActivity.getSupportActionBar().setTitle("Create a new post");
-            }
-        }
-    }
 
     private void submitPost(String content){
         // Now we have the content from our textEdit, and we must do the SQL thing
@@ -188,6 +220,7 @@ public class ManagePostFragment extends Fragment {
             } else {
                 // Something went wrong
                 Toast.makeText(getActivity(), "Something went wrong", Toast.LENGTH_LONG).show();
+                refreshFragment();
             }
         });
     }
@@ -207,5 +240,37 @@ public class ManagePostFragment extends Fragment {
             substringLocation[1] = matcher.end();
         }
         return substringLocation;
+    }
+
+    public void refreshFragment(){
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        transaction.detach(this);
+        transaction.commit();
+        FragmentTransaction transaction2 = getParentFragmentManager().beginTransaction();
+        transaction2.attach(this);
+        transaction2.commit();
+    }
+
+    public void syncAndAuth(boolean logoutOnPurpose){
+        // First we sync
+        SynchronizeLocalDB.syncDB(getActivity(), (success -> {}));
+
+        AppDatabase db = Room.databaseBuilder(getActivity().getApplicationContext(),
+                AppDatabase.class, "database-name").allowMainThreadQueries().build();
+        // Check our logged in user exists
+        User thisUser = db.userDao().findByName(loggedUserID);
+        db.close();
+        if(thisUser == null){
+            // Our user is not logged in / does not exists
+            Intent intent = new Intent(getActivity(), com.example.databaseexamproject.MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            if(!logoutOnPurpose){
+                Toast.makeText(getActivity(), "Authentication failed, please login again", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(getActivity(), "You are now logged out", Toast.LENGTH_LONG).show();
+            }
+            getActivity().finish();
+        }
     }
 }

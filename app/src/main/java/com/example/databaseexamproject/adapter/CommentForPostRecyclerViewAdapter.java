@@ -19,7 +19,9 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.databaseexamproject.PostLayoutSetup;
 import com.example.databaseexamproject.R;
+import com.example.databaseexamproject.ViewPostFragment;
 import com.example.databaseexamproject.room.SynchronizeLocalDB;
 import com.example.databaseexamproject.room.dataobjects.CommentWithUserName;
 import com.example.databaseexamproject.room.dataobjects.Post;
@@ -130,67 +132,10 @@ public class CommentForPostRecyclerViewAdapter extends RecyclerView.Adapter<Comm
     @Override
     public void onBindViewHolder(@NonNull CommentForPostRecyclerViewAdapter.ViewHolder holder, int position) {
         if(position == 0){
-            // It is the post
-
-            // Handle a null user name
-            if(postData.name == null){
-                holder.textViewPostUserName.setText(postData.post.user_id);
-            } else {
-                holder.textViewPostUserName.setText(postData.name);
-            }
-
-            // Handle images
-            String content = postData.post.content;
-            if(content == null){
-                content = "";
-            }
-            int[] imageURLLocation = textContainsImageURL(content);
-            if(imageURLLocation[1] != 0){
-                holder.imageViewContentImage.setVisibility(View.VISIBLE);
-                // Now, get the image url
-                String imageURL = content.substring(imageURLLocation[0], imageURLLocation[1]);
-                // We setup the image download and showing process immediately
-                new ImageDownload(holder.imageViewContentImage).execute(imageURL);
-                Log.d(TAG, "onBindViewHolder: " + imageURL);
-                Log.d(TAG, "onBindViewHolder: On post ID: " + postData.post.id);
-                // Remove the Url from the String, and continue as we were
-                content = content.substring(0, imageURLLocation[0]) + content.substring(imageURLLocation[1]);
-            }
-
-            // While loop to remove spaces in front of text
-            while(content.length() > 0 && content.charAt(0) == ' '){
-                content = content.substring(1);
-            }
-            Log.d(TAG, "onBindViewHolder: " + content);
-            // We limit content which is just too long
-            if(content.length() > 200){
-                holder.textViewPostText.setText(content.substring(0, 200));
-            } else {
-                holder.textViewPostText.setText(content);
-            }
-
-            // Setup reaction buttons
-            Button[] buttons = {
-                    holder.buttonLikeReact,
-                    holder.buttonDislikeReact,
-                    holder.buttonAmbivalenceReact
-            };
-            int[] counts = {
-                    postData.type1Reactions,
-                    postData.type2Reactions,
-                    postData.type3Reactions
-            };
-            String[] names = {
-                    fragment.getString(R.string.likeReact),
-                    fragment.getString(R.string.dislikeReact),
-                    fragment.getString(R.string.ambivalenceReact)
-            };
-            boolean[] isReacted = {
-                    postData.userReaction == 1,
-                    postData.userReaction == 2,
-                    postData.userReaction == 3
-            };
-            stylePostButtons(buttons, counts, names, isReacted);
+            List<PostWithReactions> postAsList = new ArrayList<>();
+            postAsList.add(postData);
+            PostLayoutSetup thisPost = new PostLayoutSetup(postAsList, position, fragment.getActivity(), loggedUserID,
+                    holder.textViewPostUserName, holder.textViewPostText, holder.buttonLikeReact, holder.buttonDislikeReact, holder.buttonAmbivalenceReact, holder.imageViewContentImage);
 
         } else if(position == 1){
             // It is the "add comment" box
@@ -205,12 +150,8 @@ public class CommentForPostRecyclerViewAdapter extends RecyclerView.Adapter<Comm
                     SynchronizeLocalDB.syncDB(fragment.getActivity(), (success)->{
                         Log.d(TAG, "onCreateView: Comment Created!");
                         Toast.makeText(fragment.getActivity(), R.string.comment_created, Toast.LENGTH_LONG).show();
-                        FragmentTransaction transaction = fragment.getParentFragmentManager().beginTransaction();
-                        transaction.detach(fragment);
-                        transaction.commit();
-                        FragmentTransaction transaction2 = fragment.getParentFragmentManager().beginTransaction();
-                        transaction2.attach(fragment);
-                        transaction2.commit();
+                        ViewPostFragment viewPostFragment = (ViewPostFragment) fragment;
+                        viewPostFragment.refreshFragment();
                     });
                 });
             });
@@ -243,123 +184,6 @@ public class CommentForPostRecyclerViewAdapter extends RecyclerView.Adapter<Comm
                 }));
             }
         }
-    }
-
-    private void stylePostButtons(Button[] buttons, int[] counts, String[] names, boolean[] isReacted){
-
-        for(int i = 0; i < buttons.length; i++){
-            final int thisButtonType = i;
-            // First we setup the state of our buttons
-            buttons[i].setText(counts[i] + " " + names[i]);
-            if(isReacted[i]){
-                // Set the new styling, to show it is pressed down and synch
-                setButtonActive(buttons[i]);
-                counts[i] = counts[i] - 1;
-            }
-            // Then we attach the listener, which handles changes when the user clicks any button
-            buttons[i].setOnClickListener(new View.OnClickListener() {
-                final public String buttonName = names[thisButtonType]; // What the applicable textString is for this type
-                final public int buttonCount = counts[thisButtonType];
-                final public int buttonNumber = thisButtonType + 1; // The actual integer representation in the database: 0 = deleted, 1 = like, 2 = displike, 3 = meh
-
-                @Override
-                public void onClick(View v) {
-                    Button clickedButton = (Button) v;
-                    int savedUserReaction = postData.userReaction;
-                    if(savedUserReaction == buttonNumber){
-                        // This button should have had been active
-                        // This is the easy case. We had reacted this reaction, and now we want to remove it.
-                        // First we launch a database request. (we do not wait for a response)
-                        updateRemoteReactionTable( 0, (response, responseBody, requestName) -> {
-                            if(response.code() >= 300){
-                                // If some error occurred because the post was deleted, we get kicked out of viewing the post anyway
-                                Toast.makeText(fragment.getActivity(), "Something went wrong", Toast.LENGTH_LONG).show();
-                            }
-                        });
-                        // We then update the visual amount and status.
-                        postData.userReaction = 0;
-                        clickedButton.setText(buttonCount + " " + buttonName);
-                        setButtonInactive(buttons[thisButtonType]);
-
-                    } else {
-                        // This button should have had been inactive
-                        // This means we have a new value, for this user, for this reaction.
-                        // Now we need to see if the value was set to something other than 0
-                        if(savedUserReaction != 0){
-                            // Now it gets less simple
-                            // Another button was pressed, and we must now de-press that one and update the remote DB.
-                            // We know which one it was, based on the saved user reaction
-                            // NO DATABASE HERE
-                            buttons[savedUserReaction - 1].setText(counts[savedUserReaction - 1] + " " + names[savedUserReaction - 1]);
-                            setButtonInactive(buttons[savedUserReaction - 1]);
-                        }
-                        // As we change the saved user reaction here, we do it after checking/handling the already pressed button (if there is one)
-                        postData.userReaction = buttonNumber;
-                        clickedButton.setText((buttonCount + 1) + " " + buttonName);
-                        setButtonActive(buttons[thisButtonType]);
-                        // Now we update remote
-                        updateRemoteReactionTable(buttonNumber, (response, responseBody, requestName) -> {
-                            if(response.code() >= 300){
-                                // If some error occurred because the post was deleted, we get kicked out of viewing the post anyway
-                                Toast.makeText(fragment.getActivity(), "Something went wrong", Toast.LENGTH_LONG).show();
-                            }
-                        });
-                    }
-                }
-            });
-        }
-    }
-
-    /*
-     * Sets a button as active
-     * It is purely cosmetic
-     * */
-    public void setButtonActive(Button button){
-
-    }
-
-    /*
-     * Sets a button as inactive
-     * It is purely cosmetic
-     * */
-    public void setButtonInactive(Button button){
-
-    }
-
-    private void updateRemoteReactionTable(int newReactionType, HttpRequest.HttpRequestResponse requestResponse){
-        Date userReactionTimestamp = postData.stamp;
-        Reaction reaction = new Reaction(loggedUserID, postData.post.id, newReactionType);
-        Log.d(TAG, "updateRemoteReactionTable: " + loggedUserID);
-        Log.d(TAG, "updateRemoteReactionTable: " + postData.post.id);
-        Log.d(TAG, "updateRemoteReactionTable: " + newReactionType);
-        Log.d(TAG, "updateRemoteReactionTable: " + userReactionTimestamp);
-        if(userReactionTimestamp != null){
-            // Update action
-            reaction.stamp = userReactionTimestamp;
-        } else {
-            long stamp = System.currentTimeMillis();
-            reaction.stamp = new Date(stamp);
-            postData.post.stamp = reaction.stamp;
-        }
-        RemoteDBRequest.reaction(fragment.getActivity(), ( userReactionTimestamp != null ? RemoteDBRequest.QUERY_TYPE_UPDATE : RemoteDBRequest.QUERY_TYPE_INSERT),
-                reaction, requestResponse);
-    }
-
-    private int[] textContainsImageURL(String text){
-        int[] substringLocation = new int[2];
-        String regex = "(http(s?):/)(/[^/]+)+\\.(?:jpg|gif|png)"; // Regex for mathing image urls
-        // Regex explanation:
-        // It was not made by hand, but with a tool, but still:
-        // Group 1: matches (http)(s)(:/), where the (s) is optional
-        // Group 3: It must end with (/)(*)(.)(format) where * is any NOT forward slash character, and format is an allowed image format.
-        // It also breaks the regex if at any point (ignoring the first forward slash in group 1) there are two consequent forward slashes.
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(text);
-        if(matcher.find()){
-            substringLocation[0] = matcher.start();
-            substringLocation[1] = matcher.end();
-        }
-        return substringLocation;
     }
 
     @Override

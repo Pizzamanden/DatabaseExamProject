@@ -2,6 +2,7 @@ package com.example.databaseexamproject;
 
 import static android.content.ContentValues.TAG;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,6 +29,7 @@ import com.example.databaseexamproject.room.DatabaseRequest;
 import com.example.databaseexamproject.room.SynchronizeLocalDB;
 import com.example.databaseexamproject.room.dataobjects.CommentWithUserName;
 import com.example.databaseexamproject.room.dataobjects.PostWithReactions;
+import com.example.databaseexamproject.room.dataobjects.User;
 import com.example.databaseexamproject.webrequests.RemoteDBRequest;
 
 import java.util.List;
@@ -138,6 +140,10 @@ public class ViewPostFragment extends Fragment {
                         .navigateUp();
             });
             return true;
+        } else if(id == R.id.logutMenuButton){
+            loggedUserID = null;
+            syncAndAuth(true);
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -160,10 +166,10 @@ public class ViewPostFragment extends Fragment {
 
     public void getDataForViews(){
         updateLoadingStatus(true);
-        SynchronizeLocalDB.syncDB(getActivity(), (success -> {}));
-        // We cannot send the data we need
+        syncAndAuth(false);
+
         AppDatabase db = Room.databaseBuilder(getActivity().getApplicationContext(),
-                AppDatabase.class, "database-name").build();
+                AppDatabase.class, "database-name").allowMainThreadQueries().build();
 
         new DatabaseRequest<PostWithReactions>(getActivity(), (postResult) -> {
             postData = postResult;
@@ -224,6 +230,38 @@ public class ViewPostFragment extends Fragment {
             binding.fabEditPost.setVisibility(View.VISIBLE);
             binding.recyclerviewSinglePostAndComments.setVisibility(View.VISIBLE);
             binding.loadingIndicatorViewPost.setVisibility(View.GONE);
+        }
+    }
+
+    public void refreshFragment(){
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        transaction.detach(this);
+        transaction.commit();
+        FragmentTransaction transaction2 = getParentFragmentManager().beginTransaction();
+        transaction2.attach(this);
+        transaction2.commit();
+    }
+
+    public void syncAndAuth(boolean logoutOnPurpose){
+        // First we sync
+        SynchronizeLocalDB.syncDB(getActivity(), (success -> {}));
+
+        AppDatabase db = Room.databaseBuilder(getActivity().getApplicationContext(),
+                AppDatabase.class, "database-name").allowMainThreadQueries().build();
+        // Check our logged in user exists
+        User thisUser = db.userDao().findByName(loggedUserID);
+        db.close();
+        if(thisUser == null){
+            // Our user is not logged in / does not exists
+            Intent intent = new Intent(getActivity(), com.example.databaseexamproject.MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            if(!logoutOnPurpose){
+                Toast.makeText(getActivity(), "Authentication failed, please login again", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(getActivity(), "You are now logged out", Toast.LENGTH_LONG).show();
+            }
+            getActivity().finish();
         }
     }
 }

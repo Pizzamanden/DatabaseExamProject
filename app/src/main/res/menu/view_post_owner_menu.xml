@@ -11,4 +11,9 @@
         android:icon="@android:drawable/ic_delete"
         android:orderInCategory="10"
         android:title="Delete this post" />
+
+    <item
+        android:id="@+id/logutMenuButton"
+        android:orderInCategory="10"
+        android:title="Logout" />
 </menu>

@@ -1,5 +1,7 @@
 package com.example.databaseexamproject.data;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Context;
 import android.util.Log;
 
@@ -25,12 +27,11 @@ public class LoginDataSource {
                     AppDatabase.class, "database-name").allowMainThreadQueries().build();
 
             User user = db.userDao().findByName(userid);
-
-            List<User> users = db.userDao().getAll();
-            for (User u : users) {
-                Log.d("", u.id);
-            }
             db.close();
+            if(user == null){
+                Log.d(TAG, "login: User ID not found");
+            }
+            
             LoggedInUser currentUser =
                     new LoggedInUser(
                             user.id,
