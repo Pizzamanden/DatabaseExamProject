@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.databaseexamproject.databinding.FragmentManagePostBinding;
 import com.example.databaseexamproject.room.SynchronizeLocalDB;
@@ -149,6 +150,7 @@ public class ManagePostFragment extends Fragment {
             // We now sync the local database, to make sure it reflects the new changes!
             SynchronizeLocalDB.syncDB(getContext(),(success) -> {
                 // And after the sync, we send the user back
+                Toast.makeText(getActivity(), (isExistingPost ? R.string.post_changed : R.string.post_created), Toast.LENGTH_LONG).show();
                 NavHostFragment.findNavController(ManagePostFragment.this)
                         .navigateUp();
             });

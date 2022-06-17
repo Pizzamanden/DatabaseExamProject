@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.databaseexamproject.databinding.FragmentEditCommentBinding;
 import com.example.databaseexamproject.room.SynchronizeLocalDB;
@@ -92,6 +93,7 @@ public class EditCommentFragment extends Fragment {
         binding.buttonSubmitDeleteComment.setOnClickListener((v -> {
             Log.d(TAG, "onCreateView: Deleting comment with ID: " + comment_id + " for post with ID: " + post_id);
             // Now we sync, then we go back.
+            Toast.makeText(getActivity(), R.string.comment_deleted, Toast.LENGTH_LONG).show();
             RemoteDBRequest.deletePost(getActivity(), comment_id, this::syncAndNavigateUp);
         }));
         // Attach listener to edit the comment into what it says now
@@ -101,6 +103,7 @@ public class EditCommentFragment extends Fragment {
             Log.d(TAG, "onCreateView: New content string: " + content);
             RemoteDBRequest.post(getActivity(), RemoteDBRequest.QUERY_TYPE_UPDATE, new Post(comment_id, loggedUserID, content), (response, responseBody, requestName) -> {
                 // Now we sync, then we go back.
+                Toast.makeText(getActivity(), R.string.comment_changed, Toast.LENGTH_LONG).show();
                 syncAndNavigateUp();
             });
         });

@@ -28,6 +28,12 @@
     <string name="editCommentSubmitDelete">Delete this \n comment</string>
     <string name="editCommentSubmitEdit">Submit changes</string>
     <string name="user_already_exists">Username already in use</string>
+    <string name="comment_created">Comment sent</string>
+    <string name="comment_deleted">Comment deleted</string>
+    <string name="comment_changed">Comment updated</string>
+    <string name="post_created">Post sent</string>
+    <string name="post_changed">Post updated</string>
+    <string name="user_created">User created</string>
 
 
 </resources>

@@ -152,6 +152,7 @@ public class UserCreationFragment extends Fragment {
             Bundle bundle = new Bundle();
             bundle.putString("USERNAME", user.id);
             bundle.putBoolean("HAS_CREATED_USER", true);
+            Toast.makeText(getActivity(), R.string.user_created, Toast.LENGTH_LONG).show();
             NavHostFragment.findNavController(UserCreationFragment.this)
                     .navigate(R.id.action_userCreationFragment_to_userLoginFragment, bundle);
         });
