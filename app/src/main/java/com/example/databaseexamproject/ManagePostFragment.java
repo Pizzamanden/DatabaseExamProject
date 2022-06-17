@@ -9,6 +9,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,12 +20,15 @@ import android.widget.Toast;
 import com.example.databaseexamproject.databinding.FragmentManagePostBinding;
 import com.example.databaseexamproject.room.SynchronizeLocalDB;
 import com.example.databaseexamproject.room.dataobjects.Post;
+import com.example.databaseexamproject.webrequests.ImageDownload;
 import com.example.databaseexamproject.webrequests.RemoteDBRequest;
 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -98,13 +103,49 @@ public class ManagePostFragment extends Fragment {
     private void setupViews(){
         if(isExistingPost) {
             // Set the header and button to reflect this is an edit
-            binding.textViewManagePostStatus.setText(R.string.editPostHeader);
             binding.buttonSubmitAction.setText(R.string.editPostButton);
             // And fill the editText with the current content
-            binding.editTextPostContent.setText(post_content);
+            String content = post_content;
+            if(content == null){
+                content = "";
+            }
+            int[] imageURLLocation = textContainsImageURL(content);
+            if(imageURLLocation[1] != 0){
+                // Now, get the image url
+                String imageURL = content.substring(imageURLLocation[0], imageURLLocation[1]);
+                // And then set it into the textbox
+                binding.editTextImageURL.setText(imageURL);
+                // Remove the Url from the String, and continue as we were
+                content = content.substring(0, imageURLLocation[0]) + content.substring(imageURLLocation[1]);
+            }
+            // While loop to remove spaces in front of text
+            while(content.length() > 0 && content.charAt(0) == ' '){
+                content = content.substring(1);
+            }
+            binding.editTextPostContent.setText(content);
         }
+        binding.editTextImageURL.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // We check if the image is a valid URL
+                String maybeURL = binding.editTextImageURL.getText().toString();
+                int[] imageStringLocation = textContainsImageURL(maybeURL);
+                if(!(maybeURL.equals("")) && imageStringLocation[0] == 0 && imageStringLocation[1] == 0){
+                    binding.editTextImageURL.setError("Text does not contain an allowed image URL");
+                    binding.buttonSubmitAction.setEnabled(false);
+                } else {
+                    binding.buttonSubmitAction.setEnabled(true);
+                }
+            }
+        });
         // Set our listener on our submit button
-        binding.buttonSubmitAction.setOnClickListener((v)->{
+        binding.buttonSubmitAction.setOnClickListener((v) -> {
             String imageURL = "";
             imageURL = binding.editTextImageURL.getText().toString();
             String postContent = binding.editTextPostContent.getText().toString();
@@ -157,5 +198,22 @@ public class ManagePostFragment extends Fragment {
                 Toast.makeText(getActivity(), "Something went wrong", Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    private int[] textContainsImageURL(String text){
+        int[] substringLocation = new int[2];
+        String regex = "(http(s?):/)(/[^/]+)+\\.(?:jpg|gif|png)"; // Regex for mathing image urls
+        // Regex explanation:
+        // It was not made by hand, but with a tool, but still:
+        // Group 1: matches (http)(s)(:/), where the (s) is optional
+        // Group 3: It must end with (/)(*)(.)(format) where * is any NOT forward slash character, and format is an allowed image format.
+        // It also breaks the regex if at any point (ignoring the first forward slash in group 1) there are two consequent forward slashes.
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(text);
+        if(matcher.find()){
+            substringLocation[0] = matcher.start();
+            substringLocation[1] = matcher.end();
+        }
+        return substringLocation;
     }
 }
