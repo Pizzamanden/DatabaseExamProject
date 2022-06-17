@@ -224,10 +224,8 @@ public class ViewPostFragment extends Fragment {
         // We hide relevant views, and show other relevant views, based on loading status
         if(isLoading){
             binding.loadingIndicatorViewPost.setVisibility(View.VISIBLE);
-            binding.fabEditPost.setVisibility(View.GONE);
             binding.recyclerviewSinglePostAndComments.setVisibility(View.GONE);
         } else {
-            binding.fabEditPost.setVisibility(View.VISIBLE);
             binding.recyclerviewSinglePostAndComments.setVisibility(View.VISIBLE);
             binding.loadingIndicatorViewPost.setVisibility(View.GONE);
         }
