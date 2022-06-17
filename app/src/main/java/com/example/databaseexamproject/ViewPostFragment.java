@@ -4,16 +4,10 @@ import static android.content.ContentValues.TAG;
 
 import android.os.Bundle;
 
-import androidx.activity.OnBackPressedCallback;
-import androidx.activity.OnBackPressedDispatcher;
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.NavigationUI;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
@@ -25,29 +19,18 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.databaseexamproject.adapter.CommentForPostRecyclerViewAdapter;
-import com.example.databaseexamproject.adapter.PostsListRecyclerViewAdapter;
 import com.example.databaseexamproject.databinding.FragmentViewPostBinding;
 import com.example.databaseexamproject.room.AppDatabase;
 import com.example.databaseexamproject.room.DatabaseRequest;
 import com.example.databaseexamproject.room.SynchronizeLocalDB;
-import com.example.databaseexamproject.room.dataobjects.Comment;
 import com.example.databaseexamproject.room.dataobjects.CommentWithUserName;
-import com.example.databaseexamproject.room.dataobjects.Post;
 import com.example.databaseexamproject.room.dataobjects.PostWithReactions;
-import com.example.databaseexamproject.room.dataobjects.Reaction;
-import com.example.databaseexamproject.webrequests.HttpRequest;
-import com.example.databaseexamproject.webrequests.ImageDownload;
 import com.example.databaseexamproject.webrequests.RemoteDBRequest;
 
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -112,7 +95,6 @@ public class ViewPostFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
         if(parentActivity != null){
             if(user_name != null){
                 parentActivity.getSupportActionBar().setTitle("Post by " + user_name);
@@ -124,11 +106,13 @@ public class ViewPostFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        Log.d(TAG, "onCreateOptionsMenu: " + loggedUserID);
+        Log.d(TAG, "onCreateOptionsMenu: ViewPostFragment: " + loggedUserID);
         if(loggedUserID.equals(user_id)){
-            inflater.inflate(R.menu.view_post_menu, menu);
+            Log.d(TAG, "onCreateOptionsMenu: ViewPostFragment: Is the owner");
+            inflater.inflate(R.menu.view_post_owner_menu, menu);
         } else {
-            inflater.inflate(R.menu.post_list_menu, menu);
+            Log.d(TAG, "onCreateOptionsMenu: ViewPostFragment: Not the owner");
+            inflater.inflate(R.menu.view_post_notowner_menu, menu);
         }
         super.onCreateOptionsMenu(menu, inflater);
     }
