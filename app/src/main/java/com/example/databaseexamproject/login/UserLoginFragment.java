@@ -166,14 +166,6 @@ public class UserLoginFragment extends Fragment {
             NavHostFragment.findNavController(UserLoginFragment.this)
                     .navigate(R.id.action_userLoginFragment_to_userCreationFragment);
         }));
-
-/*        binding.toPostsListButton.setOnClickListener( (v -> {
-            Intent intent = new Intent(getActivity(), com.example.databaseexamproject.PostsListActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            getActivity().finish();
-            // TODO send the username and ID to the activity
-        }));*/
     }
 
     @Override

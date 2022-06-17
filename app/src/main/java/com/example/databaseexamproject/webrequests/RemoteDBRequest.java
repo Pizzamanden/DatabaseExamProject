@@ -50,8 +50,8 @@ public class RemoteDBRequest {
     public static final String QUERY_TYPE_UPDATE = "queryTypeUpdate";
 
 
-    // TODO complete the class for insertions, updates, and deletions.
-    // Remember Injections!
+    // We found no way to prepare our SQL statements we send to remote against any kind of injection attempts.
+    // We assume the API can handle all queries by first taking the elements we sent, sanitizing them, and then handling them.
 
     public static void post(Context context, String type, Post post, HttpRequest.HttpRequestResponse requestResponse){
         HttpRequest httpRequest = new HttpRequest(context, requestResponse, "Post" + type);
@@ -212,6 +212,9 @@ public class RemoteDBRequest {
 
     public static void deletePost(Context context, int post_id, Runnable runAfterCompletion){
         new Thread(() -> {
+            // Why do we cascade comments of comments, if we don't allow them in our app?
+            // Because, maybe another group does!
+
             // At the very start, we synchronize the local database.
             SynchronizeLocalDB.syncDB(context, (success) ->{});
 
@@ -226,7 +229,7 @@ public class RemoteDBRequest {
             for(int i = 0; i < affectedComments.size(); i++){
                 reactionsToDeleteURL = reactionsToDeleteURL + affectedComments.get(i);
                 if(i + 1 < affectedComments.size()){
-                    reactionsToDeleteURL = reactionsToDeleteURL + ";eq."; // TODO should be OR not AND
+                    reactionsToDeleteURL = reactionsToDeleteURL + ";eq.";
                 }
             }
             Log.d(TAG, "deletePost: Reaction URL query: " + reactionsToDeleteURL);
@@ -250,7 +253,7 @@ public class RemoteDBRequest {
             for(int i = 0; i < affectedComments.size(); i++){
                 postsToDeleteURL = postsToDeleteURL + affectedComments.get(i);
                 if(i + 1 < affectedComments.size()){
-                    postsToDeleteURL = postsToDeleteURL + ";eq."; // TODO should be OR not AND
+                    postsToDeleteURL = postsToDeleteURL + ";eq.";
                 }
             }
             Log.d(TAG, "deletePost: Posts URL query: " + postsToDeleteURL);

@@ -126,7 +126,6 @@ public class ManagePostFragment extends Fragment {
     }
 
     private void submitPost(String content){
-        // TODO make loading spinning circle thingy
         // Now we have the content from our textEdit, and we must do the SQL thing
         int idToUse;
         if(!isExistingPost){

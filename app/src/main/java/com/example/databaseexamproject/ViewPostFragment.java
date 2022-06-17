@@ -9,6 +9,7 @@ import androidx.activity.OnBackPressedDispatcher;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
@@ -68,9 +69,6 @@ public class ViewPostFragment extends Fragment {
     private PostWithReactions postData;
     private List<CommentWithUserName> commentsForPost;
 
-    // Integer counter for remote calls in progress
-    AtomicInteger remoteCallsInProgress = new AtomicInteger(0);
-
     // Fragment data values
     private int post_id;
     private String user_id;
@@ -128,6 +126,8 @@ public class ViewPostFragment extends Fragment {
         Log.d(TAG, "onCreateOptionsMenu: " + loggedUserID);
         if(loggedUserID.equals(user_id)){
             inflater.inflate(R.menu.view_post_menu, menu);
+        } else {
+            inflater.inflate(R.menu.post_list_menu, menu);
         }
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -136,13 +136,19 @@ public class ViewPostFragment extends Fragment {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.item1){
+            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+            transaction.detach(this);
+            transaction.commit();
+            FragmentTransaction transaction2 = getParentFragmentManager().beginTransaction();
+            transaction2.attach(this);
+            transaction2.commit();
+            return true;
+        } else if(id == R.id.item2){
             RemoteDBRequest.deletePost(getActivity(),post_id, () -> {
                 Log.d(TAG, "onOptionsItemSelected: We are now done with the deletion");
                 SynchronizeLocalDB.syncDB(getActivity(), (success -> {}));
             });
             return true;
-        } else if(id == R.id.item2){
-            // TODO refresh
         }
         return super.onOptionsItemSelected(item);
     }

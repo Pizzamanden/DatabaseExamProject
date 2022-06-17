@@ -11,7 +11,6 @@ import androidx.navigation.ui.NavigationUI;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Button;
 
 import com.example.databaseexamproject.databinding.ActivityPostsListBinding;
 
@@ -22,7 +21,7 @@ public class PostsListActivity extends AppCompatActivity {
     private String loggedUserID;
 
     // RecyclerView position remember majiggy
-    private int reyclerViewPosition = 0;
+    private int recyclerViewPosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,19 +35,12 @@ public class PostsListActivity extends AppCompatActivity {
 
         setSupportActionBar(binding.toolbar);
 
-        Log.d(TAG, "onCreate: Creating nav controller");
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_posts_list);
-        Log.d(TAG, "onCreate: Created nav controller");
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
-        Log.d(TAG, "onCreate: Set action bar configuration");
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-        Log.d(TAG, "onCreate: Set action bar");
-
-        // TODO find a way to save the position of the PostsListFragment here?
-        // Such that it can be used again
-
-
     }
+
+
 
     public String getUserID(){
         return loggedUserID;
@@ -64,10 +56,10 @@ public class PostsListActivity extends AppCompatActivity {
 
     // Set and get the recyclerview position
     // Fragments can access these by calling their parent activity!
-    public int getReyclerViewPosition(){
-        return reyclerViewPosition;
+    public int getRecyclerViewPosition(){
+        return recyclerViewPosition;
     }
-    public void setReyclerViewPosition(int reyclerViewPosition){
-        this.reyclerViewPosition = reyclerViewPosition;
+    public void setRecyclerViewPosition(int recyclerViewPosition){
+        this.recyclerViewPosition = recyclerViewPosition;
     }
 }

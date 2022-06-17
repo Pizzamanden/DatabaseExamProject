@@ -50,7 +50,6 @@ public class EditCommentFragment extends Fragment {
      *
      * @return A new instance of fragment EditCommentFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static EditCommentFragment newInstance(int post_id, String commentText, int comment_id) {
         EditCommentFragment fragment = new EditCommentFragment();
         Bundle args = new Bundle();

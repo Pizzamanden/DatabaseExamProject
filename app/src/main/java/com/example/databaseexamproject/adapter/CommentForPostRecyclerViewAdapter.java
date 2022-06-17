@@ -15,6 +15,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -213,7 +214,12 @@ public class CommentForPostRecyclerViewAdapter extends RecyclerView.Adapter<Comm
                 RemoteDBRequest.post(fragment.getActivity(), RemoteDBRequest.QUERY_TYPE_INSERT, post, (response, responseBody, requestName) ->{
                     SynchronizeLocalDB.syncDB(fragment.getActivity(), (success)->{
                         Log.d(TAG, "onCreateView: Comment Created!");
-                        // TODO reload fragment
+                        FragmentTransaction transaction = fragment.getParentFragmentManager().beginTransaction();
+                        transaction.detach(fragment);
+                        transaction.commit();
+                        FragmentTransaction transaction2 = fragment.getParentFragmentManager().beginTransaction();
+                        transaction2.attach(fragment);
+                        transaction2.commit();
                     });
                 });
             });

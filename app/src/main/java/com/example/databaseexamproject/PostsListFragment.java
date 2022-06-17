@@ -4,7 +4,9 @@ import static android.content.ContentValues.TAG;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -12,15 +14,19 @@ import androidx.room.Room;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.databaseexamproject.adapter.PostsListRecyclerViewAdapter;
 import com.example.databaseexamproject.databinding.FragmentPostsListBinding;
-import com.example.databaseexamproject.login.UserLoginFragment;
 import com.example.databaseexamproject.room.AppDatabase;
 import com.example.databaseexamproject.room.DatabaseRequest;
+import com.example.databaseexamproject.room.SynchronizeLocalDB;
 import com.example.databaseexamproject.room.dataobjects.PostWithReactions;
+import com.example.databaseexamproject.webrequests.RemoteDBRequest;
 
 import java.util.List;
 
@@ -35,7 +41,7 @@ public class PostsListFragment extends Fragment {
 
 
     private PostsListActivity parentActivity;
-    private String loggedInUserID;
+    private String loggedUserID;
 
     public PostsListFragment() {
         // Required empty public constructor
@@ -58,6 +64,7 @@ public class PostsListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         Log.d(TAG, "onCreate Fragment: called");
         if (getArguments() != null) {
 
@@ -74,12 +81,37 @@ public class PostsListFragment extends Fragment {
     }
 
     @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        Log.d(TAG, "onCreateOptionsMenu: " + loggedUserID);
+
+        inflater.inflate(R.menu.post_list_menu, menu);
+
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if(id == R.id.item1){
+            Log.d(TAG, "onOptionsItemSelected: called");
+            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+            transaction.detach(this);
+            transaction.commit();
+            FragmentTransaction transaction2 = getParentFragmentManager().beginTransaction();
+            transaction2.attach(this);
+            transaction2.commit();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         parentActivity = (PostsListActivity) getActivity();
-        loggedInUserID = parentActivity.getUserID();
-        Log.d(TAG, "onCreateView: User ID is: " + loggedInUserID);
+        loggedUserID = parentActivity.getUserID();
+        Log.d(TAG, "onCreateView: User ID is: " + loggedUserID);
         binding = FragmentPostsListBinding.inflate(inflater, container, false);
         updateLoadingStatus(true);
 
@@ -97,11 +129,11 @@ public class PostsListFragment extends Fragment {
             db.close();
             onDatabaseRequestResponse(result);
         });
-        databaseRequest.runRequest(() -> db.postDao().getAllPostsWithReactionByUserAndAllReactionsCounter(loggedInUserID));
+        databaseRequest.runRequest(() -> db.postDao().getAllPostsWithReactionByUserAndAllReactionsCounter(loggedUserID));
     }
 
     public void setRememberRecyclerViewPosition(int recyclerViewPosition){
-        parentActivity.setReyclerViewPosition(recyclerViewPosition);
+        parentActivity.setRecyclerViewPosition(recyclerViewPosition);
     }
 
     public void onDatabaseRequestResponse(List<PostWithReactions> posts){
@@ -114,11 +146,11 @@ public class PostsListFragment extends Fragment {
         recyclerView.setLayoutManager(linearLayoutManager);
 
         // Create and attach our adapter
-        recyclerView.setAdapter(new PostsListRecyclerViewAdapter(PostsListFragment.this, posts, loggedInUserID));
-        linearLayoutManager.scrollToPosition((parentActivity.getReyclerViewPosition() > posts.size() ? 0 : parentActivity.getReyclerViewPosition()));
+        recyclerView.setAdapter(new PostsListRecyclerViewAdapter(PostsListFragment.this, posts, loggedUserID));
+        linearLayoutManager.scrollToPosition((parentActivity.getRecyclerViewPosition() > posts.size() ? 0 : parentActivity.getRecyclerViewPosition()));
 
         binding.fabNewPost.setOnClickListener((v) -> {
-            parentActivity.setReyclerViewPosition(linearLayoutManager.findFirstVisibleItemPosition());
+            parentActivity.setRecyclerViewPosition(linearLayoutManager.findFirstVisibleItemPosition());
             NavHostFragment.findNavController(PostsListFragment.this)
                     .navigate(R.id.action_postsListFragment_to_managePostFragment);
         });

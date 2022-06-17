@@ -89,9 +89,14 @@ public class SynchronizeLocalDB {
 
                             List<Post> postParsePosts = new ArrayList<>();
                             List<Comment> postParseComment = new ArrayList<>();
+                            // Identifies a number in a string (can be negative)
                             String regexForPostID = "(-?)(\\d+)";
                             Pattern patternForPostID = Pattern.compile(regexForPostID);
-
+                            // This regex is important. It allows us to incorporate the other groups formats for designating which posts are comments.
+                            // Right now we have our own format, and two others we spotted in the remote DB while working.
+                            // We can include as many as we want, as long as they use the general format of:
+                            // Having a number, which is then the foreign key
+                            // AND the number has an identifier prepended to it.
                             String regexCommentFormat = "(?:(forPost:)|(re:\")|(\"__COMMENT_FOR\":))(-?)(\\d+)";
                             Pattern patternCommentFormat = Pattern.compile(regexCommentFormat);
 
