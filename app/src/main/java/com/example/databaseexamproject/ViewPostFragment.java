@@ -181,7 +181,7 @@ public class ViewPostFragment extends Fragment {
                     // Now we can setup our views
                     db.close();
                     setupViewsWithData();
-                }).runRequest(() -> db.commentDao().getByPostSortedDateDesc(post_id));
+                }).runRequest(() -> db.commentDao().getCommentsByPostSortedDateDesc(post_id));
             } else {
                 // Our post got deleted while viewing it, or something?
                 // Kick our user back to postsList

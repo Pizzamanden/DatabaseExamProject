@@ -57,6 +57,9 @@ public class SynchronizeLocalDB {
             for (String table_name : table_names) {
                 completionService.submit(() -> {
                     String thisURL = remote_url + "/" + table_name;
+                    if(table_name.equals("reactions")){
+                        thisURL = thisURL + "?order=stamp.desc";
+                    }
                     Request request = new Request.Builder()
                             .url(thisURL)
                             .build();

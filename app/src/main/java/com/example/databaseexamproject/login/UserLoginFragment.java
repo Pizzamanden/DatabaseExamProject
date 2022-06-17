@@ -23,6 +23,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.example.databaseexamproject.MainActivity;
 import com.example.databaseexamproject.R;
 import com.example.databaseexamproject.databinding.FragmentUserLoginBinding;
+import com.example.databaseexamproject.room.SynchronizeLocalDB;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -196,6 +197,7 @@ public class UserLoginFragment extends Fragment {
     }
 
     private void showLoginFailed(@StringRes Integer errorString) {
+        //SynchronizeLocalDB.syncDB(getActivity(), (success) ->{});
         Toast.makeText(getActivity(), errorString, Toast.LENGTH_SHORT).show();
     }
 }

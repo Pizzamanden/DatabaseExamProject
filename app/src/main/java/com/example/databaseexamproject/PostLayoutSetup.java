@@ -187,7 +187,7 @@ public class PostLayoutSetup {
     private void updateRemoteReactionTable(int dataPosition, int newReactionType, HttpRequest.HttpRequestResponse requestResponse){
         int post_id = localData.get(dataPosition).post.id;
         Log.d(TAG, "updateRemoteReactionTable: " + localData.get(dataPosition).post.content);
-        Date userReactionTimestamp = localData.get(dataPosition).stamp;
+        Date userReactionTimestamp = localData.get(dataPosition).reactionStamp;
         Reaction reaction = new Reaction(loggedUserID, post_id, newReactionType);
         Log.d(TAG, "updateRemoteReactionTable: " + loggedUserID);
         Log.d(TAG, "updateRemoteReactionTable: " + post_id);
@@ -200,7 +200,7 @@ public class PostLayoutSetup {
             // Insert action
             long stamp = System.currentTimeMillis();
             reaction.stamp = new Date(stamp);
-            localData.get(dataPosition).stamp = reaction.stamp;
+            localData.get(dataPosition).reactionStamp = reaction.stamp;
         }
         RemoteDBRequest.reaction(context, ( userReactionTimestamp != null ? RemoteDBRequest.QUERY_TYPE_UPDATE : RemoteDBRequest.QUERY_TYPE_INSERT),
                 reaction, requestResponse);

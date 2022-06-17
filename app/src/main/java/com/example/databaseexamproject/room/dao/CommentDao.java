@@ -14,12 +14,12 @@ public interface CommentDao {
 
     // Is used in cascade deletion
     @Query("SELECT id FROM comments WHERE post_id = (:postID)")
-    List<Integer> getAllCommentIDByPostID(int postID);
+    List<Integer> getAllCommentsIDByPostID(int postID);
 
     @Query("SELECT comments.*, users.name FROM comments JOIN users ON users.id = comments.user_id" +
             " WHERE comments.post_id = (:postID)" +
             " ORDER BY stamp DESC")
-    List<CommentWithUserName> getByPostSortedDateDesc(int postID);
+    List<CommentWithUserName> getCommentsByPostSortedDateDesc(int postID);
 
     @Insert
     void insertAll(Comment... comment);

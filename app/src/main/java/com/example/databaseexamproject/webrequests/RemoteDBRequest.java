@@ -271,7 +271,7 @@ public class RemoteDBRequest {
     private static List<Integer> cascadeDeletion(AppDatabase db, int commentID){
         // The comment this method is run on is already in the list
         // Get all comments, which depends on this comment
-        List<Integer> commentsOfThisComment = db.commentDao().getAllCommentIDByPostID(commentID);
+        List<Integer> commentsOfThisComment = db.commentDao().getAllCommentsIDByPostID(commentID);
         List<Integer> dependingComments = new ArrayList<>();
         // Then run this method on all of them
         for (Integer dependingCommentID : commentsOfThisComment) {

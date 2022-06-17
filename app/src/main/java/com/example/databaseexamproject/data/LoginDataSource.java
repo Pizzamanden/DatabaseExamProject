@@ -25,7 +25,6 @@ public class LoginDataSource {
         try {
             AppDatabase db = Room.databaseBuilder(context,
                     AppDatabase.class, "database-name").allowMainThreadQueries().build();
-
             User user = db.userDao().findByName(userid);
             db.close();
             if(user == null){
