@@ -169,6 +169,7 @@ public class ViewPostFragment extends Fragment {
             new DatabaseRequest<List<CommentWithUserName>>(getActivity(), (commentsResult) -> {
                 commentsForPost = commentsResult;
                 // Now we can setup our views
+                db.close();
                 setupViewsWithData();
             }).runRequest(() -> db.commentDao().getByPostSortedDateDesc(post_id));
         }).runRequest(() -> db.postDao().getSpecificPostWithReactionByUserAndAllReactionsCounter(loggedUserID, post_id));

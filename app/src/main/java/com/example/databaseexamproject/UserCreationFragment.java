@@ -127,12 +127,13 @@ public class UserCreationFragment extends Fragment {
                 User user = new User(username.trim(), fullNameEditText.getText().toString());
                 db.userDao().insertAll(user);
                 Log.d("UserCreationFragment", "User created");
+                db.close();
                 synchronizeWithRemoteDB(user);
             }
             else {
+                db.close();
                 Toast.makeText(getActivity(), R.string.user_already_exists, Toast.LENGTH_LONG).show();
             }
-            db.close();
         });
     }
 
@@ -198,6 +199,7 @@ public class UserCreationFragment extends Fragment {
 
         AppDatabase db = Room.databaseBuilder(getActivity(), AppDatabase.class, "database-name").allowMainThreadQueries().fallbackToDestructiveMigration().build();
         User user = db.userDao().findByName(username);
+        db.close();
 
         if (!(user == null)) {
             return false;

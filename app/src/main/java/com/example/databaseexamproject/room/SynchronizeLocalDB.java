@@ -167,6 +167,7 @@ public class SynchronizeLocalDB {
         } catch( InterruptedException e ) {
             e.printStackTrace();
         }
+        db.close();
         boolean success = successfulSyncs == table_names.length;
         Log.d(TAG, "syncDB: Completed sync, success: " + success);
 

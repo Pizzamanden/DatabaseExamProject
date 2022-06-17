@@ -31,7 +31,7 @@ public class LoginDataSource {
             for (User u : users) {
                 Log.d("", u.id);
             }
-
+            db.close();
             LoggedInUser currentUser =
                     new LoggedInUser(
                             user.id,

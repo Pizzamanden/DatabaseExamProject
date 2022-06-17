@@ -93,7 +93,10 @@ public class PostsListFragment extends Fragment {
         AppDatabase db = Room.databaseBuilder(getActivity().getApplicationContext(),
                 AppDatabase.class, "database-name").build();
 
-        DatabaseRequest<List<PostWithReactions>> databaseRequest = new DatabaseRequest<>(getActivity(), this::onDatabaseRequestResponse);
+        DatabaseRequest<List<PostWithReactions>> databaseRequest = new DatabaseRequest<>(getActivity(), (result) -> {
+            db.close();
+            onDatabaseRequestResponse(result);
+        });
         databaseRequest.runRequest(() -> db.postDao().getAllPostsWithReactionByUserAndAllReactionsCounter(loggedInUserID));
     }
 

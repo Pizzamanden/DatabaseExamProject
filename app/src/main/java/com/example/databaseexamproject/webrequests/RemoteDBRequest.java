@@ -268,6 +268,7 @@ public class RemoteDBRequest {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            db.close();
             Activity activity = (Activity) context;
             activity.runOnUiThread(runAfterCompletion);
         }).start();
