@@ -283,7 +283,10 @@ public class CommentForPostRecyclerViewAdapter extends RecyclerView.Adapter<Comm
                         // First we launch a database request. (we do not wait for a response)
                         remoteCallsInProgress.incrementAndGet();
                         updateRemoteReactionTable( 0, (response, responseBody, requestName) -> {
-                            // Error handling?
+                            if(response.code() >= 300){
+                                // If some error occurred because the post was deleted, we get kicked out of viewing the post anyway
+                                Toast.makeText(fragment.getActivity(), "Something went wrong", Toast.LENGTH_LONG).show();
+                            }
                             if(remoteCallsInProgress.decrementAndGet() == 0){
                                 SynchronizeLocalDB.syncDB(fragment.getActivity(), (success) ->{});
                             }
@@ -312,7 +315,10 @@ public class CommentForPostRecyclerViewAdapter extends RecyclerView.Adapter<Comm
                         // Now we update remote
                         remoteCallsInProgress.incrementAndGet();
                         updateRemoteReactionTable(buttonNumber, (response, responseBody, requestName) -> {
-                            // Error handling?
+                            if(response.code() >= 300){
+                                // If some error occurred because the post was deleted, we get kicked out of viewing the post anyway
+                                Toast.makeText(fragment.getActivity(), "Something went wrong", Toast.LENGTH_LONG).show();
+                            }
                             if(remoteCallsInProgress.decrementAndGet() == 0){
                                 SynchronizeLocalDB.syncDB(fragment.getActivity(), (success) ->{});
                             }

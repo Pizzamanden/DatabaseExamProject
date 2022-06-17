@@ -14,7 +14,7 @@ import com.example.databaseexamproject.room.dataobjects.Reaction;
 import com.example.databaseexamproject.room.dataobjects.User;
 
 // Designate how and what we can interact with here!
-@Database(entities = {User.class, Post.class, Reaction.class, Comment.class}, version = 3)
+@Database(entities = {User.class, Post.class, Reaction.class, Comment.class}, version = 4)
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
     public abstract UserDao userDao();

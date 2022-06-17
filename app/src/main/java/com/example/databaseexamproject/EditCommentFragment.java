@@ -93,8 +93,11 @@ public class EditCommentFragment extends Fragment {
         binding.buttonSubmitDeleteComment.setOnClickListener((v -> {
             Log.d(TAG, "onCreateView: Deleting comment with ID: " + comment_id + " for post with ID: " + post_id);
             // Now we sync, then we go back.
-            Toast.makeText(getActivity(), R.string.comment_deleted, Toast.LENGTH_LONG).show();
-            RemoteDBRequest.deletePost(getActivity(), comment_id, this::syncAndNavigateUp);
+
+            RemoteDBRequest.deletePost(getActivity(), comment_id, () -> {
+                Toast.makeText(getActivity(), R.string.comment_deleted, Toast.LENGTH_LONG).show();
+                syncAndNavigateUp();
+            });
         }));
         // Attach listener to edit the comment into what it says now
         binding.buttonSubmitEditComment.setOnClickListener((v) -> {

@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -197,7 +198,9 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
                         // First we launch a database request. (we do not wait for a response)
                         remoteCallsInProgress.incrementAndGet();
                         updateRemoteReactionTable(buttonPosition, 0, (response, responseBody, requestName) -> {
-                            // Error handling?
+                            if(response.code() >= 300){
+                                Toast.makeText(fragment.getActivity(), "Something went wrong", Toast.LENGTH_LONG).show();
+                            }
                             if(remoteCallsInProgress.decrementAndGet() == 0){
                                 SynchronizeLocalDB.syncDB(fragment.getContext(), (success) ->{});
                             }
@@ -226,7 +229,9 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
                         // Now we update remote
                         remoteCallsInProgress.incrementAndGet();
                         updateRemoteReactionTable(buttonPosition, buttonNumber, (response, responseBody, requestName) -> {
-                            // Error handling?
+                            if(response.code() >= 300){
+                                Toast.makeText(fragment.getActivity(), "Something went wrong", Toast.LENGTH_LONG).show();
+                            }
                             if(remoteCallsInProgress.decrementAndGet() == 0){
                                 SynchronizeLocalDB.syncDB(fragment.getContext(), (success) ->{});
                             }
