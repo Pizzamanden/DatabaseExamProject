@@ -143,17 +143,19 @@ public class ManagePostFragment extends Fragment {
         Log.d(TAG, "submitPost: Content: " + content);
         Log.d(TAG, "submitPost: UserID: " + loggedUserID);
 
-        RemoteDBRequest.post(getContext(), (isExistingPost ? RemoteDBRequest.QUERY_TYPE_UPDATE : RemoteDBRequest.QUERY_TYPE_INSERT),
-                post, (response, responseBody, requestName) -> {
-            // We can check the response of our action here, and handle errors
-
+        RemoteDBRequest.post(getContext(), (isExistingPost ? RemoteDBRequest.QUERY_TYPE_UPDATE : RemoteDBRequest.QUERY_TYPE_INSERT), post, (response, responseBody, requestName) -> {
             // We now sync the local database, to make sure it reflects the new changes!
-            SynchronizeLocalDB.syncDB(getContext(),(success) -> {
-                // And after the sync, we send the user back
+            SynchronizeLocalDB.syncDB(getContext(),(success) -> {});
+            // We can check the response of our action here, and handle errors
+            if(response.code() == 201){
+                // The insert or update was successful!
                 Toast.makeText(getActivity(), (isExistingPost ? R.string.post_changed : R.string.post_created), Toast.LENGTH_LONG).show();
                 NavHostFragment.findNavController(ManagePostFragment.this)
                         .navigateUp();
-            });
+            } else {
+                // Something went wrong
+                Toast.makeText(getActivity(), "Something went wrong", Toast.LENGTH_LONG).show();
+            }
         });
     }
 }
