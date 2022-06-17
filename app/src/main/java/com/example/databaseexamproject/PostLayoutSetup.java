@@ -81,7 +81,7 @@ public class PostLayoutSetup {
             imageViewContentImage.setVisibility(View.GONE);
         }
         // While loop to remove spaces in front of text
-        while (content.charAt(0) == ' ' && content.length() > 1) {
+        while (content.length() > 0 && content.charAt(0) == ' ') {
             content = content.substring(1);
         }
         Log.d(TAG, "onBindViewHolder: " + content);
