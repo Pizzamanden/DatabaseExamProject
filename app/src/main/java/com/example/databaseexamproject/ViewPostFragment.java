@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.fragment.NavHostFragment;
@@ -151,7 +152,14 @@ public class ViewPostFragment extends Fragment {
         return binding.getRoot();
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        getDataForViews();
+    }
+
     public void getDataForViews(){
+        updateLoadingStatus(true);
         SynchronizeLocalDB.syncDB(getActivity(), (success -> {}));
         // We cannot send the data we need
         AppDatabase db = Room.databaseBuilder(getActivity().getApplicationContext(),
@@ -203,6 +211,19 @@ public class ViewPostFragment extends Fragment {
 
         // Create and attach our adapter
         recyclerView.setAdapter(new CommentForPostRecyclerViewAdapter(ViewPostFragment.this, commentsForPost, postData, loggedUserID));
+        updateLoadingStatus(false);
+    }
 
+    public void updateLoadingStatus(boolean isLoading){
+        // We hide relevant views, and show other relevant views, based on loading status
+        if(isLoading){
+            binding.loadingIndicatorViewPost.setVisibility(View.VISIBLE);
+            binding.fabEditPost.setVisibility(View.GONE);
+            binding.recyclerviewSinglePostAndComments.setVisibility(View.GONE);
+        } else {
+            binding.fabEditPost.setVisibility(View.VISIBLE);
+            binding.recyclerviewSinglePostAndComments.setVisibility(View.VISIBLE);
+            binding.loadingIndicatorViewPost.setVisibility(View.GONE);
+        }
     }
 }

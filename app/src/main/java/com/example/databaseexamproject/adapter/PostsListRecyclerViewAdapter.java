@@ -92,6 +92,9 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
 
         // We must scan the content for any images, and fetch them in case they are there
         String content = localData.get(position).post.content;
+        if(content == null){
+            content = "";
+        }
         int[] imageURLLocation = textContainsImageURL(content);
         if (imageURLLocation[1] != 0) {
             holder.imageViewContentImage.setVisibility(View.VISIBLE);
@@ -111,7 +114,7 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
             content = content.substring(1);
         }
         Log.d(TAG, "onBindViewHolder: " + content);
-        if (content != null && content.length() > 200) {
+        if (content.length() > 200) {
             holder.textViewPostText.setText(content.substring(0, 200));
         } else {
             holder.textViewPostText.setText(content);
@@ -263,24 +266,21 @@ public class PostsListRecyclerViewAdapter extends RecyclerView.Adapter<PostsList
     }
 
     private int[] textContainsImageURL(String text){
-        if(text == null){
-            return new int[2];
-        } else {
-            int[] substringLocation = new int[2];
-            String regex = "(http(s?):/)(/[^/]+)+\\.(?:jpg|gif|png)"; // Regex for mathing image urls
-            // Regex explanation:
-            // It was not made by hand, but with a tool, but still:
-            // Group 1: matches (http)(s)(:/), where the (s) is optional
-            // Group 3: It must end with (/)(*)(.)(format) where * is any NOT forward slash character, and format is an allowed image format.
-            // It also breaks the regex if at any point (ignoring the first forward slash in group 1) there are two consequent forward slashes.
-            Pattern pattern = Pattern.compile(regex);
-            Matcher matcher = pattern.matcher(text);
-            if(matcher.find()){
-                substringLocation[0] = matcher.start();
-                substringLocation[1] = matcher.end();
-            }
-            return substringLocation;
+        int[] substringLocation = new int[2];
+        String regex = "(http(s?):/)(/[^/]+)+\\.(?:jpg|gif|png)"; // Regex for mathing image urls
+        // Regex explanation:
+        // It was not made by hand, but with a tool, but still:
+        // Group 1: matches (http)(s)(:/), where the (s) is optional
+        // Group 3: It must end with (/)(*)(.)(format) where * is any NOT forward slash character, and format is an allowed image format.
+        // It also breaks the regex if at any point (ignoring the first forward slash in group 1) there are two consequent forward slashes.
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(text);
+        if(matcher.find()){
+            substringLocation[0] = matcher.start();
+            substringLocation[1] = matcher.end();
         }
+        return substringLocation;
+
     }
 
 }
