@@ -23,7 +23,6 @@ import androidx.room.Room;
 import com.example.databaseexamproject.ManagePostFragment;
 import com.example.databaseexamproject.R;
 import com.example.databaseexamproject.ViewPostFragment;
-import com.example.databaseexamproject.room.AppDatabase;
 import com.example.databaseexamproject.room.DatabaseRequest;
 import com.example.databaseexamproject.room.SynchronizeLocalDB;
 import com.example.databaseexamproject.room.dataobjects.Comment;
