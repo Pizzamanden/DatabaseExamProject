@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -214,6 +215,7 @@ public class CommentForPostRecyclerViewAdapter extends RecyclerView.Adapter<Comm
                 RemoteDBRequest.post(fragment.getActivity(), RemoteDBRequest.QUERY_TYPE_INSERT, post, (response, responseBody, requestName) ->{
                     SynchronizeLocalDB.syncDB(fragment.getActivity(), (success)->{
                         Log.d(TAG, "onCreateView: Comment Created!");
+                        Toast.makeText(fragment.getActivity(), R.string.comment_created, Toast.LENGTH_LONG).show();
                         FragmentTransaction transaction = fragment.getParentFragmentManager().beginTransaction();
                         transaction.detach(fragment);
                         transaction.commit();
