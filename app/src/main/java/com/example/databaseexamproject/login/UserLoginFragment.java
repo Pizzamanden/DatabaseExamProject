@@ -197,7 +197,7 @@ public class UserLoginFragment extends Fragment {
     }
 
     private void showLoginFailed(@StringRes Integer errorString) {
-        //SynchronizeLocalDB.syncDB(getActivity(), (success) ->{});
+        SynchronizeLocalDB.syncDB(getActivity(), (success) ->{});
         Toast.makeText(getActivity(), errorString, Toast.LENGTH_SHORT).show();
     }
 }

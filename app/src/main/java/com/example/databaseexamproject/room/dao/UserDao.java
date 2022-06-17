@@ -10,8 +10,6 @@ import java.util.List;
 
 @Dao
 public interface UserDao {
-    @Query("SELECT * FROM users")
-    List<User> getAll();
 
     @Query("SELECT * FROM users WHERE id LIKE :id")
     User findByName(String id);
