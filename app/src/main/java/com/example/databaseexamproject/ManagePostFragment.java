@@ -212,7 +212,7 @@ public class ManagePostFragment extends Fragment {
             // We now sync the local database, to make sure it reflects the new changes!
             SynchronizeLocalDB.syncDB(getContext(),(success) -> {});
             // We can check the response of our action here, and handle errors
-            if(response.code() == 201){
+            if(response.code() == 201 && response.code() == 204){
                 // The insert or update was successful!
                 Toast.makeText(getActivity(), (isExistingPost ? R.string.post_changed : R.string.post_created), Toast.LENGTH_LONG).show();
                 NavHostFragment.findNavController(ManagePostFragment.this)

@@ -157,8 +157,6 @@ public class UserLoginFragment extends Fragment {
         });
 
         binding.toCreateUserButton.setOnClickListener((v -> {
-            // TODO Insert args into .navigate
-            // Args should be the string of a desired username
             NavHostFragment.findNavController(UserLoginFragment.this)
                     .navigate(R.id.action_userLoginFragment_to_userCreationFragment);
         }));
@@ -184,7 +182,6 @@ public class UserLoginFragment extends Fragment {
 
     private void updateUiWithUser(LoggedInUserView model) {
         String welcome = getString(R.string.welcome) + model.getName();
-        // TODO : initiate successful logged in experience
         Intent intent = new Intent(getActivity(), com.example.databaseexamproject.PostsListActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra("loggedUserID", model.getUserid());

@@ -197,6 +197,7 @@ public class PostLayoutSetup {
             // Update action
             reaction.stamp = userReactionTimestamp;
         } else {
+            // Insert action
             long stamp = System.currentTimeMillis();
             reaction.stamp = new Date(stamp);
             localData.get(dataPosition).stamp = reaction.stamp;

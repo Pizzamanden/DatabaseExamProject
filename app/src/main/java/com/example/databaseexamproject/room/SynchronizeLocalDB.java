@@ -69,11 +69,8 @@ public class SynchronizeLocalDB {
                     switch (table_name){
                         case "users":
                             User[] users = gson.fromJson(response.body().string(), User[].class);
-                            Log.d(TAG, "syncDB: Users: Parsed JSON");
                             db.userDao().deleteEverything();
-                            Log.d(TAG, "syncDB: Users: Deleted table");
                             db.userDao().insertAll(users);
-                            Log.d(TAG, "syncDB: Users: Filled table");
                             break;
                         case "posts":
                             Post[] posts = gson.fromJson(response.body().string(), Post[].class);
@@ -118,28 +115,19 @@ public class SynchronizeLocalDB {
                             // First we handle posts
                             Post[] dummy = new Post[0];
                             Post[] postsOnly = postParsePosts.toArray(dummy);
-                            Log.d(TAG, "syncDB: Posts: Parsed JSON");
                             db.postDao().deleteEverything();
-                            Log.d(TAG, "syncDB: Posts: Deleted table");
                             db.postDao().insertAll(postsOnly);
-                            Log.d(TAG, "syncDB: Posts: Filled table");
 
                             // Then we handle the comments
                             Comment[] dummy2 = new Comment[0];
                             Comment[] commentsOnly = postParseComment.toArray(dummy2);
-                            Log.d(TAG, "syncDB: Comments: Parsed JSON");
                             db.commentDao().deleteEverything();
-                            Log.d(TAG, "syncDB: Comments: Deleted table");
                             db.commentDao().insertAll(commentsOnly);
-                            Log.d(TAG, "syncDB: Comments: Filled table");
                             break;
                         case "reactions":
                             Reaction[] reactions = gson.fromJson(response.body().string(), Reaction[].class);
-                            Log.d(TAG, "syncDB: Reactions: Parsed JSON");
                             db.reactionDao().deleteEverything();
-                            Log.d(TAG, "syncDB: Reactions: Deleted table");
                             db.reactionDao().insertAll(reactions);
-                            Log.d(TAG, "syncDB: Reactions: Filled table");
                             break;
                         default:
                             throw new IllegalStateException("Unexpected value: " + table_name);

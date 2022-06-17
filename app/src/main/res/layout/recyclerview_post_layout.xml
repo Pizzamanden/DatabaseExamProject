@@ -7,80 +7,92 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/textView_userName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="30dp"
-        android:text="The name of the owner of the post"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/textView_postText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:maxLines="20"
-        android:text="The content of a post"
-        app:layout_constraintEnd_toEndOf="@+id/textView_userName"
-        app:layout_constraintStart_toStartOf="@+id/textView_userName"
-        app:layout_constraintTop_toBottomOf="@+id/textView_userName" />
-
-    <ImageView
-        android:id="@+id/imageView_contentImage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView_postText"
-        tools:srcCompat="@tools:sample/avatars" />
-
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:layout_marginBottom="20dp"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="32dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView_contentImage">
+        app:layout_constraintTop_toTopOf="parent">
 
-        <Button
-            android:id="@+id/button_likeReact"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/textView_userName"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="30dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:text="@string/likeReact"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="30dp"
+            android:text="The name of the owner of the post"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <Button
-            android:id="@+id/button_dislikeReact"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/textView_postText"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/dislikeReact"
-            app:layout_constraintBottom_toBottomOf="@+id/button_likeReact"
-            app:layout_constraintEnd_toStartOf="@+id/button_ambivalentReact"
-            app:layout_constraintStart_toEndOf="@+id/button_likeReact"
-            app:layout_constraintTop_toTopOf="@+id/button_likeReact" />
+            android:layout_marginTop="20dp"
+            android:maxLines="20"
+            android:text="The content of a post"
+            app:layout_constraintEnd_toEndOf="@+id/textView_userName"
+            app:layout_constraintStart_toStartOf="@+id/textView_userName"
+            app:layout_constraintTop_toBottomOf="@+id/textView_userName" />
 
-        <Button
-            android:id="@+id/button_ambivalentReact"
+        <ImageView
+            android:id="@+id/imageView_contentImage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="30dp"
-            android:text="@string/ambivalenceReact"
-            app:layout_constraintBottom_toBottomOf="@+id/button_dislikeReact"
+            android:layout_marginTop="30dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/button_dislikeReact" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView_postText"
+            tools:srcCompat="@tools:sample/avatars" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageView_contentImage">
+
+            <Button
+                android:id="@+id/button_likeReact"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:text="@string/likeReact"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/button_dislikeReact"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/dislikeReact"
+                app:layout_constraintBottom_toBottomOf="@+id/button_likeReact"
+                app:layout_constraintEnd_toStartOf="@+id/button_ambivalentReact"
+                app:layout_constraintStart_toEndOf="@+id/button_likeReact"
+                app:layout_constraintTop_toTopOf="@+id/button_likeReact" />
+
+            <Button
+                android:id="@+id/button_ambivalentReact"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="30dp"
+                android:text="@string/ambivalenceReact"
+                app:layout_constraintBottom_toBottomOf="@+id/button_dislikeReact"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/button_dislikeReact" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
